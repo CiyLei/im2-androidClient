@@ -1,0 +1,17 @@
+syntax = "proto3";
+option java_package = "com.dj.im.sdk.message";
+option java_outer_classname = "AuthMessage";
+
+message AuthRequest {
+    string appId = 1;
+    // 应用秘钥
+    string appMobileSecret = 2;
+    // 登录token
+    string token = 3;
+    // 登录设备(0:android,1:ios,2:未知)
+    int32 device = 4;
+    // 被非对称公钥加密后的对称加密秘钥
+    string cipherKey = 5;
+    // 设备唯一识别码
+    string deviceCode = 6;
+}

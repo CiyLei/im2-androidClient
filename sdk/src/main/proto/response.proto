@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "com.dj.im.sdk.message";
+option java_outer_classname = "ResponseMessage";
+
+// 所有的返回需要被这个嵌套
+message Response {
+    bool success = 1;
+    int32 code = 2;
+    string msg = 3;
+    bytes data = 4;
+}
