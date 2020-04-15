@@ -1,6 +1,6 @@
 package com.dj.im.sdk.listener
 
-import com.dj.im.sdk.entity.ImMessage
+import com.dj.im.sdk.message.Message
 
 
 /**
@@ -9,5 +9,5 @@ import com.dj.im.sdk.entity.ImMessage
  */
 interface IImListener {
     fun onConnect(code: Int, message: String)
-    fun onPushMessage(message: ImMessage)
+    fun onPushMessage(message: Message)
 }

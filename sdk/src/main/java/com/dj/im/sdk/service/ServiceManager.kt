@@ -11,7 +11,7 @@ import android.os.Looper
 import android.util.Log
 import com.dj.im.sdk.*
 import com.dj.im.sdk.Constant
-import com.dj.im.sdk.entity.ImMessage
+import com.dj.im.sdk.message.Message
 import com.dj.im.sdk.listener.IImListener
 import com.dj.im.sdk.message.PushMessage
 import com.dj.im.sdk.message.ResponseMessage
@@ -61,12 +61,12 @@ internal class ServiceManager : ServiceConnection {
         override fun onPush(cmdId: Int, data: ByteArray?) {
             Log.d("ServiceManager", "接收到推送内容,data:${Arrays.toString(data)}")
             val response = ResponseMessage.Response.parseFrom(data)
-            mHandler.post {
-                when (cmdId) {
-                    Constant.CMD.PUSH_MESSAGE -> {
-                        // 有推送消息
-                        val pushResponse = PushMessage.PushMessageResponse.parseFrom(response.data)
-                        val message = ImMessage(pushResponse)
+            when (cmdId) {
+                Constant.CMD.PUSH_MESSAGE -> {
+                    // 有推送消息
+                    val pushResponse = PushMessage.PushMessageResponse.parseFrom(response.data)
+                    val message = Message(pushResponse)
+                    mHandler.post {
                         mConnectListeners.forEach { it.onPushMessage(message) }
                     }
                 }

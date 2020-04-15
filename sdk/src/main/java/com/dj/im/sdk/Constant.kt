@@ -14,11 +14,11 @@ internal object Constant {
         /**
          * 发送消息
          */
-        var SEND_MESSAGE = 1004
+        const val SEND_MESSAGE = 1004
         /**
          * 推送消息
          */
-        var PUSH_MESSAGE = 1005
+        const val PUSH_MESSAGE = 1005
     }
 
     object URL {
@@ -30,10 +30,10 @@ internal object Constant {
         /**
          * 单聊
          */
-        var SINGLE = 0
+        const val SINGLE = 0
         /**
          * 群聊
          */
-        var GROUP = 1
+        const val GROUP = 1
     }
 }

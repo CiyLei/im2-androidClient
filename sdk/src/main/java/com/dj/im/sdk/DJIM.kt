@@ -4,7 +4,7 @@ import android.app.ActivityManager
 import android.app.Application
 import android.content.Context.ACTIVITY_SERVICE
 import android.os.Process
-import com.dj.im.sdk.conversation.IConversation
+import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.SingleConversation
 import com.dj.im.sdk.listener.IImListener
 import com.dj.im.sdk.service.ServiceManager
@@ -108,11 +108,21 @@ object DJIM {
     }
 
     /**
-     * 获取单聊的会话
+     * 返回单聊的会话
      */
-    fun getSingleConversation(toUserId: Long): IConversation {
+    fun getSingleConversation(toUserId: Long): Conversation {
         assertionInit()
+        // TODO 缓存起来，不必每次都创建一个
         return SingleConversation(toUserId)
+    }
+
+    /**
+     * 获取所有的会话
+     */
+    fun getAllConversations(): List<Conversation> {
+        assertionInit()
+        // TODO 获取所有的会话
+        return emptyList()
     }
 
     /**

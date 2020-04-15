@@ -3,11 +3,10 @@ package com.dj.im
 import android.os.Bundle
 import cn.jiguang.imui.chatinput.listener.OnMenuClickListener
 import cn.jiguang.imui.chatinput.model.FileItem
-import cn.jiguang.imui.commons.models.IMessage
 import cn.jiguang.imui.messages.MsgListAdapter
 import com.dj.im.sdk.DJIM
-import com.dj.im.sdk.conversation.IConversation
-import com.dj.im.sdk.entity.ImMessage
+import com.dj.im.sdk.conversation.Conversation
+import com.dj.im.sdk.message.TextMessage
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlin.properties.Delegates
 
@@ -19,7 +18,7 @@ class ChatActivity : BaseActivity() {
 
     var userId by Delegates.notNull<Long>()
     val adapter = MsgListAdapter<MyMessage>("0", null)
-    lateinit var conversation: IConversation
+    lateinit var conversation: Conversation
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +41,7 @@ class ChatActivity : BaseActivity() {
             override fun switchToGalleryMode(): Boolean = true
 
             override fun onSendTextMessage(input: CharSequence?): Boolean {
-                conversation.sendMessage(ImMessage(0, input.toString(), ""))
+                conversation.sendMessage(TextMessage(input.toString()))
                 adapter.addToStart(
                     MyMessage(
                         DefaultUser(

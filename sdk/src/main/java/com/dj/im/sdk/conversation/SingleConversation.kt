@@ -1,7 +1,7 @@
 package com.dj.im.sdk.conversation
 
 import com.dj.im.sdk.Constant
-import com.dj.im.sdk.entity.ImMessage
+import com.dj.im.sdk.message.Message
 import com.dj.im.sdk.message.SendMessage
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.utils.EncryptUtil
@@ -11,28 +11,22 @@ import com.dj.im.sdk.utils.EncryptUtil
  * Create by ChenLei on 2020/4/14
  * Describe: 单聊会话
  */
-internal class SingleConversation(val toUserId: Long) : IConversation {
+internal class SingleConversation(val toUserId: Long) : Conversation() {
 
-    override fun sendMessage(message: ImMessage) {
-        val sendMessageRequest =
-            SendMessage.SendMessageRequest.newBuilder().setConversationId(generateConversationId())
-                .setConversationType(getConversationType())
-                .setFromId(getFromUserId()).setToId(toUserId).setType(message.type)
-                .setData(message.data).setSummary(message.summary).build()
-        ServiceManager.instance.sendMessage(
-            Constant.CMD.SEND_MESSAGE,
-            sendMessageRequest.toByteArray()
-        )
+    override fun convertMessage(message: Message): SendMessage.SendMessageRequest {
+        return SendMessage.SendMessageRequest.newBuilder()
+            .setConversationId(getConversationId())
+            .setConversationType(Constant.ConversationType.SINGLE)
+            .setFromId(getFromUserId()).setToId(toUserId).setType(message.type)
+            .setData(message.data).setSummary(message.summary).build()
     }
 
-
-    override fun generateConversationId(): String {
+    /**
+     * 生成单聊的会话id
+     */
+    override fun getConversationId(): String {
         return generateConversationId(getFromUserId(), toUserId)
     }
-
-    override fun getConversationType(): Int = Constant.ConversationType.SINGLE
-
-    private fun getFromUserId(): Long = ServiceManager.instance.getUserId() ?: 0
 
     /**
      * 生成两个用户的会话id
