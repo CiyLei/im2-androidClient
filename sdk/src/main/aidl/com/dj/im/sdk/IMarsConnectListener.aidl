@@ -5,5 +5,5 @@ package com.dj.im.sdk;
 
 // 连接回调
 interface IMarsConnectListener {
-    void result(int resultCode, String resultMessage);
+    void onResult(int resultCode, String resultMessage);
 }

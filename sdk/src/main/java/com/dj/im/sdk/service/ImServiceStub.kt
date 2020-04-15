@@ -1,11 +1,10 @@
 package com.dj.im.sdk.service
 
-import com.dj.im.sdk.IImService
-import com.dj.im.sdk.IMarsConnectListener
-import com.dj.im.sdk.ResultEnum
+import com.dj.im.sdk.*
 import com.dj.im.sdk.net.RetrofitManager
 import com.dj.im.sdk.utils.RxUtil.o
 import com.tencent.mars.BaseEvent
+import com.tencent.mars.stn.StnLogic
 import io.reactivex.disposables.CompositeDisposable
 
 
@@ -26,16 +25,26 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
     override fun connect(token: String, listener: IMarsConnectListener?) {
         mCompositeDisposable.add(RetrofitManager.instance.apiStore.dns().o().subscribe({
             if (it.success) {
-                ImService.SERVER_SITUATION = it.data
+                service.serverList = it.data
                 // 开启Mars服务
                 service.openMars(token, listener)
             } else {
-                listener?.result(it.code.toInt(), it.msg)
+                listener?.onResult(it.code.toInt(), it.msg)
             }
         }, {
-            listener?.result(ResultEnum.Error_Request.code, ResultEnum.Error_Request.message)
+            listener?.onResult(ResultEnum.Error_Request.code, ResultEnum.Error_Request.message)
         }))
     }
+
+    /**
+     * 获取用户id
+     */
+    override fun getUserId(): Long = service.userId
+
+    /**
+     * 获取用户名
+     */
+    override fun getUserName(): String = service.userName
 
     /**
      * 退出登录
@@ -51,5 +60,18 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
      */
     override fun onForeground(foreground: Boolean) {
         BaseEvent.onForeground(foreground)
+    }
+
+    /**
+     * 设置Mars的回调
+     */
+    override fun setOnMarsListener(listener: IMarsListener?) {
+        service.marsListener = listener
+    }
+
+    override fun sendMessage(cmdId: Int, messageData: ByteArray) {
+        val task = StnLogic.Task(StnLogic.Task.ELong, cmdId, "", ArrayList())
+        StnLogic.startTask(task)
+        service.tasks[task.taskID] = messageData
     }
 }

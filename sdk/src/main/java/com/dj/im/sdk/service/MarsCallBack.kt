@@ -52,7 +52,19 @@ internal class MarsCallBack(
      * @param data
      */
     override fun onPush(cmdid: Int, data: ByteArray?) {
-        Log.i("MarsCallBack", "cmdid:$cmdid  data:${Arrays.toString(data)}")
+        // 解密
+        val responseData = EncryptUtil.symmetricDecrypt(cipherKey, data)
+        if (responseData != null) {
+            Log.d(
+                "MarsCallBack",
+                "【推送解密成功,cmdid:$cmdid,秘钥:${Arrays.toString(cipherKey)},解密前:${Arrays.toString(data)},解密后:${Arrays.toString(
+                    responseData
+                )}】"
+            )
+            service.marsListener?.onPush(cmdid, responseData)
+        } else {
+            Log.d("MarsCallBack", "【推送解密失败,cmdid:$cmdid,data:${Arrays.toString(data)}】")
+        }
     }
 
     /**
@@ -63,7 +75,7 @@ internal class MarsCallBack(
     override fun onNewDns(host: String?): Array<String>? {
         if (host == ImService.HOST) {
             // 返回推荐服务器地址
-            return arrayOf(ImService.SERVER_SITUATION!!.recommend)
+            return arrayOf(service.serverList!!.recommend)
         }
         return null
     }
@@ -126,7 +138,23 @@ internal class MarsCallBack(
         errCode: IntArray?,
         channelSelect: Int
     ): Int {
-        return StnLogic.RESP_FAIL_HANDLE_NORMAL
+        val bytes = service.tasks[taskID]
+        service.tasks.remove(taskID)
+        if (bytes == null) {
+            return StnLogic.RESP_FAIL_HANDLE_TASK_END
+        }
+        try {
+            // 解密
+            val responseData = EncryptUtil.symmetricDecrypt(cipherKey, respBuffer)
+            val response = ResponseMessage.Response.parseFrom(responseData)
+            Log.d(
+                "MarsCallBack",
+                "【返回结果解密成功,code:${response.code},data:${Arrays.toString(response.data.toByteArray())}】"
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return StnLogic.RESP_FAIL_HANDLE_TASK_END
     }
 
     /**
@@ -146,13 +174,14 @@ internal class MarsCallBack(
         // 对称加密后的密文
         val asymmetricalEncrypt = EncryptUtil.asymmetricalEncrypt(cipherKey)
         // 发送验证
-        val request = AuthMessage.AuthRequest.newBuilder().setAppId(ImService.APP_ID)
-            .setAppMobileSecret(ImService.APP_SECRET).setToken(token).setDevice(0)
-            .setDeviceCode(ImService.DEVICE_CODE)
+        val request = AuthMessage.AuthRequest.newBuilder().setAppId(service.appId)
+            .setAppMobileSecret(service.appSecret).setToken(token).setDevice(0)
+            .setDeviceCode(service.deviceCode)
             .setCipherKey(HexUtil.hex2String(asymmetricalEncrypt))
             .build()
         identifyReqBuf?.write(request.toByteArray())
         reqRespCmdID?.set(0, Constant.CMD.AUTH)
+        Log.d("MarsCallBack", "【连接交换秘钥：${Arrays.toString(cipherKey)}】")
         return StnLogic.ECHECK_NOW
     }
 
@@ -165,9 +194,12 @@ internal class MarsCallBack(
     override fun onLongLinkIdentifyResp(buffer: ByteArray?, hashCodeBuffer: ByteArray?): Boolean {
         val response = ResponseMessage.Response.parseFrom(buffer)
         if (response.success) {
-            listener?.result(ResultEnum.Success.code, ResultEnum.Success.message)
+            val authResponse = AuthMessage.AuthResponse.parseFrom(response.data)
+            service.userId = authResponse.userId
+            service.userName = authResponse.userName
+            listener?.onResult(ResultEnum.Success.code, ResultEnum.Success.message)
         } else {
-            listener?.result(response.code, response.msg)
+            listener?.onResult(response.code, response.msg)
         }
         return response.success
     }
@@ -188,7 +220,25 @@ internal class MarsCallBack(
         channelSelect: Int,
         host: String?
     ): Boolean {
-        return true
+        val data = service.tasks[taskID]
+        if (data != null) {
+            try {
+                // 加密，发送消息
+                val symmetricEncrypt = EncryptUtil.symmetricEncrypt(cipherKey, data)
+                reqBuffer?.write(symmetricEncrypt)
+                Log.d(
+                    "MarsCallBack",
+                    "【发送消息成功,秘钥:${Arrays.toString(cipherKey)},加密后的内容:${Arrays.toString(
+                        symmetricEncrypt
+                    )}】"
+                )
+                return true
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return false
+            }
+        }
+        return false
     }
 
     /**

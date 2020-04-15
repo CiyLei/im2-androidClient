@@ -16,14 +16,26 @@ class ConversationActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_conversation)
 
+        title = DJIM.getUserName()
+
         btnLogout.setOnClickListener { logout() }
-        btnTest.setOnClickListener {
-            startActivity(
-                Intent(
-                    this@ConversationActivity,
-                    TestActivity::class.java
-                )
-            )
+        fl1.setOnClickListener {
+            startActivity(Intent(this, ChatActivity::class.java).apply {
+                putExtra("userName", "q903736665")
+                putExtra("userId", 697027057683677184L)
+            })
+        }
+        fl2.setOnClickListener {
+            startActivity(Intent(this, ChatActivity::class.java).apply {
+                putExtra("userName", "q903736668")
+                putExtra("userId", 697032868820094976L)
+            })
+        }
+        fl3.setOnClickListener {
+            startActivity(Intent(this, ChatActivity::class.java).apply {
+                putExtra("userName", "q903736669")
+                putExtra("userId", 697417018887741440L)
+            })
         }
     }
 

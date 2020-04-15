@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import com.dj.im.sdk.IMarsConnectListener
+import com.dj.im.sdk.IMarsListener
 import com.dj.im.sdk.ResultEnum
 import com.dj.im.sdk.entity.ServerSituationEntity
 import com.tencent.mars.BaseEvent
@@ -13,6 +14,7 @@ import com.tencent.mars.Mars
 import com.tencent.mars.app.AppLogic
 import com.tencent.mars.sdt.SdtLogic
 import com.tencent.mars.stn.StnLogic
+import java.util.concurrent.ConcurrentHashMap
 
 
 /**
@@ -26,13 +28,24 @@ internal class ImService : Service() {
         const val HOST = "localhost"
         // 客户端版本
         const val CLIENT_VERSION = 200
-        // 推荐连接的服务器信息
-        var SERVER_SITUATION: ServerSituationEntity? = null
-
-        lateinit var APP_ID: String
-        lateinit var APP_SECRET: String
-        lateinit var DEVICE_CODE: String
     }
+
+    // 推荐连接的服务器信息
+    var serverList: ServerSituationEntity? = null
+    // 用户id
+    var userId: Long = 0L
+    // 用户名
+    var userName: String = ""
+    // app应用id
+    lateinit var appId: String
+    // app秘钥
+    lateinit var appSecret: String
+    // 设备码
+    lateinit var deviceCode: String
+    // 回调列表
+    var marsListener: IMarsListener? = null
+    // 发送任务列表
+    val tasks: ConcurrentHashMap<Int, ByteArray> = ConcurrentHashMap();
 
     override fun onBind(intent: Intent?): IBinder? = ImServiceStub(this)
 
@@ -41,10 +54,15 @@ internal class ImService : Service() {
         Mars.loadDefaultMarsLibrary()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        closeMars()
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        APP_ID = intent!!.getStringExtra("appId")
-        APP_SECRET = intent.getStringExtra("appSecret")
-        DEVICE_CODE = intent.getStringExtra("deviceCode")
+        appId = intent!!.getStringExtra("appId")
+        appSecret = intent.getStringExtra("appSecret")
+        deviceCode = intent.getStringExtra("deviceCode")
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -53,7 +71,7 @@ internal class ImService : Service() {
      */
     fun openMars(token: String, listener: IMarsConnectListener? = null) {
         // 推荐服务器不为空
-        if (SERVER_SITUATION != null && SERVER_SITUATION!!.recommend.isNotEmpty()) {
+        if (serverList != null && serverList!!.recommend.isNotEmpty()) {
             val callBack = MarsCallBack(this, token, listener)
             // 设置回调事件
             AppLogic.setCallBack(callBack)
@@ -62,11 +80,11 @@ internal class ImService : Service() {
             // 初始化Mars的平台连接
             Mars.init(applicationContext, Handler(Looper.getMainLooper()))
             // 初始化Mars
-            StnLogic.setLonglinkSvrAddr(HOST, SERVER_SITUATION!!.ports.toIntArray())
+            StnLogic.setLonglinkSvrAddr(HOST, serverList!!.ports.toIntArray())
             // 设置备用地址
             StnLogic.setBackupIPs(
                 HOST,
-                Array(SERVER_SITUATION!!.all.size) { SERVER_SITUATION!!.all[it] })
+                Array(serverList!!.all.size) { serverList!!.all[it] })
             StnLogic.setClientVersion(CLIENT_VERSION)
             Mars.onCreate(true)
             // 开始连接
@@ -74,7 +92,7 @@ internal class ImService : Service() {
             StnLogic.makesureLongLinkConnected()
         } else {
             // 失败
-            listener?.result(ResultEnum.Error_Empty.code, ResultEnum.Error_Empty.message)
+            listener?.onResult(ResultEnum.Error_Empty.code, ResultEnum.Error_Empty.message)
         }
     }
 
@@ -84,6 +102,7 @@ internal class ImService : Service() {
     fun closeMars() {
         StnLogic.clearTask()
         Mars.onDestroy()
+        marsListener = null
     }
 
 }

@@ -15,3 +15,8 @@ message AuthRequest {
     // 设备唯一识别码
     string deviceCode = 6;
 }
+
+message AuthResponse {
+    int64 userId = 1;
+    string userName = 2;
+}
