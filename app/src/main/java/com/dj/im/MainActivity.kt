@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val loginListener = object : IImListener() {
-        override fun onConnect(code: Int, message: String) {
+        override fun onLogin(code: Int, message: String) {
             if (code == ResultEnum.Success.code) {
                 Toast.makeText(
                     this@MainActivity,

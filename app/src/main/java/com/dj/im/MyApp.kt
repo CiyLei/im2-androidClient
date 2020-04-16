@@ -18,9 +18,10 @@ class MyApp : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         DJIM.addImListener(object : IImListener() {
-            override fun onConnect(code: Int, message: String) {
+            override fun onLogin(code: Int, message: String) {
                 if (code != ResultEnum.Success.code) {
                     Toast.makeText(this@MyApp, message, Toast.LENGTH_SHORT).show()
+                    // 回到登录页
                 }
             }
 

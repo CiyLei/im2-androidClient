@@ -59,7 +59,7 @@ internal class ServiceManager : ServiceConnection {
 
         override fun onConnect(code: Int, message: String) {
             mHandler.post {
-                mImListeners.forEach { it.onConnect(code, message) }
+                mImListeners.forEach { it.onLogin(code, message) }
             }
         }
     }

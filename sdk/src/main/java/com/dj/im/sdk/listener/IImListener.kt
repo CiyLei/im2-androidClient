@@ -8,6 +8,6 @@ import com.dj.im.sdk.message.Message
  * Describe: 监听连接情况的回调
  */
 open class IImListener {
-    open fun onConnect(code: Int, message: String) {}
+    open fun onLogin(code: Int, message: String) {}
     open fun onPushMessage(message: Message) {}
 }
