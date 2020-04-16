@@ -45,9 +45,9 @@ object DJIM {
      *
      * @param token 登录Token
      */
-    fun login(token: String, listener: ((Int, String?) -> Unit)? = null) {
+    fun login(token: String) {
         assertionInit()
-        ServiceManager.instance.login(token, listener)
+        ServiceManager.instance.login(token)
     }
 
     /**
@@ -87,7 +87,6 @@ object DJIM {
      * 添加连接情况监听
      */
     fun addImListener(listener: IImListener) {
-        assertionInit()
         ServiceManager.instance.addImListener(listener)
     }
 
@@ -95,7 +94,6 @@ object DJIM {
      * 移除连接情况监听
      */
     fun removeImListener(listener: IImListener) {
-        assertionInit()
         ServiceManager.instance.removeImListener(listener)
     }
 
@@ -103,7 +101,6 @@ object DJIM {
      * 清空连接情况监听
      */
     fun clearImListener() {
-        assertionInit()
         ServiceManager.instance.clearImListener()
     }
 

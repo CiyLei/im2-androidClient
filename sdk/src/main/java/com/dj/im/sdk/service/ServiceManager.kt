@@ -37,25 +37,9 @@ internal class ServiceManager : ServiceConnection {
     private lateinit var mDeviceCode: String
     private lateinit var mApplication: Application
     private var mHandler = Handler(Looper.getMainLooper())
-    // 登录回调
-    private var mLoginListener: ((Int, String?) -> Unit)? = null
     // 连接情况回调
-    private var mConnectListeners = ArrayList<IImListener>()
+    private var mImListeners = ArrayList<IImListener>()
     private var mImService: IImService? = null
-    // 监听连接情况
-    private val mConnectListener = object : IMarsConnectListener.Stub() {
-        override fun onResult(resultCode: Int, resultMessage: String) {
-            mHandler.post {
-                mLoginListener?.invoke(resultCode, resultMessage)
-                mConnectListeners.forEach { it.onConnect(resultCode, resultMessage) }
-                // 如果失败了，就关闭Mars
-                if (resultCode != ResultEnum.Success.code) {
-                    mImService?.disconnect()
-                }
-                mLoginListener = null
-            }
-        }
-    }
     // 监听Mars的回调
     private val mMarsListener = object : IMarsListener.Stub() {
         override fun onPush(cmdId: Int, data: ByteArray?) {
@@ -67,9 +51,15 @@ internal class ServiceManager : ServiceConnection {
                     val pushResponse = PushMessage.PushMessageResponse.parseFrom(response.data)
                     val message = Message(pushResponse)
                     mHandler.post {
-                        mConnectListeners.forEach { it.onPushMessage(message) }
+                        mImListeners.forEach { it.onPushMessage(message) }
                     }
                 }
+            }
+        }
+
+        override fun onConnect(code: Int, message: String) {
+            mHandler.post {
+                mImListeners.forEach { it.onConnect(code, message) }
             }
         }
     }
@@ -92,17 +82,17 @@ internal class ServiceManager : ServiceConnection {
      *
      * @param token 登录Token
      */
-    fun login(token: String, listener: ((Int, String?) -> Unit)? = null) {
+    fun login(token: String) {
         checkStartService()
-        mLoginListener = listener
-        mImService?.connect(token, mConnectListener)
         mImService?.setOnMarsListener(mMarsListener)
+        mImService?.connect(token)
     }
 
     /**
      * 退出登录
      */
     fun logout() {
+        mImService?.setOnMarsListener(null)
         mImService?.disconnect()
     }
 
@@ -135,21 +125,21 @@ internal class ServiceManager : ServiceConnection {
      * 添加连接情况监听
      */
     fun addImListener(listener: IImListener) {
-        mConnectListeners.add(listener)
+        mImListeners.add(listener)
     }
 
     /**
      * 移除连接情况监听
      */
     fun removeImListener(listener: IImListener) {
-        mConnectListeners.remove(listener)
+        mImListeners.remove(listener)
     }
 
     /**
      * 清空连接情况监听
      */
     fun clearImListener() {
-        mConnectListeners.clear()
+        mImListeners.clear()
     }
 
     /**
@@ -173,12 +163,15 @@ internal class ServiceManager : ServiceConnection {
      */
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         mImService = IImService.Stub.asInterface(service)
+        mImService?.setOnMarsListener(mMarsListener)
+        mImService?.autoConnect()
     }
 
     /**
      * 断开连接ImService
      */
     override fun onServiceDisconnected(name: ComponentName?) {
+        mImService?.setOnMarsListener(null)
         mImService = null
     }
 }

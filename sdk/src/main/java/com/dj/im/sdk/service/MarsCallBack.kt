@@ -2,12 +2,12 @@ package com.dj.im.sdk.service
 
 import android.util.Log
 import com.dj.im.sdk.Constant
-import com.dj.im.sdk.IMarsConnectListener
 import com.dj.im.sdk.ResultEnum
 import com.dj.im.sdk.message.AuthMessage
 import com.dj.im.sdk.message.ResponseMessage
 import com.dj.im.sdk.utils.EncryptUtil
 import com.dj.im.sdk.utils.HexUtil
+import com.dj.im.sdk.utils.SpUtil
 import com.tencent.mars.app.AppLogic
 import com.tencent.mars.sdt.SdtLogic
 import com.tencent.mars.stn.StnLogic
@@ -19,11 +19,8 @@ import java.util.*
  * Create by ChenLei on 2020/4/11
  * Describe: Mars各种回调
  */
-internal class MarsCallBack(
-    private val service: ImService,
-    val token: String,
-    private val listener: IMarsConnectListener?
-) : SdtLogic.ICallBack, StnLogic.ICallBack,
+internal class MarsCallBack(private val service: ImService, val token: String) : SdtLogic.ICallBack,
+    StnLogic.ICallBack,
     AppLogic.ICallBack {
 
     companion object {
@@ -197,9 +194,12 @@ internal class MarsCallBack(
             val authResponse = AuthMessage.AuthResponse.parseFrom(response.data)
             service.userId = authResponse.userId
             service.userName = authResponse.userName
-            listener?.onResult(ResultEnum.Success.code, ResultEnum.Success.message)
+            service.marsListener?.onConnect(ResultEnum.Success.code, ResultEnum.Success.message)
+            // 保存token
+            SpUtil.getSp(service).edit().putString(ImService.SP_KEY_TOKEN, token).apply()
         } else {
-            listener?.onResult(response.code, response.msg)
+            service.marsListener?.onConnect(response.code, response.msg)
+            service.clearToken()
         }
         return response.success
     }

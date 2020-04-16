@@ -5,10 +5,10 @@ import android.content.Intent
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import com.dj.im.sdk.IMarsConnectListener
 import com.dj.im.sdk.IMarsListener
 import com.dj.im.sdk.ResultEnum
 import com.dj.im.sdk.entity.ServerSituationEntity
+import com.dj.im.sdk.utils.SpUtil
 import com.tencent.mars.BaseEvent
 import com.tencent.mars.Mars
 import com.tencent.mars.app.AppLogic
@@ -28,6 +28,8 @@ internal class ImService : Service() {
         const val HOST = "localhost"
         // 客户端版本
         const val CLIENT_VERSION = 200
+        // token在sp中的key
+        const val SP_KEY_TOKEN = "token"
     }
 
     // 推荐连接的服务器信息
@@ -55,8 +57,9 @@ internal class ImService : Service() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         closeMars()
+        marsListener = null
+        super.onDestroy()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -69,10 +72,12 @@ internal class ImService : Service() {
     /**
      * 开启Mars服务
      */
-    fun openMars(token: String, listener: IMarsConnectListener? = null) {
+    fun openMars(token: String) {
+        // 先关闭Mars
+        closeMars()
         // 推荐服务器不为空
         if (serverList != null && serverList!!.recommend.isNotEmpty()) {
-            val callBack = MarsCallBack(this, token, listener)
+            val callBack = MarsCallBack(this, token)
             // 设置回调事件
             AppLogic.setCallBack(callBack)
             StnLogic.setCallBack(callBack)
@@ -92,7 +97,7 @@ internal class ImService : Service() {
             StnLogic.makesureLongLinkConnected()
         } else {
             // 失败
-            listener?.onResult(ResultEnum.Error_Empty.code, ResultEnum.Error_Empty.message)
+            marsListener?.onConnect(ResultEnum.Error_Empty.code, ResultEnum.Error_Empty.message)
         }
     }
 
@@ -102,7 +107,13 @@ internal class ImService : Service() {
     fun closeMars() {
         StnLogic.clearTask()
         Mars.onDestroy()
-        marsListener = null
+    }
+
+    /**
+     * 移除token
+     */
+    fun clearToken() {
+        SpUtil.getSp(this).edit().remove(SP_KEY_TOKEN).apply()
     }
 
 }

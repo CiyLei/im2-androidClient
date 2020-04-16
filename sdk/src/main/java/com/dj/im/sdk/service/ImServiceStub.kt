@@ -3,6 +3,7 @@ package com.dj.im.sdk.service
 import com.dj.im.sdk.*
 import com.dj.im.sdk.net.RetrofitManager
 import com.dj.im.sdk.utils.RxUtil.o
+import com.dj.im.sdk.utils.SpUtil
 import com.tencent.mars.BaseEvent
 import com.tencent.mars.stn.StnLogic
 import io.reactivex.disposables.CompositeDisposable
@@ -15,24 +16,41 @@ import io.reactivex.disposables.CompositeDisposable
 internal class ImServiceStub(private val service: ImService) : IImService.Stub() {
 
     // 管理订阅
-    private val mCompositeDisposable = CompositeDisposable()
+    private var mCompositeDisposable = CompositeDisposable()
+
+    /**
+     * 自动登录（检测是否有token缓存）
+     */
+    override fun autoConnect() {
+        // 如果存在token，马上连接
+        SpUtil.getSp(service).getString(ImService.SP_KEY_TOKEN, "")?.let {
+            if (it.isNotBlank()) {
+                connect(it)
+            }
+        }
+    }
 
     /**
      * 登录
      *
      * @param token 登录Token
      */
-    override fun connect(token: String, listener: IMarsConnectListener?) {
+    override fun connect(token: String) {
+        mCompositeDisposable.dispose()
+        mCompositeDisposable = CompositeDisposable()
         mCompositeDisposable.add(RetrofitManager.instance.apiStore.dns().o().subscribe({
             if (it.success) {
                 service.serverList = it.data
                 // 开启Mars服务
-                service.openMars(token, listener)
+                service.openMars(token)
             } else {
-                listener?.onResult(it.code.toInt(), it.msg)
+                service.marsListener?.onConnect(it.code.toInt(), it.msg)
             }
         }, {
-            listener?.onResult(ResultEnum.Error_Request.code, ResultEnum.Error_Request.message)
+            service.marsListener?.onConnect(
+                ResultEnum.Error_Request.code,
+                ResultEnum.Error_Request.message
+            )
         }))
     }
 
@@ -52,6 +70,8 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
     override fun disconnect() {
         // 关闭Mars服务
         service.closeMars()
+        service.clearToken()
+        service.marsListener = null
         mCompositeDisposable.clear()
     }
 

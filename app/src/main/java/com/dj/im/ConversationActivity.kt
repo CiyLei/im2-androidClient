@@ -41,6 +41,7 @@ class ConversationActivity : BaseActivity() {
 
     private fun logout() {
         DJIM.logout()
+        startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
 }
