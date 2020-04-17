@@ -19,6 +19,10 @@ internal object Constant {
          * 推送消息
          */
         const val PUSH_MESSAGE = 1005
+        /**
+         * 推送会话
+         */
+        var PUSH_CONVERSATION = 1006
     }
 
     object URL {
@@ -26,6 +30,9 @@ internal object Constant {
         const val DNS = "/dns/server"
     }
 
+    /**
+     * 会话类型
+     */
     object ConversationType {
         /**
          * 单聊
@@ -35,5 +42,12 @@ internal object Constant {
          * 群聊
          */
         const val GROUP = 1
+    }
+
+    /**
+     * 消息类型
+     */
+    object MessageType {
+        const val TEXT = 0
     }
 }

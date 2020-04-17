@@ -5,7 +5,7 @@ package com.dj.im.sdk.entity
  * Create by ChenLei on 2020/4/11
  * Describe: 服务连接情况
  */
-data class ServerSituationEntity(
+internal data class ServerSituationEntity(
     /**
      * 所有端口
      */

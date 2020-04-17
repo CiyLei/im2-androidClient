@@ -1,6 +1,7 @@
 package com.dj.im.sdk.service
 
 import com.dj.im.sdk.*
+import com.dj.im.sdk.message.SendMessage
 import com.dj.im.sdk.net.RetrofitManager
 import com.dj.im.sdk.utils.RxUtil.o
 import com.dj.im.sdk.utils.SpUtil
@@ -89,9 +90,9 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
         service.marsListener = listener
     }
 
-    override fun sendMessage(cmdId: Int, messageData: ByteArray) {
-        val task = StnLogic.Task(StnLogic.Task.ELong, cmdId, "", ArrayList())
-        StnLogic.startTask(task)
-        service.tasks[task.taskID] = messageData
+    override fun sendTask(task: ITask) {
+        val marsTask = StnLogic.Task(StnLogic.Task.ELong, Constant.CMD.SEND_MESSAGE, "", ArrayList())
+        service.tasks[marsTask.taskID] = task
+        StnLogic.startTask(marsTask)
     }
 }

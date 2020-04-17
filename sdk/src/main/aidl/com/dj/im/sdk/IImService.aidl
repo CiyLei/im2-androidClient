@@ -2,6 +2,7 @@
 package com.dj.im.sdk;
 
 import com.dj.im.sdk.IMarsListener;
+import com.dj.im.sdk.ITask;
 // Declare any non-default types here with import statements
 
 interface IImService {
@@ -13,5 +14,5 @@ interface IImService {
     long getUserId();
     String getUserName();
     void setOnMarsListener(IMarsListener listener);
-    void sendMessage(int cmdId, in byte[] messageData);
+    void sendTask(ITask task);
 }

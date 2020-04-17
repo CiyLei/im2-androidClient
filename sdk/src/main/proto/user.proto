@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "com.dj.im.server.modules.im.message";
+option java_outer_classname = "User";
+
+message UserResponse {
+    int64 userId = 1;
+    string userName = 2;
+    string alias = 3;
+    string avatarUrl = 4;
+}

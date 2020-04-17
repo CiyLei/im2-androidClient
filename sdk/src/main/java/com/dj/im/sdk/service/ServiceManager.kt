@@ -9,13 +9,11 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import com.dj.im.sdk.*
-import com.dj.im.sdk.Constant
-import com.dj.im.sdk.message.Message
+import com.dj.im.sdk.db.MessageDao
+import com.dj.im.sdk.entity.message.Message
 import com.dj.im.sdk.listener.IImListener
-import com.dj.im.sdk.message.PushMessage
-import com.dj.im.sdk.message.ResponseMessage
-import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -23,7 +21,7 @@ import kotlin.collections.ArrayList
  * Create by ChenLei on 2020/4/11
  * Describe: 服务管理类
  */
-internal class ServiceManager : ServiceConnection {
+internal class ServiceManager private constructor() : ServiceConnection {
 
     companion object {
         // 线程安全获取单例
@@ -32,39 +30,32 @@ internal class ServiceManager : ServiceConnection {
         }
     }
 
+    val messageDao: MessageDao by lazy { MessageDao(mApplication) }
+
     private lateinit var mAppId: String
     private lateinit var mAppSecret: String
     private lateinit var mDeviceCode: String
     private lateinit var mApplication: Application
+    private lateinit var mMessageDao: MessageDao
     private var mHandler = Handler(Looper.getMainLooper())
     // 连接情况回调
     private var mImListeners = ArrayList<IImListener>()
     private var mImService: IImService? = null
     // 监听Mars的回调
     private val mMarsListener = object : IMarsListener.Stub() {
-        override fun onPush(cmdId: Int, data: ByteArray?) {
-            Log.d("ServiceManager", "接收到推送内容,data:${Arrays.toString(data)}")
-            val response = ResponseMessage.Response.parseFrom(data)
-            when (cmdId) {
-                Constant.CMD.PUSH_MESSAGE -> {
-                    // 有推送消息
-                    val pushResponse = PushMessage.PushMessageResponse.parseFrom(response.data)
-                    val message = Message(pushResponse)
-                    mHandler.post {
-                        mImListeners.forEach { it.onPushMessage(message) }
-                    }
-                }
-            }
-        }
 
         override fun onConnect(code: Int, message: String) {
             mHandler.post {
                 mImListeners.forEach { it.onLogin(code, message) }
             }
         }
-    }
 
-    private fun ServiceManager() {}
+        override fun onPushMessage(messageId: Long) {
+            mHandler.post {
+                Toast.makeText(mApplication, "消息ID:$messageId", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     /**
      * 初始化
@@ -74,6 +65,7 @@ internal class ServiceManager : ServiceConnection {
         mAppId = appId
         mAppSecret = appSecret
         mDeviceCode = deviceCode
+        mMessageDao = MessageDao(application)
         checkStartService()
     }
 
@@ -109,8 +101,8 @@ internal class ServiceManager : ServiceConnection {
     /**
      * 发送消息
      */
-    fun sendMessage(cmdId: Int, messageData: ByteArray) {
-        mImService?.sendMessage(cmdId, messageData)
+    fun sendMessage(message: Message) {
+        mImService?.sendTask(message)
     }
 
     /**

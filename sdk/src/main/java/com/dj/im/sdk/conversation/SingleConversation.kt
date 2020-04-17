@@ -1,9 +1,7 @@
 package com.dj.im.sdk.conversation
 
 import com.dj.im.sdk.Constant
-import com.dj.im.sdk.message.Message
-import com.dj.im.sdk.message.SendMessage
-import com.dj.im.sdk.service.ServiceManager
+import com.dj.im.sdk.entity.message.Message
 import com.dj.im.sdk.utils.EncryptUtil
 
 
@@ -11,21 +9,24 @@ import com.dj.im.sdk.utils.EncryptUtil
  * Create by ChenLei on 2020/4/14
  * Describe: 单聊会话
  */
-internal class SingleConversation(val toUserId: Long) : Conversation() {
+internal class SingleConversation(private val mToUserId: Long) : Conversation() {
 
-    override fun convertMessage(message: Message): SendMessage.SendMessageRequest {
-        return SendMessage.SendMessageRequest.newBuilder()
-            .setConversationId(getConversationId())
-            .setConversationType(Constant.ConversationType.SINGLE)
-            .setFromId(getFromUserId()).setToId(toUserId).setType(message.type)
-            .setData(message.data).setSummary(message.summary).build()
+    /**
+     * 修改关键的信息
+     */
+    override fun sendMessage(message: Message) {
+        message.conversationId = getConversationId()
+        message.conversationType = Constant.ConversationType.SINGLE
+        message.fromId = getFromUserId()
+        message.toId = mToUserId
+        super.sendMessage(message)
     }
 
     /**
      * 生成单聊的会话id
      */
     override fun getConversationId(): String {
-        return generateConversationId(getFromUserId(), toUserId)
+        return generateConversationId(getFromUserId(), mToUserId)
     }
 
     /**

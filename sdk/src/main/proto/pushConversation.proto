@@ -1,0 +1,24 @@
+syntax = "proto3";
+option java_package = "com.dj.im.server.modules.im.message";
+option java_outer_classname = "PushConversation";
+import "pushMessage.proto";
+import "user.proto";
+
+// 推送会话情况
+message PushConversationResponse {
+    repeated Conversation conversations = 1;
+}
+
+// 一条会话的具体信息
+message Conversation {
+    // 会话id
+    string conversationId = 1;
+    // 会话类型（0:单聊、1:群聊）
+    int32 conversationType = 2;
+    // 未读数量
+    int32 unReadCount = 3;
+    // 最后20条的消息
+    repeated PushMessageResponse messages = 4;
+    // 对方信息
+    UserResponse toUserInfo = 5;
+}

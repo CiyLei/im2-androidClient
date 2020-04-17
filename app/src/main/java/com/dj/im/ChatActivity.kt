@@ -6,7 +6,7 @@ import cn.jiguang.imui.chatinput.model.FileItem
 import cn.jiguang.imui.messages.MsgListAdapter
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.conversation.Conversation
-import com.dj.im.sdk.message.TextMessage
+import com.dj.im.sdk.entity.message.TextMessage
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlin.properties.Delegates
 

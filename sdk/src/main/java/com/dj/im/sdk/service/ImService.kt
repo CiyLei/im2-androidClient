@@ -6,9 +6,12 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import com.dj.im.sdk.IMarsListener
+import com.dj.im.sdk.ITask
 import com.dj.im.sdk.ResultEnum
+import com.dj.im.sdk.db.MessageDao
 import com.dj.im.sdk.entity.ServerSituationEntity
 import com.dj.im.sdk.utils.SpUtil
+import com.google.protobuf.GeneratedMessageV3
 import com.tencent.mars.BaseEvent
 import com.tencent.mars.Mars
 import com.tencent.mars.app.AppLogic
@@ -47,7 +50,9 @@ internal class ImService : Service() {
     // 回调列表
     var marsListener: IMarsListener? = null
     // 发送任务列表
-    val tasks: ConcurrentHashMap<Int, ByteArray> = ConcurrentHashMap();
+    val tasks: ConcurrentHashMap<Int, ITask> = ConcurrentHashMap();
+    // 消息Dao
+    val messageDao = MessageDao(this)
 
     override fun onBind(intent: Intent?): IBinder? = ImServiceStub(this)
 

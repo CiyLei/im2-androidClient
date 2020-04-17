@@ -1,8 +1,6 @@
 package com.dj.im.sdk.conversation
 
-import com.dj.im.sdk.Constant
-import com.dj.im.sdk.message.Message
-import com.dj.im.sdk.message.SendMessage
+import com.dj.im.sdk.entity.message.Message
 import com.dj.im.sdk.service.ServiceManager
 
 /**
@@ -19,17 +17,9 @@ abstract class Conversation {
     /**
      * 发送消息
      */
-    fun sendMessage(message: Message) {
-        ServiceManager.instance.sendMessage(
-            Constant.CMD.SEND_MESSAGE,
-            convertMessage(message).toByteArray()
-        )
+    open fun sendMessage(message: Message) {
+        ServiceManager.instance.sendMessage(message)
     }
-
-    /**
-     * 转换消息类型
-     */
-    protected abstract fun convertMessage(message: Message): SendMessage.SendMessageRequest
 
     /**
      * 获取会话id
@@ -45,25 +35,25 @@ abstract class Conversation {
      * 从数据库中获取指定消息id之前的20条信息
      * @param messageId 消息id
      */
-    protected fun getOldMessagesForDB(messageId: Long): List<Message> {
-        return emptyList()
-    }
+//    protected fun getOldMessagesForDB(messageId: Long): List<Message2> {
+//        return emptyList()
+//    }
 
     /**
      * 从服务器获取指定消息id之前的20条信息
      * @param messageId 消息id
      */
-    protected fun getOldMessagesForNet(messageId: Long): List<Message> {
-        return emptyList()
-    }
+//    protected fun getOldMessagesForNet(messageId: Long): List<Message2> {
+//        return emptyList()
+//    }
 
     /**
      * 智能消息监听器
      * 首先从数据库中读取消息触发回调，同时从服务器中获取，如果有不同则触发回调
      */
-    fun setSmartMessageListener(listener: ((messages: List<Message>) -> Unit)?) {
-
-    }
+//    fun setSmartMessageListener(listener: ((messages: List<Message2>) -> Unit)?) {
+//
+//    }
 
     /**
      * 智能获取旧消息

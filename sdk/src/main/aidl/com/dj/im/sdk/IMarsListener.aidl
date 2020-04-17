@@ -7,5 +7,5 @@ interface IMarsListener {
 
     void onConnect(int code, String message);
 
-    void onPush(int cmdId, in byte[] data);
+    void onPushMessage(long messageId);
 }
