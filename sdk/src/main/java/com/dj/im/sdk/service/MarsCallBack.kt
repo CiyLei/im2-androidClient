@@ -3,11 +3,9 @@ package com.dj.im.sdk.service
 import android.util.Log
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.ResultEnum
-import com.dj.im.sdk.db.MessageDao
 import com.dj.im.sdk.message.AuthMessage
 import com.dj.im.sdk.message.PushMessage
 import com.dj.im.sdk.message.ResponseMessage
-import com.dj.im.sdk.message.SendMessage
 import com.dj.im.sdk.utils.EncryptUtil
 import com.dj.im.sdk.utils.HexUtil
 import com.dj.im.sdk.utils.SpUtil
@@ -74,6 +72,10 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
                 Constant.CMD.PUSH_CONVERSATION -> {
                     val conversationResponse =
                         PushConversation.PushConversationResponse.parseFrom(response.data)
+                    for (conversation in conversationResponse.conversationsList) {
+                        service.messageDao.addUser(service.userId, conversation.toUserInfo)
+                        service.messageDao.addConversation(service.userId, conversation)
+                    }
                     Log.d("MarsCallBack", conversationResponse.toString())
                 }
             }

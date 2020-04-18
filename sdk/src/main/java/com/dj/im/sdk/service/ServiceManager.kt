@@ -10,11 +10,11 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import com.dj.im.sdk.*
+import com.dj.im.sdk.IImService
+import com.dj.im.sdk.IMarsListener
 import com.dj.im.sdk.db.MessageDao
 import com.dj.im.sdk.entity.message.Message
 import com.dj.im.sdk.listener.IImListener
-import kotlin.collections.ArrayList
 
 
 /**
@@ -39,14 +39,14 @@ internal class ServiceManager private constructor() : ServiceConnection {
     private lateinit var mMessageDao: MessageDao
     private var mHandler = Handler(Looper.getMainLooper())
     // 连接情况回调
-    private var mImListeners = ArrayList<IImListener>()
+    internal var imListeners = ArrayList<IImListener>()
     private var mImService: IImService? = null
     // 监听Mars的回调
     private val mMarsListener = object : IMarsListener.Stub() {
 
         override fun onConnect(code: Int, message: String) {
             mHandler.post {
-                mImListeners.forEach { it.onLogin(code, message) }
+                imListeners.forEach { it.onLogin(code, message) }
             }
         }
 
@@ -117,21 +117,21 @@ internal class ServiceManager private constructor() : ServiceConnection {
      * 添加连接情况监听
      */
     fun addImListener(listener: IImListener) {
-        mImListeners.add(listener)
+        imListeners.add(listener)
     }
 
     /**
      * 移除连接情况监听
      */
     fun removeImListener(listener: IImListener) {
-        mImListeners.remove(listener)
+        imListeners.remove(listener)
     }
 
     /**
      * 清空连接情况监听
      */
     fun clearImListener() {
-        mImListeners.clear()
+        imListeners.clear()
     }
 
     /**

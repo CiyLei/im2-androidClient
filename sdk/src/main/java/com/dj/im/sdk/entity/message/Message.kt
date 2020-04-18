@@ -1,17 +1,19 @@
 package com.dj.im.sdk.entity.message;
 
+import android.os.Handler
 import com.dj.im.sdk.Constant;
 import com.dj.im.sdk.ITask;
 import com.dj.im.sdk.message.ResponseMessage
 import com.dj.im.sdk.message.SendMessage
 import com.dj.im.sdk.service.ServiceManager
 import java.util.*
+import kotlin.random.Random
 
 /**
  * Create by ChenLei on 2020/4/17
- * Describe:
+ * Describe: 消息基类
  */
-abstract class Message : ITask.Stub() {
+open class Message : ITask.Stub() {
 
     /**
      * 消息id
@@ -49,6 +51,15 @@ abstract class Message : ITask.Stub() {
      * 创建时间
      */
     var createTime = Date()
+    /**
+     * 发送状态
+     * 0:发送成功、接收成功；1:发送中；2:发送失败
+     */
+    var state = Constant.MessageSendState.SUCCESS
+    /**
+     * 是否已读
+     */
+    var isRead = false
 
     override fun onReq2Buf(): ByteArray = SendMessage.SendMessageRequest.newBuilder()
         .setConversationId(conversationId).setConversationType(conversationType)
@@ -61,15 +72,29 @@ abstract class Message : ITask.Stub() {
             val result = SendMessage.SendMessageResponse.parseFrom(response.data)
             id = result.id
             createTime = Date(result.createTime)
+            state = Constant.MessageSendState.SUCCESS
         } else {
-
+            // 发送失败，随机给个id，反正不会存放后台的
+            id = Random.nextLong()
+            createTime = Date()
+            state = Constant.MessageSendState.FAIL
         }
     }
 
     override fun onTaskEnd(errType: Int, errCode: Int) {
+        if (errCode != 0 && id == 0L) {
+            // 如果有错误，而且id还没指定的话（一般是网络问题）,设置为发送失败
+            id = Random.nextLong()
+            createTime = Date()
+            state = Constant.MessageSendState.FAIL
+        }
         // 保存到数据库中
         ServiceManager.instance.getUserId()?.let {
             ServiceManager.instance.messageDao.addMessage(it, this)
+        }
+        // 在主线程中触发更改状态的回调
+        Handler().post {
+            ServiceManager.instance.imListeners.forEach { it.onMessageSendStateChange(id, state) }
         }
     }
 }

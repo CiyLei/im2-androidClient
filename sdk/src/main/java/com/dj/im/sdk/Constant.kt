@@ -26,7 +26,7 @@ internal object Constant {
     }
 
     object URL {
-        const val BASE_URL = "http://192.168.2.116:8081/"
+        const val BASE_URL = "http://192.168.1.107:8081/"
         const val DNS = "/dns/server"
     }
 
@@ -49,5 +49,23 @@ internal object Constant {
      */
     object MessageType {
         const val TEXT = 0
+    }
+
+    /**
+     * 消息发送状态
+     */
+    object MessageSendState {
+        /**
+         * 发送、接收成功
+         */
+        const val SUCCESS = 0
+        /**
+         * 发送中
+         */
+        const val LOADING = 1
+        /**
+         * 发送失败
+         */
+        const val FAIL = 2
     }
 }

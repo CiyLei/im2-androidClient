@@ -1,5 +1,6 @@
 package com.dj.im.sdk.conversation
 
+import com.dj.im.sdk.Constant
 import com.dj.im.sdk.entity.message.Message
 import com.dj.im.sdk.service.ServiceManager
 
@@ -18,6 +19,9 @@ abstract class Conversation {
      * 发送消息
      */
     open fun sendMessage(message: Message) {
+        // 修改状态为发送中
+        message.isRead = true
+        message.state = Constant.MessageSendState.LOADING
         ServiceManager.instance.sendMessage(message)
     }
 
