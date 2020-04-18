@@ -6,7 +6,7 @@ import android.widget.Toast
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.ResultEnum
 import com.dj.im.sdk.entity.message.Message
-import com.dj.im.sdk.listener.IImListener
+import com.dj.im.sdk.listener.ImListener
 
 
 /**
@@ -17,7 +17,7 @@ class MyApp : MultiDexApplication() {
 
     override fun onCreate() {
         super.onCreate()
-        DJIM.addImListener(object : IImListener() {
+        DJIM.addImListener(object : ImListener() {
             override fun onLogin(code: Int, message: String) {
                 if (code != ResultEnum.Success.code) {
                     Toast.makeText(this@MyApp, message, Toast.LENGTH_SHORT).show()

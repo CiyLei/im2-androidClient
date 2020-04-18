@@ -72,7 +72,8 @@ open class Message : ITask.Stub() {
             val result = SendMessage.SendMessageResponse.parseFrom(response.data)
             id = result.id
             createTime = Date(result.createTime)
-            state = Constant.MessageSendState.SUCCESS
+            // 还是发送中的状态，等kafka的回调
+            state = Constant.MessageSendState.LOADING
         } else {
             // 发送失败，随机给个id，反正不会存放后台的
             id = Random.nextLong()
@@ -90,11 +91,11 @@ open class Message : ITask.Stub() {
         }
         // 保存到数据库中
         ServiceManager.instance.getUserId()?.let {
-            ServiceManager.instance.messageDao.addMessage(it, this)
+            ServiceManager.instance.conversationDao.addMessage(it, this)
         }
         // 在主线程中触发更改状态的回调
         Handler().post {
-            ServiceManager.instance.imListeners.forEach { it.onMessageSendStateChange(id, state) }
+            ServiceManager.instance.imListeners.forEach { it.onChangeMessageSendState(id, state) }
         }
     }
 }

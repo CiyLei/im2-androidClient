@@ -16,6 +16,11 @@ abstract class Conversation {
     }
 
     /**
+     * 未读数量
+     */
+    var unReadCount = 0
+
+    /**
      * 发送消息
      */
     open fun sendMessage(message: Message) {

@@ -13,6 +13,8 @@ interface IImService {
     void onForeground(boolean foreground);
     long getUserId();
     String getUserName();
+    String getAlias();
+    String getAvatarUrl();
     void setOnMarsListener(IMarsListener listener);
     void sendTask(ITask task);
 }

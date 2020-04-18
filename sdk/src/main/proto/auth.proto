@@ -1,6 +1,7 @@
 syntax = "proto3";
 option java_package = "com.dj.im.sdk.message";
 option java_outer_classname = "AuthMessage";
+import "user.proto";
 
 message AuthRequest {
     string appId = 1;
@@ -17,6 +18,5 @@ message AuthRequest {
 }
 
 message AuthResponse {
-    int64 userId = 1;
-    string userName = 2;
+    UserResponse userInfo = 1;
 }

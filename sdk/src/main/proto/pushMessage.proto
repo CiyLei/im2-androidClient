@@ -1,6 +1,7 @@
 syntax = "proto3";
 option java_package = "com.dj.im.sdk.message";
 option java_outer_classname = "PushMessage";
+import "user.proto";
 
 message PushMessageResponse {
     // 消息id
@@ -23,4 +24,6 @@ message PushMessageResponse {
     int64 createTime = 9;
     // 是否已读
     bool isRead = 10;
+    // 对方用户信息
+    UserResponse otherSideUserInfo = 11;
 }

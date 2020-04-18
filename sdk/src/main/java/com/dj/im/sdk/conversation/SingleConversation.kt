@@ -1,7 +1,9 @@
 package com.dj.im.sdk.conversation
 
 import com.dj.im.sdk.Constant
+import com.dj.im.sdk.entity.User
 import com.dj.im.sdk.entity.message.Message
+import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.utils.EncryptUtil
 
 
@@ -9,7 +11,7 @@ import com.dj.im.sdk.utils.EncryptUtil
  * Create by ChenLei on 2020/4/14
  * Describe: 单聊会话
  */
-internal class SingleConversation(private val mToUserId: Long) : Conversation() {
+class SingleConversation(val toUser: User) : Conversation() {
 
     /**
      * 修改关键的信息
@@ -18,7 +20,11 @@ internal class SingleConversation(private val mToUserId: Long) : Conversation() 
         message.conversationId = getConversationId()
         message.conversationType = Constant.ConversationType.SINGLE
         message.fromId = getFromUserId()
-        message.toId = mToUserId
+        message.toId = toUser.id
+        // 保存接收者的用户消息
+        ServiceManager.instance.getUserId()?.let {
+            ServiceManager.instance.conversationDao.addUser(it, toUser)
+        }
         super.sendMessage(message)
     }
 
@@ -26,7 +32,7 @@ internal class SingleConversation(private val mToUserId: Long) : Conversation() 
      * 生成单聊的会话id
      */
     override fun getConversationId(): String {
-        return generateConversationId(getFromUserId(), mToUserId)
+        return generateConversationId(getFromUserId(), toUser.id)
     }
 
     /**

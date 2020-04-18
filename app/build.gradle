@@ -41,4 +41,5 @@ dependencies {
     implementation 'cn.jiguang.imui:messagelist:0.8.0'
     implementation 'cn.jiguang.imui:chatinput:0.10.0'
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
+    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.50'
 }

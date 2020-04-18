@@ -6,6 +6,7 @@ import cn.jiguang.imui.chatinput.model.FileItem
 import cn.jiguang.imui.messages.MsgListAdapter
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.conversation.Conversation
+import com.dj.im.sdk.entity.User
 import com.dj.im.sdk.entity.message.TextMessage
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlin.properties.Delegates
@@ -16,17 +17,17 @@ import kotlin.properties.Delegates
  */
 class ChatActivity : BaseActivity() {
 
-    var userId by Delegates.notNull<Long>()
+    var user by Delegates.notNull<User>()
     val adapter = MsgListAdapter<MyMessage>("0", null)
     lateinit var conversation: Conversation
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
-        title = intent.getStringExtra("userName")
-        userId = intent.getLongExtra("userId", 0L)
 
-        conversation = DJIM.getSingleConversation(userId)
+        val user = intent.getSerializableExtra("user") as User
+        title = user.userName
+        conversation = DJIM.getSingleConversation(user)
 
         msg_list.setAdapter(adapter)
         msg_list.setShowSenderDisplayName(true);

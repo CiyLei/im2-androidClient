@@ -12,9 +12,9 @@ import android.util.Log
 import android.widget.Toast
 import com.dj.im.sdk.IImService
 import com.dj.im.sdk.IMarsListener
-import com.dj.im.sdk.db.MessageDao
+import com.dj.im.sdk.db.ConversationDao
 import com.dj.im.sdk.entity.message.Message
-import com.dj.im.sdk.listener.IImListener
+import com.dj.im.sdk.listener.ImListener
 
 
 /**
@@ -30,19 +30,25 @@ internal class ServiceManager private constructor() : ServiceConnection {
         }
     }
 
-    val messageDao: MessageDao by lazy { MessageDao(mApplication) }
+    val conversationDao: ConversationDao by lazy { ConversationDao(mApplication) }
 
     private lateinit var mAppId: String
     private lateinit var mAppSecret: String
     private lateinit var mDeviceCode: String
     private lateinit var mApplication: Application
-    private lateinit var mMessageDao: MessageDao
+    private lateinit var mConversationDao: ConversationDao
     private var mHandler = Handler(Looper.getMainLooper())
     // 连接情况回调
-    internal var imListeners = ArrayList<IImListener>()
+    internal var imListeners = ArrayList<ImListener>()
     private var mImService: IImService? = null
     // 监听Mars的回调
     private val mMarsListener = object : IMarsListener.Stub() {
+
+        override fun onChangeMessageState(messageId: Long, state: Int) {
+            mHandler.post {
+                imListeners.forEach { it.onChangeMessageSendState(messageId, state) }
+            }
+        }
 
         override fun onConnect(code: Int, message: String) {
             mHandler.post {
@@ -55,6 +61,12 @@ internal class ServiceManager private constructor() : ServiceConnection {
                 Toast.makeText(mApplication, "消息ID:$messageId", Toast.LENGTH_SHORT).show()
             }
         }
+
+        override fun onChangeConversions() {
+            mHandler.post {
+                imListeners.forEach { it.onChangeConversions() }
+            }
+        }
     }
 
     /**
@@ -65,7 +77,7 @@ internal class ServiceManager private constructor() : ServiceConnection {
         mAppId = appId
         mAppSecret = appSecret
         mDeviceCode = deviceCode
-        mMessageDao = MessageDao(application)
+        mConversationDao = ConversationDao(application)
         checkStartService()
     }
 
@@ -99,6 +111,16 @@ internal class ServiceManager private constructor() : ServiceConnection {
     fun getUserName(): String? = mImService?.userName
 
     /**
+     * 获取用户id
+     */
+    fun getAlias(): String? = mImService?.alias
+
+    /**
+     * 获取用户名
+     */
+    fun getAvatarUrl(): String? = mImService?.avatarUrl
+
+    /**
      * 发送消息
      */
     fun sendMessage(message: Message) {
@@ -116,14 +138,14 @@ internal class ServiceManager private constructor() : ServiceConnection {
     /**
      * 添加连接情况监听
      */
-    fun addImListener(listener: IImListener) {
+    fun addImListener(listener: ImListener) {
         imListeners.add(listener)
     }
 
     /**
      * 移除连接情况监听
      */
-    fun removeImListener(listener: IImListener) {
+    fun removeImListener(listener: ImListener) {
         imListeners.remove(listener)
     }
 

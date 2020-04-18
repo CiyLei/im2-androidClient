@@ -6,12 +6,12 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.ResultEnum
-import com.dj.im.sdk.listener.IImListener
+import com.dj.im.sdk.listener.ImListener
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val loginListener = object : IImListener() {
+    private val loginListener = object : ImListener() {
         override fun onLogin(code: Int, message: String) {
             if (code == ResultEnum.Success.code) {
                 Toast.makeText(

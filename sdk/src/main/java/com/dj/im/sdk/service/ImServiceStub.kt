@@ -1,7 +1,6 @@
 package com.dj.im.sdk.service
 
 import com.dj.im.sdk.*
-import com.dj.im.sdk.message.SendMessage
 import com.dj.im.sdk.net.RetrofitManager
 import com.dj.im.sdk.utils.RxUtil.o
 import com.dj.im.sdk.utils.SpUtil
@@ -58,12 +57,22 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
     /**
      * 获取用户id
      */
-    override fun getUserId(): Long = service.userId
+    override fun getUserId(): Long = service.userInfo?.id ?: 0L
 
     /**
      * 获取用户名
      */
-    override fun getUserName(): String = service.userName
+    override fun getUserName(): String = service.userInfo?.userName ?: ""
+
+    /**
+     * 用户别名
+     */
+    override fun getAlias(): String = service.userInfo?.alias ?: ""
+
+    /**
+     * 用户头像
+     */
+    override fun getAvatarUrl(): String = service.userInfo?.avatarUrl ?: ""
 
     /**
      * 退出登录
@@ -91,7 +100,8 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
     }
 
     override fun sendTask(task: ITask) {
-        val marsTask = StnLogic.Task(StnLogic.Task.ELong, Constant.CMD.SEND_MESSAGE, "", ArrayList())
+        val marsTask =
+            StnLogic.Task(StnLogic.Task.ELong, Constant.CMD.SEND_MESSAGE, "", ArrayList())
         service.tasks[marsTask.taskID] = task
         StnLogic.startTask(marsTask)
     }

@@ -6,7 +6,8 @@ import android.content.Context.ACTIVITY_SERVICE
 import android.os.Process
 import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.SingleConversation
-import com.dj.im.sdk.listener.IImListener
+import com.dj.im.sdk.entity.User
+import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
 
 
@@ -84,16 +85,32 @@ object DJIM {
     }
 
     /**
+     * 用户别名
+     */
+    fun getAlias(): String? {
+        assertionInit()
+        return ServiceManager.instance.getAlias()
+    }
+
+    /**
+     * 用户头像
+     */
+    fun getAvatarUrl(): String? {
+        assertionInit()
+        return ServiceManager.instance.getAvatarUrl()
+    }
+
+    /**
      * 添加连接情况监听
      */
-    fun addImListener(listener: IImListener) {
+    fun addImListener(listener: ImListener) {
         ServiceManager.instance.addImListener(listener)
     }
 
     /**
      * 移除连接情况监听
      */
-    fun removeImListener(listener: IImListener) {
+    fun removeImListener(listener: ImListener) {
         ServiceManager.instance.removeImListener(listener)
     }
 
@@ -107,10 +124,9 @@ object DJIM {
     /**
      * 返回单聊的会话
      */
-    fun getSingleConversation(toUserId: Long): Conversation {
+    fun getSingleConversation(toUser: User): Conversation {
         assertionInit()
-        // TODO 缓存起来，不必每次都创建一个
-        return SingleConversation(toUserId)
+        return SingleConversation(toUser)
     }
 
     /**
@@ -118,7 +134,9 @@ object DJIM {
      */
     fun getAllConversations(): List<Conversation> {
         assertionInit()
-        // TODO 获取所有的会话
+        ServiceManager.instance.getUserId()?.let {
+            return ServiceManager.instance.conversationDao.getConversations(it)
+        }
         return emptyList()
     }
 

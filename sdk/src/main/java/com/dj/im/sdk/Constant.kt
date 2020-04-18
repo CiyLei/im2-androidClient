@@ -26,7 +26,7 @@ internal object Constant {
     }
 
     object URL {
-        const val BASE_URL = "http://192.168.1.107:8081/"
+        const val BASE_URL = "http://192.168.1.102:8081/"
         const val DNS = "/dns/server"
     }
 

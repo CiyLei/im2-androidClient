@@ -3,6 +3,7 @@ package com.dj.im.sdk.service
 import android.util.Log
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.ResultEnum
+import com.dj.im.sdk.entity.User
 import com.dj.im.sdk.message.AuthMessage
 import com.dj.im.sdk.message.PushMessage
 import com.dj.im.sdk.message.ResponseMessage
@@ -51,6 +52,9 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
      * @param data
      */
     override fun onPush(cmdid: Int, data: ByteArray?) {
+        if (service.userInfo == null) {
+            return
+        }
         // 解密
         val responseData = EncryptUtil.symmetricDecrypt(mCipherKey, data)
         if (responseData != null) {
@@ -66,16 +70,39 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
                     // 有推送消息
                     val pushResponse = PushMessage.PushMessageResponse.parseFrom(response.data)
                     // 保存消息
-                    service.messageDao.addMessage(service.userId, pushResponse)
+                    service.conversationDao.addPushMessage(service.userInfo!!.id, pushResponse)
+                    // 保存消息对方的用户消息
+                    service.conversationDao.addUser(
+                        service.userInfo!!.id,
+                        pushResponse.otherSideUserInfo
+                    )
+                    // 添加会话
+                    service.conversationDao.addConversationForPushMessage(
+                        service.userInfo!!.id,
+                        pushResponse
+                    )
                     service.marsListener?.onPushMessage(pushResponse.id)
+                    service.marsListener?.onChangeConversions()
+                    service.marsListener?.onChangeMessageState(
+                        pushResponse.id,
+                        Constant.MessageSendState.SUCCESS
+                    )
                 }
                 Constant.CMD.PUSH_CONVERSATION -> {
                     val conversationResponse =
                         PushConversation.PushConversationResponse.parseFrom(response.data)
+                    // 先清空会话信息
+                    service.conversationDao.clearConversation(service.userInfo!!.id)
+                    // 保存到数据库中
                     for (conversation in conversationResponse.conversationsList) {
-                        service.messageDao.addUser(service.userId, conversation.toUserInfo)
-                        service.messageDao.addConversation(service.userId, conversation)
+                        service.conversationDao.addUser(
+                            service.userInfo!!.id,
+                            conversation.toUserInfo
+                        )
+                        service.conversationDao.addConversation(service.userInfo!!.id, conversation)
                     }
+                    // 通知回调
+                    service.marsListener?.onChangeConversions()
                     Log.d("MarsCallBack", conversationResponse.toString())
                 }
             }
@@ -207,8 +234,17 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
         val response = ResponseMessage.Response.parseFrom(buffer)
         if (response.success) {
             val authResponse = AuthMessage.AuthResponse.parseFrom(response.data)
-            service.userId = authResponse.userId
-            service.userName = authResponse.userName
+            val userResponse = authResponse.userInfo
+            service.userInfo =
+                User(
+                    userResponse.userId,
+                    userResponse.userName,
+                    userResponse.alias,
+                    userResponse.avatarUrl
+                )
+            // 保存自己的用户消息
+            service.conversationDao.addUser(userResponse.userId, service.userInfo!!)
+            // 回调连接
             service.marsListener?.onConnect(ResultEnum.Success.code, ResultEnum.Success.message)
             // 保存token
             SpUtil.getSp(service).edit().putString(ImService.SP_KEY_TOKEN, token).apply()

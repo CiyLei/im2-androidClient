@@ -7,7 +7,8 @@ import com.dj.im.sdk.entity.message.Message
  * Create by ChenLei on 2020/4/12
  * Describe: 监听连接情况的回调
  */
-open class IImListener {
+open class ImListener {
+
     /**
      * 登录回调
      */
@@ -23,5 +24,10 @@ open class IImListener {
      * @param messageId 消息id
      * @param state 消息状态
      */
-    open fun onMessageSendStateChange(messageId: Long, state: Int) {}
+    open fun onChangeMessageSendState(messageId: Long, state: Int) {}
+
+    /**
+     * 会话发生了变化
+     */
+    open fun onChangeConversions() {}
 }

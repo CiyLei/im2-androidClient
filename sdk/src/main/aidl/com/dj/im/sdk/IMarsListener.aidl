@@ -6,6 +6,7 @@ package com.dj.im.sdk;
 interface IMarsListener {
 
     void onConnect(int code, String message);
-
     void onPushMessage(long messageId);
+    void onChangeConversions();
+    void onChangeMessageState(long messageId, int state);
 }

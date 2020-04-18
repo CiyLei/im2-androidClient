@@ -1,53 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <FrameLayout
-        android:id="@+id/fl1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#dff9fb"
-            android:padding="20dp"
-            android:text="q903736665" />
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/fl2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#badc58"
-            android:padding="20dp"
-            android:text="q903736668" />
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/fl3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#ff7979"
-            android:padding="20dp"
-            android:text="q903736669" />
-    </FrameLayout>
-
-    <View
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvConversation"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
-
+        android:layout_weight="1"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_conversation" />
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/btnLogout"

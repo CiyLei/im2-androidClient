@@ -8,10 +8,10 @@ import android.os.Looper
 import com.dj.im.sdk.IMarsListener
 import com.dj.im.sdk.ITask
 import com.dj.im.sdk.ResultEnum
-import com.dj.im.sdk.db.MessageDao
+import com.dj.im.sdk.db.ConversationDao
 import com.dj.im.sdk.entity.ServerSituationEntity
+import com.dj.im.sdk.entity.User
 import com.dj.im.sdk.utils.SpUtil
-import com.google.protobuf.GeneratedMessageV3
 import com.tencent.mars.BaseEvent
 import com.tencent.mars.Mars
 import com.tencent.mars.app.AppLogic
@@ -37,10 +37,8 @@ internal class ImService : Service() {
 
     // 推荐连接的服务器信息
     var serverList: ServerSituationEntity? = null
-    // 用户id
-    var userId: Long = 0L
-    // 用户名
-    var userName: String = ""
+    // 用户信息
+    var userInfo: User? = null
     // app应用id
     lateinit var appId: String
     // app秘钥
@@ -52,7 +50,7 @@ internal class ImService : Service() {
     // 发送任务列表
     val tasks: ConcurrentHashMap<Int, ITask> = ConcurrentHashMap();
     // 消息Dao
-    val messageDao = MessageDao(this)
+    val conversationDao = ConversationDao(this)
 
     override fun onBind(intent: Intent?): IBinder? = ImServiceStub(this)
 
