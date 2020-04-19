@@ -69,14 +69,17 @@ abstract class Conversation {
      * 同时从数据库和服务器中获取，双方进行等待，网络获取失败则返回数据库的结果，成功则返回服务器获取的结果
      * @return 如果在获取中又触发，则返回false获取失败
      */
-    fun smartGetOldMessage(): Boolean {
-        return false
-    }
+//    fun smartGetOldMessage(): Boolean {
+//        return false
+//    }
 
     /**
      * 返回最后一条消息
      */
     fun lastMessage(): Message? {
+        ServiceManager.instance.getUserId()?.let {
+            return ServiceManager.instance.conversationDao.getLastMessage(it, getConversationId())
+        }
         return null
     }
 }

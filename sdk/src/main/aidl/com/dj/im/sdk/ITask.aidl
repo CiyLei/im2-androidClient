@@ -5,6 +5,7 @@ package com.dj.im.sdk;
 
 interface ITask {
 
+    int onCmdId();
     byte[] onReq2Buf();
     void onBuf2Resp(in byte[] buf);
     void onTaskEnd(in int errType, in int errCode);

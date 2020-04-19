@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        DJIM.addImListener(loginListener)
+        DJIM.getImListeners().add(loginListener)
         btnLogin.setOnClickListener { login() }
     }
 
@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        DJIM.removeImListener(loginListener)
+        DJIM.getImListeners().remove(loginListener)
         super.onDestroy()
     }
 }

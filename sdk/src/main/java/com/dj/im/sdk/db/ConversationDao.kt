@@ -2,8 +2,10 @@ package com.dj.im.sdk.db
 
 import android.content.Context
 import com.dj.im.sdk.Constant
+import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.SingleConversation
+import com.dj.im.sdk.convert.MessageConvertFactory
 import com.dj.im.sdk.entity.message.Message
 import com.dj.im.sdk.message.PushMessage
 import com.dj.im.server.modules.im.message.PushConversation
@@ -231,10 +233,6 @@ internal class ConversationDao(context: Context) {
         val result = ArrayList<Conversation>()
         val readableDatabase = db.readableDatabase
         try {
-//            val cursor = readableDatabase.rawQuery(
-//                "select Conversation.*,User.id as userId,User.userName as userName,User.alias as alias,User.avatarUrl as avatarUrl from Conversation LEFT OUTER JOIN User on Conversation.userId = User.userId and Conversation.tUserId = User.id where Conversation.userId = ?",
-//                arrayOf(userId.toString())
-//            )
             val cursor = readableDatabase.rawQuery(
                 "SELECT\n" +
                         "\tConversation.id,\n" +
@@ -289,16 +287,38 @@ internal class ConversationDao(context: Context) {
     }
 
     /**
-     * 执行sql
+     * 获取某个会话的最后一条消息
      */
-    fun writableDatabase(sql: String, bindArgs: Array<out Any>) {
-        val writableDatabase = db.writableDatabase
+    fun getLastMessage(userId: Long, conversationId: String): Message? {
+        val readableDatabase = db.readableDatabase
         try {
-            writableDatabase.execSQL(sql, bindArgs)
+            val cursor = readableDatabase.rawQuery(
+                "SELECT * FROM Message WHERE userId = ? AND conversationId = ? ORDER BY createTime DESC LIMIT 0, 1",
+                arrayOf(userId.toString(), conversationId)
+            )
+            if (cursor.moveToNext()) {
+                val message = Message()
+                message.id = cursor.getLong(cursor.getColumnIndex("id"))
+                message.conversationId = cursor.getString(cursor.getColumnIndex("conversationId"))
+                message.conversationType = cursor.getInt(cursor.getColumnIndex("conversationType"))
+                message.type = cursor.getInt(cursor.getColumnIndex("type"))
+                message.fromId = cursor.getLong(cursor.getColumnIndex("fromId"))
+                message.toId = cursor.getLong(cursor.getColumnIndex("toId"))
+                message.data = cursor.getString(cursor.getColumnIndex("data"))
+                message.summary = cursor.getString(cursor.getColumnIndex("summary"))
+                message.createTime = Date(cursor.getLong(cursor.getColumnIndex("createTime")))
+                message.state = cursor.getInt(cursor.getColumnIndex("state"))
+                message.isRead = cursor.getInt(cursor.getColumnIndex("isRead")) == 1
+                cursor.close()
+                // 将消息转换为对应的类型
+                return MessageConvertFactory.convert(message)
+            }
+            cursor.close()
         } catch (e: Exception) {
-
+            e.printStackTrace()
         } finally {
-            writableDatabase.close()
+            readableDatabase.close()
         }
+        return null
     }
 }

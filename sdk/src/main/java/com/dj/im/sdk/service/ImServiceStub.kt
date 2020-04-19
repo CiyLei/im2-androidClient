@@ -100,8 +100,7 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
     }
 
     override fun sendTask(task: ITask) {
-        val marsTask =
-            StnLogic.Task(StnLogic.Task.ELong, Constant.CMD.SEND_MESSAGE, "", ArrayList())
+        val marsTask = StnLogic.Task(StnLogic.Task.ELong, task.onCmdId(), "", ArrayList())
         service.tasks[marsTask.taskID] = task
         StnLogic.startTask(marsTask)
     }

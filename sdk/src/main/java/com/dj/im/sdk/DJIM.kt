@@ -6,7 +6,10 @@ import android.content.Context.ACTIVITY_SERVICE
 import android.os.Process
 import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.SingleConversation
+import com.dj.im.sdk.convert.IMessageConvert
+import com.dj.im.sdk.convert.TextMessageConvert
 import com.dj.im.sdk.entity.User
+import com.dj.im.sdk.entity.message.Message
 import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
 
@@ -15,7 +18,6 @@ import com.dj.im.sdk.service.ServiceManager
  * Create by ChenLei on 2020/4/11
  * Describe: DJIM 入口类
  */
-
 object DJIM {
 
     private var initd = false
@@ -101,25 +103,9 @@ object DJIM {
     }
 
     /**
-     * 添加连接情况监听
+     * IM消息回调接口
      */
-    fun addImListener(listener: ImListener) {
-        ServiceManager.instance.addImListener(listener)
-    }
-
-    /**
-     * 移除连接情况监听
-     */
-    fun removeImListener(listener: ImListener) {
-        ServiceManager.instance.removeImListener(listener)
-    }
-
-    /**
-     * 清空连接情况监听
-     */
-    fun clearImListener() {
-        ServiceManager.instance.clearImListener()
-    }
+    fun getImListeners(): ArrayList<ImListener> = ServiceManager.instance.imListeners
 
     /**
      * 返回单聊的会话

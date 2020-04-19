@@ -12,6 +12,8 @@ import android.util.Log
 import android.widget.Toast
 import com.dj.im.sdk.IImService
 import com.dj.im.sdk.IMarsListener
+import com.dj.im.sdk.convert.IMessageConvert
+import com.dj.im.sdk.convert.TextMessageConvert
 import com.dj.im.sdk.db.ConversationDao
 import com.dj.im.sdk.entity.message.Message
 import com.dj.im.sdk.listener.ImListener
@@ -38,9 +40,13 @@ internal class ServiceManager private constructor() : ServiceConnection {
     private lateinit var mApplication: Application
     private lateinit var mConversationDao: ConversationDao
     private var mHandler = Handler(Looper.getMainLooper())
+
     // 连接情况回调
     internal var imListeners = ArrayList<ImListener>()
+
+    // IM服务端
     private var mImService: IImService? = null
+
     // 监听Mars的回调
     private val mMarsListener = object : IMarsListener.Stub() {
 
@@ -133,27 +139,6 @@ internal class ServiceManager private constructor() : ServiceConnection {
     fun onForeground(foreground: Boolean) {
         checkStartService()
         mImService?.onForeground(foreground)
-    }
-
-    /**
-     * 添加连接情况监听
-     */
-    fun addImListener(listener: ImListener) {
-        imListeners.add(listener)
-    }
-
-    /**
-     * 移除连接情况监听
-     */
-    fun removeImListener(listener: ImListener) {
-        imListeners.remove(listener)
-    }
-
-    /**
-     * 清空连接情况监听
-     */
-    fun clearImListener() {
-        imListeners.clear()
     }
 
     /**

@@ -37,6 +37,7 @@ class ConversationActivity : BaseActivity() {
             if (item is SingleConversation) {
                 helper.setText(R.id.tvUserName, "${item.toUser.userName}(${item.toUser.id})")
                 helper.setText(R.id.tvUnreadCount, item.unReadCount.toString())
+                helper.setText(R.id.tvMessage, item.lastMessage()?.summary)
             }
         }
 
@@ -54,7 +55,7 @@ class ConversationActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_conversation)
 
-        DJIM.addImListener(mConversationListener)
+        DJIM.getImListeners().add(mConversationListener)
         mAdapter.setOnItemClickListener { _, _, position ->
             val conversation = mConversations[position]
             if (conversation is SingleConversation) {
@@ -74,7 +75,7 @@ class ConversationActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
-        DJIM.removeImListener(mConversationListener)
+        DJIM.getImListeners().remove(mConversationListener)
         super.onDestroy()
     }
 
