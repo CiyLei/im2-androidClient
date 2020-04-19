@@ -37,7 +37,12 @@ class ConversationActivity : BaseActivity() {
             if (item is SingleConversation) {
                 helper.setText(R.id.tvUserName, "${item.toUser.userName}(${item.toUser.id})")
                 helper.setText(R.id.tvUnreadCount, item.unReadCount.toString())
-                helper.setText(R.id.tvMessage, item.lastMessage()?.summary)
+                val lastMessage = item.lastMessage()
+                if (lastMessage?.isRead == true) {
+                    helper.setText(R.id.tvMessage, item.lastMessage()?.summary)
+                } else {
+                    helper.setText(R.id.tvMessage, "[未读]${item.lastMessage()?.summary}")
+                }
             }
         }
 

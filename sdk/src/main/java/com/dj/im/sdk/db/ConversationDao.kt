@@ -35,7 +35,8 @@ internal class ConversationDao(context: Context) {
             summary = message.summary
             createTime = Date(message.createTime)
             state = Constant.MessageSendState.SUCCESS
-            isRead = message.isRead
+            // 如果是自己发送的消息，一定是已读
+            isRead = if (userId == message.fromId) true else message.isRead
         }
         addMessage(userId, messageEntity)
     }
