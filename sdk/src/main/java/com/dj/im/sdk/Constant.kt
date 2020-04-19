@@ -43,29 +43,4 @@ internal object Constant {
          */
         const val GROUP = 1
     }
-
-    /**
-     * 消息类型
-     */
-    object MessageType {
-        const val TEXT = 0
-    }
-
-    /**
-     * 消息发送状态
-     */
-    object MessageSendState {
-        /**
-         * 发送、接收成功
-         */
-        const val SUCCESS = 0
-        /**
-         * 发送中
-         */
-        const val LOADING = 1
-        /**
-         * 发送失败
-         */
-        const val FAIL = 2
-    }
 }

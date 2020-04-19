@@ -26,7 +26,7 @@ class MyApp : MultiDexApplication() {
             }
 
             override fun onPushMessage(message: Message) {
-                Toast.makeText(this@MyApp, "接收到消息：${message.data}", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this@MyApp, "接收到消息：${message.data}", Toast.LENGTH_SHORT).show()
             }
         })
         DJIM.init(

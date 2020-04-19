@@ -4,6 +4,7 @@ import android.util.Log
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.ResultEnum
 import com.dj.im.sdk.entity.User
+import com.dj.im.sdk.entity.message.Message
 import com.dj.im.sdk.message.AuthMessage
 import com.dj.im.sdk.message.PushMessage
 import com.dj.im.sdk.message.ResponseMessage
@@ -85,7 +86,7 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
                     service.marsListener?.onChangeConversions()
                     service.marsListener?.onChangeMessageState(
                         pushResponse.id,
-                        Constant.MessageSendState.SUCCESS
+                        Message.State.SUCCESS
                     )
                 }
                 Constant.CMD.PUSH_CONVERSATION -> {

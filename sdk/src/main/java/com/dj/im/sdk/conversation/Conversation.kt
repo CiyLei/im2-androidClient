@@ -1,8 +1,9 @@
 package com.dj.im.sdk.conversation
 
-import com.dj.im.sdk.Constant
 import com.dj.im.sdk.entity.message.Message
+import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
+import kotlin.random.Random
 
 /**
  * Create by ChenLei on 2020/4/14
@@ -16,6 +17,55 @@ abstract class Conversation {
     }
 
     /**
+     * 会话的回调
+     */
+    interface ConversationListener {
+        fun onPushMessage(message: Message)
+        fun onChaneMessageState(messageId: Long, state: Int)
+    }
+
+    /**
+     * 保存所有消息，以防在同步消息的时候重复
+     */
+    private val mHistoryMessage = HashSet<Message>()
+
+    /**
+     * 会话处理消息后的回调
+     */
+    var conversationListener: ConversationListener? = null
+        set(value) {
+            field = value
+            if (value == null) {
+                ServiceManager.instance.imListeners.remove(mImListener)
+            } else {
+                ServiceManager.instance.imListeners.add(mImListener)
+            }
+        }
+
+    /**
+     * 监听全局的消息回调
+     */
+    private val mImListener = object : ImListener() {
+        override fun onPushMessage(message: Message) {
+            addMessage(message)
+        }
+
+        override fun onChangeMessageSendState(messageId: Long, state: Int) {
+            // 判断更新状态的消息是不是当前会话的
+            val index = mHistoryMessage.map { it.id }.indexOf(messageId)
+            if (index >= 0) {
+                // 更改消息的发送状态
+                for (message in mHistoryMessage) {
+                    if (message.id == messageId) {
+                        message.state = state
+                    }
+                }
+                conversationListener?.onChaneMessageState(messageId, state)
+            }
+        }
+    }
+
+    /**
      * 未读数量
      */
     var unReadCount = 0
@@ -24,10 +74,28 @@ abstract class Conversation {
      * 发送消息
      */
     open fun sendMessage(message: Message) {
-        // 修改状态为发送中
+        // 修改状态为发送中，随便指定一个id，发送成功会话会更正为服务器的id，否则就是这个随机的id
+        message.id = Random.nextLong()
         message.isRead = true
-        message.state = Constant.MessageSendState.LOADING
+        message.state = Message.State.LOADING
+        addMessage(message)
         ServiceManager.instance.sendMessage(message)
+    }
+
+    /**
+     * 添加消息
+     */
+    private fun addMessage(message: Message) {
+        // 首先判断是不是此会话下面的消息
+        if (message.conversationId == getConversationId()) {
+            synchronized(mHistoryMessage) {
+                // 没有重复消息
+                if (!mHistoryMessage.map { it.id }.contains(message.id)) {
+                    mHistoryMessage.add(message)
+                    conversationListener?.onPushMessage(message)
+                }
+            }
+        }
     }
 
     /**
@@ -41,37 +109,30 @@ abstract class Conversation {
     protected fun getFromUserId(): Long = ServiceManager.instance.getUserId() ?: 0
 
     /**
-     * 从数据库中获取指定消息id之前的20条信息
-     * @param messageId 消息id
+     * 在对应的生命周期中调用
      */
-//    protected fun getOldMessagesForDB(messageId: Long): List<Message2> {
-//        return emptyList()
-//    }
+    fun onDestroy() {
+        conversationListener = null
+        mHistoryMessage.clear()
+    }
 
     /**
-     * 从服务器获取指定消息id之前的20条信息
-     * @param messageId 消息id
+     * 获取最新的20条消息
      */
-//    protected fun getOldMessagesForNet(messageId: Long): List<Message2> {
-//        return emptyList()
-//    }
-
-    /**
-     * 智能消息监听器
-     * 首先从数据库中读取消息触发回调，同时从服务器中获取，如果有不同则触发回调
-     */
-//    fun setSmartMessageListener(listener: ((messages: List<Message2>) -> Unit)?) {
-//
-//    }
-
-    /**
-     * 智能获取旧消息
-     * 同时从数据库和服务器中获取，双方进行等待，网络获取失败则返回数据库的结果，成功则返回服务器获取的结果
-     * @return 如果在获取中又触发，则返回false获取失败
-     */
-//    fun smartGetOldMessage(): Boolean {
-//        return false
-//    }
+    fun getNewestMessages(): List<Message> {
+        val result = ArrayList<Message>()
+        ServiceManager.instance.getUserId()?.let {
+            result.addAll(
+                ServiceManager.instance.conversationDao.getNewestMessages(
+                    it,
+                    getConversationId(),
+                    pageSize
+                )
+            )
+        }
+        mHistoryMessage.addAll(result)
+        return result
+    }
 
     /**
      * 返回最后一条消息

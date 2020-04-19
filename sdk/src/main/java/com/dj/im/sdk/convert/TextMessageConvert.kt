@@ -1,6 +1,5 @@
 package com.dj.im.sdk.convert
 
-import com.dj.im.sdk.Constant
 import com.dj.im.sdk.entity.message.Message
 import com.dj.im.sdk.entity.message.TextMessage
 
@@ -12,7 +11,7 @@ import com.dj.im.sdk.entity.message.TextMessage
 class TextMessageConvert : IMessageConvert<TextMessage> {
 
     override fun convert(message: Message): TextMessage? {
-        if (message.type == Constant.MessageType.TEXT) {
+        if (message.type == Message.Type.TEXT) {
             val textMessage = TextMessage(message.data)
             textMessage.id = message.id
             textMessage.conversationId = message.conversationId

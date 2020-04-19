@@ -33,6 +33,7 @@
         android:id="@+id/tvMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:lines="1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="@id/tvUserName"
         app:layout_constraintRight_toRightOf="@id/tvUserName"

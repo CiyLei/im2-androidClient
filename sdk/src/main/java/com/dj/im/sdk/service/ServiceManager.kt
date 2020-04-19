@@ -63,8 +63,11 @@ internal class ServiceManager private constructor() : ServiceConnection {
         }
 
         override fun onPushMessage(messageId: Long) {
-            mHandler.post {
-                Toast.makeText(mApplication, "消息ID:$messageId", Toast.LENGTH_SHORT).show()
+            val message = mConversationDao.getMessageForId(getUserId()!!, messageId)
+            if (message != null) {
+                mHandler.post {
+                    imListeners.forEach { it.onPushMessage(message) }
+                }
             }
         }
 

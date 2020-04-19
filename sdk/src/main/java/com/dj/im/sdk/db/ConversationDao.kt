@@ -1,6 +1,7 @@
 package com.dj.im.sdk.db
 
 import android.content.Context
+import android.database.Cursor
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.conversation.Conversation
@@ -34,7 +35,7 @@ internal class ConversationDao(context: Context) {
             data = message.data
             summary = message.summary
             createTime = Date(message.createTime)
-            state = Constant.MessageSendState.SUCCESS
+            state = Message.State.SUCCESS
             // 如果是自己发送的消息，一定是已读
             isRead = if (userId == message.fromId) true else message.isRead
         }
@@ -58,7 +59,7 @@ internal class ConversationDao(context: Context) {
                 // 如果消息存在，更改消息的发送状态
                 writableDatabase.execSQL(
                     "update Message set state = ? where userId = ? and id = ?",
-                    arrayOf(Constant.MessageSendState.SUCCESS, userId, message.id)
+                    arrayOf(Message.State.SUCCESS, userId, message.id)
                 )
             } else {
                 // 如果消息不存在则插入
@@ -298,21 +299,106 @@ internal class ConversationDao(context: Context) {
                 arrayOf(userId.toString(), conversationId)
             )
             if (cursor.moveToNext()) {
-                val message = Message()
-                message.id = cursor.getLong(cursor.getColumnIndex("id"))
-                message.conversationId = cursor.getString(cursor.getColumnIndex("conversationId"))
-                message.conversationType = cursor.getInt(cursor.getColumnIndex("conversationType"))
-                message.type = cursor.getInt(cursor.getColumnIndex("type"))
-                message.fromId = cursor.getLong(cursor.getColumnIndex("fromId"))
-                message.toId = cursor.getLong(cursor.getColumnIndex("toId"))
-                message.data = cursor.getString(cursor.getColumnIndex("data"))
-                message.summary = cursor.getString(cursor.getColumnIndex("summary"))
-                message.createTime = Date(cursor.getLong(cursor.getColumnIndex("createTime")))
-                message.state = cursor.getInt(cursor.getColumnIndex("state"))
-                message.isRead = cursor.getInt(cursor.getColumnIndex("isRead")) == 1
+                val message = getMessageFromCursor(cursor)
                 cursor.close()
                 // 将消息转换为对应的类型
                 return MessageConvertFactory.convert(message)
+            }
+            cursor.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            readableDatabase.close()
+        }
+        return null
+    }
+
+    /**
+     * 从游标中读取消息信息
+     */
+    private fun getMessageFromCursor(cursor: Cursor): Message {
+        val message = Message()
+        message.id = cursor.getLong(cursor.getColumnIndex("id"))
+        message.conversationId = cursor.getString(cursor.getColumnIndex("conversationId"))
+        message.conversationType = cursor.getInt(cursor.getColumnIndex("conversationType"))
+        message.type = cursor.getInt(cursor.getColumnIndex("type"))
+        message.fromId = cursor.getLong(cursor.getColumnIndex("fromId"))
+        message.toId = cursor.getLong(cursor.getColumnIndex("toId"))
+        message.data = cursor.getString(cursor.getColumnIndex("data"))
+        message.summary = cursor.getString(cursor.getColumnIndex("summary"))
+        message.createTime = Date(cursor.getLong(cursor.getColumnIndex("createTime")))
+        message.state = cursor.getInt(cursor.getColumnIndex("state"))
+        message.isRead = cursor.getInt(cursor.getColumnIndex("isRead")) == 1
+        return message
+    }
+
+    /**
+     * 根据消息id获取消息
+     */
+    fun getMessageForId(userId: Long, messageId: Long): Message? {
+        val readableDatabase = db.readableDatabase
+        try {
+            val cursor = readableDatabase.rawQuery(
+                "select * from Message where userId = ? and id = ?",
+                arrayOf(userId.toString(), messageId.toString())
+            )
+            if (cursor.moveToNext()) {
+                val message = getMessageFromCursor(cursor)
+                cursor.close()
+                return MessageConvertFactory.convert(message)
+            }
+            cursor.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            readableDatabase.close()
+        }
+        return null
+    }
+
+    /**
+     * 获取最新的消息列表（最新的在前面）
+     */
+    fun getNewestMessages(userId: Long, conversationId: String, pageSize: Int): List<Message> {
+        val result = ArrayList<Message>()
+        val readableDatabase = db.readableDatabase
+        try {
+            val cursor = readableDatabase.rawQuery(
+                "SELECT * FROM Message WHERE userId = ? AND conversationId = ? ORDER BY createTime DESC LIMIT 0, ?",
+                arrayOf(userId.toString(), conversationId, pageSize.toString())
+            )
+            while (cursor.moveToNext()) {
+                val message = getMessageFromCursor(cursor)
+                result.add(MessageConvertFactory.convert(message))
+            }
+            cursor.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            readableDatabase.close()
+        }
+        return result
+    }
+
+    /**
+     * 获取用户信息
+     * @param userId 当前用户
+     * @param id 查询的用户id
+     */
+    fun getUser(userId: Long, id: Long): com.dj.im.sdk.entity.User? {
+        val readableDatabase = db.readableDatabase
+        try {
+            val cursor = readableDatabase.rawQuery(
+                "select * from User where userId = ? and id = ?",
+                arrayOf(userId.toString(), id.toString())
+            )
+            if (cursor.moveToNext()) {
+                val uid = cursor.getLong(cursor.getColumnIndex("id"))
+                val userName = cursor.getString(cursor.getColumnIndex("userName"))
+                val alias = cursor.getString(cursor.getColumnIndex("alias"))
+                val avatarUrl = cursor.getString(cursor.getColumnIndex("avatarUrl"))
+                cursor.close()
+                return com.dj.im.sdk.entity.User(uid, userName, alias, avatarUrl)
             }
             cursor.close()
         } catch (e: Exception) {
