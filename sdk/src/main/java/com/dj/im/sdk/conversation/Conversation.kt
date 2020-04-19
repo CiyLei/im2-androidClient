@@ -1,8 +1,9 @@
 package com.dj.im.sdk.conversation
 
-import com.dj.im.sdk.entity.message.Message
+import com.dj.im.sdk.task.message.Message
 import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
+import com.dj.im.sdk.task.conversation.ReadConversation
 import kotlin.random.Random
 
 /**
@@ -22,6 +23,7 @@ abstract class Conversation {
     interface ConversationListener {
         fun onPushMessage(message: Message)
         fun onChaneMessageState(messageId: Long, state: Int)
+        fun onConversationRead()
     }
 
     /**
@@ -63,6 +65,16 @@ abstract class Conversation {
                 conversationListener?.onChaneMessageState(messageId, state)
             }
         }
+
+        override fun onChangeConversationRead(conversationId: String) {
+            if (conversationId == getConversationId()) {
+                // 如果是自己的会话被对方已读，更新回调
+                mHistoryMessage.forEach {
+                    it.isRead = true
+                }
+                conversationListener?.onConversationRead()
+            }
+        }
     }
 
     /**
@@ -76,10 +88,9 @@ abstract class Conversation {
     open fun sendMessage(message: Message) {
         // 修改状态为发送中，随便指定一个id，发送成功会话会更正为服务器的id，否则就是这个随机的id
         message.id = Random.nextLong()
-        message.isRead = true
         message.state = Message.State.LOADING
+        ServiceManager.instance.sendTask(message)
         addMessage(message)
-        ServiceManager.instance.sendMessage(message)
     }
 
     /**
@@ -142,5 +153,23 @@ abstract class Conversation {
             return ServiceManager.instance.conversationDao.getLastMessage(it, getConversationId())
         }
         return null
+    }
+
+    /**
+     * 已读消息
+     */
+    fun read() {
+        unReadCount = 0
+        // 更新数据库中的会话未读数量
+        ServiceManager.instance.getUserId()?.let {
+            ServiceManager.instance.conversationDao.clearConversationUnReadCount(
+                it,
+                getConversationId()
+            )
+        }
+        // 通知会话更新
+        ServiceManager.instance.imListeners.forEach { it.onChangeConversions() }
+        // 发送会话已读消息
+        ServiceManager.instance.sendTask(ReadConversation(getConversationId()))
     }
 }

@@ -1,6 +1,6 @@
 package com.dj.im.sdk.convert
 
-import com.dj.im.sdk.entity.message.Message
+import com.dj.im.sdk.task.message.Message
 
 /**
  * 消息类型转换类

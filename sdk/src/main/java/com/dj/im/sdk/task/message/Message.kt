@@ -1,4 +1,4 @@
-package com.dj.im.sdk.entity.message;
+package com.dj.im.sdk.task.message;
 
 import android.os.Handler
 import android.os.Looper
@@ -9,7 +9,6 @@ import com.dj.im.sdk.message.ResponseMessage
 import com.dj.im.sdk.message.SendMessage
 import com.dj.im.sdk.service.ServiceManager
 import java.util.*
-import kotlin.random.Random
 
 /**
  * Create by ChenLei on 2020/4/17

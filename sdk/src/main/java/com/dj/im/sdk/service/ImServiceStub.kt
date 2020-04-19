@@ -99,6 +99,9 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
         service.marsListener = listener
     }
 
+    /**
+     * 发送任务
+     */
     override fun sendTask(task: ITask) {
         val marsTask = StnLogic.Task(StnLogic.Task.ELong, task.onCmdId(), "", ArrayList())
         service.tasks[marsTask.taskID] = task

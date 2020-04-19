@@ -3,11 +3,10 @@ package com.dj.im.sdk.db
 import android.content.Context
 import android.database.Cursor
 import com.dj.im.sdk.Constant
-import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.SingleConversation
 import com.dj.im.sdk.convert.MessageConvertFactory
-import com.dj.im.sdk.entity.message.Message
+import com.dj.im.sdk.task.message.Message
 import com.dj.im.sdk.message.PushMessage
 import com.dj.im.server.modules.im.message.PushConversation
 import com.dj.im.server.modules.im.message.User
@@ -24,6 +23,7 @@ internal class ConversationDao(context: Context) {
     /**
      * 添加消息到数据库（推送的）
      */
+    @Synchronized
     fun addPushMessage(userId: Long, message: PushMessage.PushMessageResponse) {
         val messageEntity = Message().apply {
             id = message.id
@@ -37,7 +37,7 @@ internal class ConversationDao(context: Context) {
             createTime = Date(message.createTime)
             state = Message.State.SUCCESS
             // 如果是自己发送的消息，一定是已读
-            isRead = if (userId == message.fromId) true else message.isRead
+            isRead = message.isRead
         }
         addMessage(userId, messageEntity)
     }
@@ -48,6 +48,7 @@ internal class ConversationDao(context: Context) {
      * @param message 发送、接收的消息
      * @param fromUser 消息来源方的消息(只有推送的时候有)
      */
+    @Synchronized
     fun addMessage(userId: Long, message: Message) {
         val writableDatabase = db.writableDatabase
         try {
@@ -56,10 +57,10 @@ internal class ConversationDao(context: Context) {
                 arrayOf(userId.toString(), message.id.toString())
             )
             if (cursor.moveToNext()) {
-                // 如果消息存在，更改消息的发送状态
+                // 如果消息存在，需要更改的字段：发送状态、已读状态
                 writableDatabase.execSQL(
-                    "update Message set state = ? where userId = ? and id = ?",
-                    arrayOf(Message.State.SUCCESS, userId, message.id)
+                    "update Message set state = ?,isRead = ? where userId = ? and id = ?",
+                    arrayOf(Message.State.SUCCESS, message.isRead, userId, message.id)
                 )
             } else {
                 // 如果消息不存在则插入
@@ -92,6 +93,7 @@ internal class ConversationDao(context: Context) {
      * 根据推送的消息添加会话（会话有则未读数量加1，没有则创建）
      * @param message 推送消息
      */
+    @Synchronized
     fun addConversationForPushMessage(userId: Long, message: PushMessage.PushMessageResponse) {
         val writableDatabase = db.writableDatabase
         // 判断消息来源是不是自己
@@ -136,6 +138,7 @@ internal class ConversationDao(context: Context) {
     /**
      * 添加用户信息，如果存在则更新(一般是会话推送的时候保存的)
      */
+    @Synchronized
     fun addUser(userId: Long, userInfo: User.UserResponse) {
         addUser(
             userId,
@@ -151,6 +154,7 @@ internal class ConversationDao(context: Context) {
     /**
      * 添加用户信息，如果存在则更新(一般是主动发送消息的时候保存的)
      */
+    @Synchronized
     fun addUser(userId: Long, userInfo: com.dj.im.sdk.entity.User) {
         val writableDatabase = db.writableDatabase
         try {
@@ -170,7 +174,6 @@ internal class ConversationDao(context: Context) {
                         userInfo.id
                     )
                 )
-                cursor.close()
             } else {
                 // 用户不存在，插入用户
                 writableDatabase.execSQL(
@@ -184,6 +187,7 @@ internal class ConversationDao(context: Context) {
                     )
                 )
             }
+            cursor.close()
         } catch (e: Exception) {
         } finally {
             writableDatabase.close()
@@ -193,6 +197,7 @@ internal class ConversationDao(context: Context) {
     /**
      * 清除会话缓存
      */
+    @Synchronized
     fun clearConversation(userId: Long) {
         val writableDatabase = db.writableDatabase
         try {
@@ -205,6 +210,7 @@ internal class ConversationDao(context: Context) {
     /**
      * 添加会话信息，如果存在则更新
      */
+    @Synchronized
     fun addConversation(userId: Long, conversation: PushConversation.Conversation) {
         val writableDatabase = db.writableDatabase
         try {
@@ -231,6 +237,7 @@ internal class ConversationDao(context: Context) {
     /**
      * 获取某个用户的会话信息
      */
+    @Synchronized
     fun getConversations(userId: Long): List<Conversation> {
         val result = ArrayList<Conversation>()
         val readableDatabase = db.readableDatabase
@@ -291,6 +298,7 @@ internal class ConversationDao(context: Context) {
     /**
      * 获取某个会话的最后一条消息
      */
+    @Synchronized
     fun getLastMessage(userId: Long, conversationId: String): Message? {
         val readableDatabase = db.readableDatabase
         try {
@@ -316,6 +324,7 @@ internal class ConversationDao(context: Context) {
     /**
      * 从游标中读取消息信息
      */
+    @Synchronized
     private fun getMessageFromCursor(cursor: Cursor): Message {
         val message = Message()
         message.id = cursor.getLong(cursor.getColumnIndex("id"))
@@ -335,6 +344,7 @@ internal class ConversationDao(context: Context) {
     /**
      * 根据消息id获取消息
      */
+    @Synchronized
     fun getMessageForId(userId: Long, messageId: Long): Message? {
         val readableDatabase = db.readableDatabase
         try {
@@ -359,6 +369,7 @@ internal class ConversationDao(context: Context) {
     /**
      * 获取最新的消息列表（最新的在前面）
      */
+    @Synchronized
     fun getNewestMessages(userId: Long, conversationId: String, pageSize: Int): List<Message> {
         val result = ArrayList<Message>()
         val readableDatabase = db.readableDatabase
@@ -385,6 +396,7 @@ internal class ConversationDao(context: Context) {
      * @param userId 当前用户
      * @param id 查询的用户id
      */
+    @Synchronized
     fun getUser(userId: Long, id: Long): com.dj.im.sdk.entity.User? {
         val readableDatabase = db.readableDatabase
         try {
@@ -407,5 +419,43 @@ internal class ConversationDao(context: Context) {
             readableDatabase.close()
         }
         return null
+    }
+
+    /**
+     * 清空一个会话的未读数量
+     * 自己查看了这个会话
+     */
+    @Synchronized
+    fun clearConversationUnReadCount(userId: Long, conversationId: String) {
+        val writableDatabase = db.writableDatabase
+        try {
+            writableDatabase.execSQL(
+                "update Conversation set unReadCount = 0 where userId = ? and id = ?",
+                arrayOf(userId, conversationId)
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            writableDatabase.close()
+        }
+    }
+
+    /**
+     * 已读一个会话的所有消息
+     * 被人查看了这个会话
+     */
+    @Synchronized
+    fun readConversationMessage(userId: Long, conversationId: String) {
+        val writableDatabase = db.writableDatabase
+        try {
+            writableDatabase.execSQL(
+                "update Message set isRead = 1 where userId = ? and conversationId = ?",
+                arrayOf(userId, conversationId)
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            writableDatabase.close()
+        }
     }
 }

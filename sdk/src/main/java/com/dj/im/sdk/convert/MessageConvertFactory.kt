@@ -1,6 +1,6 @@
 package com.dj.im.sdk.convert
 
-import com.dj.im.sdk.entity.message.Message
+import com.dj.im.sdk.task.message.Message
 
 /**
  * Create by ChenLei on 2020/4/19

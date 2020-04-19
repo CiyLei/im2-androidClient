@@ -6,10 +6,7 @@ import android.content.Context.ACTIVITY_SERVICE
 import android.os.Process
 import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.SingleConversation
-import com.dj.im.sdk.convert.IMessageConvert
-import com.dj.im.sdk.convert.TextMessageConvert
 import com.dj.im.sdk.entity.User
-import com.dj.im.sdk.entity.message.Message
 import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
 

@@ -5,12 +5,17 @@ import android.content.Intent
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import com.dj.im.sdk.Constant
 import com.dj.im.sdk.IMarsListener
 import com.dj.im.sdk.ITask
 import com.dj.im.sdk.ResultEnum
 import com.dj.im.sdk.db.ConversationDao
 import com.dj.im.sdk.entity.ServerSituationEntity
 import com.dj.im.sdk.entity.User
+import com.dj.im.sdk.service.handler.IPushHandler
+import com.dj.im.sdk.service.handler.PushConversationHandler
+import com.dj.im.sdk.service.handler.PushMessageHandler
+import com.dj.im.sdk.service.handler.PushReadConversationHandler
 import com.dj.im.sdk.utils.SpUtil
 import com.tencent.mars.BaseEvent
 import com.tencent.mars.Mars
@@ -29,33 +34,48 @@ internal class ImService : Service() {
     companion object {
         // 随便自定义一个域名
         const val HOST = "localhost"
+
         // 客户端版本
         const val CLIENT_VERSION = 200
+
         // token在sp中的key
         const val SP_KEY_TOKEN = "token"
     }
 
     // 推荐连接的服务器信息
     var serverList: ServerSituationEntity? = null
+
     // 用户信息
     var userInfo: User? = null
+
     // app应用id
     lateinit var appId: String
+
     // app秘钥
     lateinit var appSecret: String
+
     // 设备码
     lateinit var deviceCode: String
+
     // 回调列表
     var marsListener: IMarsListener? = null
+
     // 发送任务列表
     val tasks: ConcurrentHashMap<Int, ITask> = ConcurrentHashMap();
+
     // 消息Dao
     val conversationDao = ConversationDao(this)
+
+    // 推送消息处理器
+    val pushHandler = HashMap<Int, IPushHandler>()
 
     override fun onBind(intent: Intent?): IBinder? = ImServiceStub(this)
 
     override fun onCreate() {
         super.onCreate()
+        pushHandler[Constant.CMD.PUSH_MESSAGE] = PushMessageHandler(this)
+        pushHandler[Constant.CMD.PUSH_CONVERSATION] = PushConversationHandler(this)
+        pushHandler[Constant.CMD.PUSH_READ_CONVERSATION] = PushReadConversationHandler(this)
         Mars.loadDefaultMarsLibrary()
     }
 

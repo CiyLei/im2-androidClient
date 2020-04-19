@@ -38,7 +38,7 @@ class ConversationActivity : BaseActivity() {
                 helper.setText(R.id.tvUserName, "${item.toUser.userName}(${item.toUser.id})")
                 helper.setText(R.id.tvUnreadCount, item.unReadCount.toString())
                 val lastMessage = item.lastMessage()
-                if (lastMessage?.isRead == true) {
+                if (lastMessage?.isRead == true || lastMessage?.fromId != DJIM.getUserId()) {
                     helper.setText(R.id.tvMessage, item.lastMessage()?.summary)
                 } else {
                     helper.setText(R.id.tvMessage, "[未读]${item.lastMessage()?.summary}")
@@ -72,7 +72,6 @@ class ConversationActivity : BaseActivity() {
         rvConversation.adapter = mAdapter
 
         title = DJIM.getUserName()
-        mConversations.clear()
         mConversations.addAll(DJIM.getAllConversations())
         mAdapter.notifyDataSetChanged()
 

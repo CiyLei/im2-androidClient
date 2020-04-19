@@ -8,8 +8,8 @@ import com.dj.im.adapter.MessageAdapter
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.entity.User
-import com.dj.im.sdk.entity.message.Message
-import com.dj.im.sdk.entity.message.TextMessage
+import com.dj.im.sdk.task.message.Message
+import com.dj.im.sdk.task.message.TextMessage
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlin.properties.Delegates
 
@@ -32,11 +32,17 @@ class ChatActivity : BaseActivity() {
             mMessageList.add(0, message)
             mAdapter.notifyItemInserted(0)
             rvMessageList.scrollToPosition(0)
+            // 设置已读
+            mConversation.read()
         }
 
         override fun onChaneMessageState(messageId: Long, state: Int) {
             val index = mMessageList.map { it.id }.indexOf(messageId)
             mAdapter.notifyItemChanged(index)
+        }
+
+        override fun onConversationRead() {
+            mAdapter.notifyDataSetChanged()
         }
 
     }
@@ -53,6 +59,8 @@ class ChatActivity : BaseActivity() {
         mMessageList.addAll(mConversation.getNewestMessages())
         // 设置会话的回调
         mConversation.conversationListener = mConversationListener
+        // 已读消息
+        mConversation.read()
 
         rvMessageList.layoutManager = LinearLayoutManager(this).apply {
             stackFromEnd = true //列表再底部开始展示，反转后由上面开始展示

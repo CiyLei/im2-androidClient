@@ -11,18 +11,31 @@ internal object Constant {
          * 验证包
          */
         const val AUTH = 1001
+
         /**
          * 发送消息
          */
         const val SEND_MESSAGE = 1004
+
         /**
          * 推送消息
          */
         const val PUSH_MESSAGE = 1005
+
         /**
          * 推送会话
          */
         var PUSH_CONVERSATION = 1006
+
+        /**
+         * 已读会话
+         */
+        var READ_CONVERSATION = 1007
+
+        /**
+         * 推送已读会话
+         */
+        var PUSH_READ_CONVERSATION = 1008
     }
 
     object URL {
@@ -38,6 +51,7 @@ internal object Constant {
          * 单聊
          */
         const val SINGLE = 0
+
         /**
          * 群聊
          */

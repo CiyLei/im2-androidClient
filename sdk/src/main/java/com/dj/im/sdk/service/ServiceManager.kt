@@ -9,13 +9,11 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
-import android.widget.Toast
 import com.dj.im.sdk.IImService
 import com.dj.im.sdk.IMarsListener
-import com.dj.im.sdk.convert.IMessageConvert
-import com.dj.im.sdk.convert.TextMessageConvert
+import com.dj.im.sdk.ITask
 import com.dj.im.sdk.db.ConversationDao
-import com.dj.im.sdk.entity.message.Message
+import com.dj.im.sdk.task.message.Message
 import com.dj.im.sdk.listener.ImListener
 
 
@@ -38,7 +36,7 @@ internal class ServiceManager private constructor() : ServiceConnection {
     private lateinit var mAppSecret: String
     private lateinit var mDeviceCode: String
     private lateinit var mApplication: Application
-    private lateinit var mConversationDao: ConversationDao
+//    private lateinit var mConversationDao: ConversationDao
     private var mHandler = Handler(Looper.getMainLooper())
 
     // 连接情况回调
@@ -50,20 +48,29 @@ internal class ServiceManager private constructor() : ServiceConnection {
     // 监听Mars的回调
     private val mMarsListener = object : IMarsListener.Stub() {
 
+        /**
+         * 消息发送状态改变
+         */
         override fun onChangeMessageState(messageId: Long, state: Int) {
             mHandler.post {
                 imListeners.forEach { it.onChangeMessageSendState(messageId, state) }
             }
         }
 
+        /**
+         * 服务连接监听
+         */
         override fun onConnect(code: Int, message: String) {
             mHandler.post {
                 imListeners.forEach { it.onLogin(code, message) }
             }
         }
 
+        /**
+         * 消息推送监听
+         */
         override fun onPushMessage(messageId: Long) {
-            val message = mConversationDao.getMessageForId(getUserId()!!, messageId)
+            val message = conversationDao.getMessageForId(getUserId()!!, messageId)
             if (message != null) {
                 mHandler.post {
                     imListeners.forEach { it.onPushMessage(message) }
@@ -71,6 +78,18 @@ internal class ServiceManager private constructor() : ServiceConnection {
             }
         }
 
+        /**
+         * 会话已读监听
+         */
+        override fun onChangeConversationRead(conversationId: String) {
+            mHandler.post {
+                imListeners.forEach { it.onChangeConversationRead(conversationId) }
+            }
+        }
+
+        /**
+         * 会话列表状态监听
+         */
         override fun onChangeConversions() {
             mHandler.post {
                 imListeners.forEach { it.onChangeConversions() }
@@ -86,7 +105,7 @@ internal class ServiceManager private constructor() : ServiceConnection {
         mAppId = appId
         mAppSecret = appSecret
         mDeviceCode = deviceCode
-        mConversationDao = ConversationDao(application)
+//        mConversationDao = ConversationDao(application)
         checkStartService()
     }
 
@@ -132,8 +151,8 @@ internal class ServiceManager private constructor() : ServiceConnection {
     /**
      * 发送消息
      */
-    fun sendMessage(message: Message) {
-        mImService?.sendTask(message)
+    fun sendTask(task: ITask) {
+        mImService?.sendTask(task)
     }
 
     /**

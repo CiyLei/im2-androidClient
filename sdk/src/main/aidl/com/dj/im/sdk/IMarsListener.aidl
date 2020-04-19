@@ -9,4 +9,5 @@ interface IMarsListener {
     void onPushMessage(long messageId);
     void onChangeConversions();
     void onChangeMessageState(long messageId, int state);
+    void onChangeConversationRead(String conversationId);
 }

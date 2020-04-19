@@ -1,6 +1,6 @@
 package com.dj.im.sdk.listener
 
-import com.dj.im.sdk.entity.message.Message
+import com.dj.im.sdk.task.message.Message
 
 
 /**
@@ -30,4 +30,9 @@ open class ImListener {
      * 会话发生了变化
      */
     open fun onChangeConversions() {}
+
+    /**
+     * 会话已读监听
+     */
+    open fun onChangeConversationRead(conversationId: String) {}
 }

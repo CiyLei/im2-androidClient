@@ -4,8 +4,9 @@ import android.util.Log
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.ResultEnum
 import com.dj.im.sdk.entity.User
-import com.dj.im.sdk.entity.message.Message
+import com.dj.im.sdk.task.message.Message
 import com.dj.im.sdk.message.AuthMessage
+import com.dj.im.sdk.message.PrPushReadConversation
 import com.dj.im.sdk.message.PushMessage
 import com.dj.im.sdk.message.ResponseMessage
 import com.dj.im.sdk.utils.EncryptUtil
@@ -30,6 +31,7 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
     companion object {
         // 设备名称
         private val DEVICE_NAME = android.os.Build.MANUFACTURER + "-" + android.os.Build.MODEL
+
         // 设备型号
         private var DEVICE_TYPE = "android-" + android.os.Build.VERSION.SDK_INT
         private val info = AppLogic.DeviceInfo(
@@ -66,47 +68,7 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
                 )}】"
             )
             val response = ResponseMessage.Response.parseFrom(responseData)
-            when (cmdid) {
-                Constant.CMD.PUSH_MESSAGE -> {
-                    // 有推送消息
-                    val pushResponse = PushMessage.PushMessageResponse.parseFrom(response.data)
-                    // 保存消息
-                    service.conversationDao.addPushMessage(service.userInfo!!.id, pushResponse)
-                    // 保存消息对方的用户消息
-                    service.conversationDao.addUser(
-                        service.userInfo!!.id,
-                        pushResponse.otherSideUserInfo
-                    )
-                    // 添加会话
-                    service.conversationDao.addConversationForPushMessage(
-                        service.userInfo!!.id,
-                        pushResponse
-                    )
-                    service.marsListener?.onPushMessage(pushResponse.id)
-                    service.marsListener?.onChangeConversions()
-                    service.marsListener?.onChangeMessageState(
-                        pushResponse.id,
-                        Message.State.SUCCESS
-                    )
-                }
-                Constant.CMD.PUSH_CONVERSATION -> {
-                    val conversationResponse =
-                        PushConversation.PushConversationResponse.parseFrom(response.data)
-                    // 先清空会话信息
-                    service.conversationDao.clearConversation(service.userInfo!!.id)
-                    // 保存到数据库中
-                    for (conversation in conversationResponse.conversationsList) {
-                        service.conversationDao.addUser(
-                            service.userInfo!!.id,
-                            conversation.toUserInfo
-                        )
-                        service.conversationDao.addConversation(service.userInfo!!.id, conversation)
-                    }
-                    // 通知回调
-                    service.marsListener?.onChangeConversions()
-                    Log.d("MarsCallBack", conversationResponse.toString())
-                }
-            }
+            service.pushHandler[cmdid]?.onHandle(response)
         } else {
             Log.d("MarsCallBack", "【推送解密失败,cmdid:$cmdid,data:${Arrays.toString(data)}】")
         }

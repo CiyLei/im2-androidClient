@@ -1,7 +1,7 @@
 package com.dj.im.sdk.convert
 
-import com.dj.im.sdk.entity.message.Message
-import com.dj.im.sdk.entity.message.TextMessage
+import com.dj.im.sdk.task.message.Message
+import com.dj.im.sdk.task.message.TextMessage
 
 
 /**

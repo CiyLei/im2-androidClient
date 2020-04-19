@@ -2,7 +2,7 @@ package com.dj.im.sdk.conversation
 
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.entity.User
-import com.dj.im.sdk.entity.message.Message
+import com.dj.im.sdk.task.message.Message
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.utils.EncryptUtil
 

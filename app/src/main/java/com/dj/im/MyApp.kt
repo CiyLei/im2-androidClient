@@ -5,7 +5,7 @@ import android.support.multidex.MultiDexApplication
 import android.widget.Toast
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.ResultEnum
-import com.dj.im.sdk.entity.message.Message
+import com.dj.im.sdk.task.message.Message
 import com.dj.im.sdk.listener.ImListener
 
 

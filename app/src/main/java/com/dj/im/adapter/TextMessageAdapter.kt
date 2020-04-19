@@ -5,8 +5,8 @@ import com.chad.library.adapter.base.BaseViewHolder
 import com.chad.library.adapter.base.provider.BaseItemProvider
 import com.dj.im.R
 import com.dj.im.sdk.DJIM
-import com.dj.im.sdk.entity.message.Message
-import com.dj.im.sdk.entity.message.TextMessage
+import com.dj.im.sdk.task.message.Message
+import com.dj.im.sdk.task.message.TextMessage
 
 
 /**
@@ -31,6 +31,11 @@ class TextMessageAdapter : BaseItemProvider<TextMessage, BaseViewHolder>() {
             )
             helper.setText(R.id.tvSelfData, data?.data)
             helper.setText(R.id.tvSelfState, arrayOf("发送成功", "发送中", "发送失败")[data?.state ?: 0])
+            helper.setText(R.id.tvSelfIsRead, if (data?.isRead == true) "已读" else "未读")
+            helper.setTextColor(
+                R.id.tvSelfIsRead,
+                if (data?.isRead == true) Color.GRAY else Color.BLUE
+            )
         } else {
             // 不是自己发送的
             helper.setText(
@@ -38,11 +43,6 @@ class TextMessageAdapter : BaseItemProvider<TextMessage, BaseViewHolder>() {
                 "${data?.getFromUser()?.userName}(${data?.getFromUser()?.id})"
             )
             helper.setText(R.id.tvOtherData, data?.data)
-            helper.setText(R.id.tvOtherIsRead, if (data?.isRead == true) "已读" else "未读")
-            helper.setTextColor(
-                R.id.tvOtherIsRead,
-                if (data?.isRead == true) Color.GRAY else Color.BLUE
-            )
         }
     }
 

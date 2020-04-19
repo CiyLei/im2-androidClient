@@ -1,4 +1,4 @@
-package com.dj.im.sdk.entity.message
+package com.dj.im.sdk.task.message
 
 /**
  * Create by ChenLei on 2020/4/15
