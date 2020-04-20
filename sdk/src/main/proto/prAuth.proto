@@ -1,7 +1,7 @@
 syntax = "proto3";
-option java_package = "com.dj.im.sdk.message";
-option java_outer_classname = "AuthMessage";
-import "user.proto";
+option java_package = "com.dj.im.sdk.proto";
+option java_outer_classname = "PrAuth";
+import "prUser.proto";
 
 message AuthRequest {
     string appId = 1;

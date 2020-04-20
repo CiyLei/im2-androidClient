@@ -1,9 +1,9 @@
 package com.dj.im.sdk.service.handler
 
 import android.util.Log
-import com.dj.im.sdk.message.ResponseMessage
+import com.dj.im.sdk.proto.PrPushConversation
+import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.service.ImService
-import com.dj.im.server.modules.im.message.PushConversation
 
 
 /**
@@ -12,10 +12,10 @@ import com.dj.im.server.modules.im.message.PushConversation
  */
 internal class PushConversationHandler(private val mService: ImService) : IPushHandler {
 
-    override fun onHandle(response: ResponseMessage.Response) {
+    override fun onHandle(response: PrResponseMessage.Response) {
         // 会话推送
         val conversationResponse =
-            PushConversation.PushConversationResponse.parseFrom(response.data)
+            PrPushConversation.PushConversationResponse.parseFrom(response.data)
         // 先清空会话信息
         mService.conversationDao.clearConversation(mService.userInfo!!.id)
         // 保存到数据库中

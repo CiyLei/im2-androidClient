@@ -6,10 +6,11 @@ import com.dj.im.sdk.Constant
 import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.SingleConversation
 import com.dj.im.sdk.convert.MessageConvertFactory
+import com.dj.im.sdk.entity.User
+import com.dj.im.sdk.proto.PrPushConversation
+import com.dj.im.sdk.proto.PrPushMessage
+import com.dj.im.sdk.proto.PrUser
 import com.dj.im.sdk.task.message.Message
-import com.dj.im.sdk.message.PushMessage
-import com.dj.im.server.modules.im.message.PushConversation
-import com.dj.im.server.modules.im.message.User
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -24,7 +25,7 @@ internal class ConversationDao(context: Context) {
      * 添加消息到数据库（推送的）
      */
     @Synchronized
-    fun addPushMessage(userId: Long, message: PushMessage.PushMessageResponse) {
+    fun addPushMessage(userId: Long, message: PrPushMessage.PushMessageResponse) {
         val messageEntity = Message().apply {
             id = message.id
             conversationId = message.conversationId
@@ -94,7 +95,7 @@ internal class ConversationDao(context: Context) {
      * @param message 推送消息
      */
     @Synchronized
-    fun addConversationForPushMessage(userId: Long, message: PushMessage.PushMessageResponse) {
+    fun addConversationForPushMessage(userId: Long, message: PrPushMessage.PushMessageResponse) {
         val writableDatabase = db.writableDatabase
         // 判断消息来源是不是自己
         val isSelf = message.fromId == userId
@@ -139,15 +140,9 @@ internal class ConversationDao(context: Context) {
      * 添加用户信息，如果存在则更新(一般是会话推送的时候保存的)
      */
     @Synchronized
-    fun addUser(userId: Long, userInfo: User.UserResponse) {
+    fun addUser(userId: Long, userInfo: PrUser.UserResponse) {
         addUser(
-            userId,
-            com.dj.im.sdk.entity.User(
-                userInfo.userId,
-                userInfo.userName,
-                userInfo.alias,
-                userInfo.avatarUrl
-            )
+            userId, User(userInfo.userId, userInfo.userName, userInfo.alias, userInfo.avatarUrl)
         )
     }
 
@@ -155,7 +150,7 @@ internal class ConversationDao(context: Context) {
      * 添加用户信息，如果存在则更新(一般是主动发送消息的时候保存的)
      */
     @Synchronized
-    fun addUser(userId: Long, userInfo: com.dj.im.sdk.entity.User) {
+    fun addUser(userId: Long, userInfo: User) {
         val writableDatabase = db.writableDatabase
         try {
             val cursor = writableDatabase.rawQuery(
@@ -211,7 +206,7 @@ internal class ConversationDao(context: Context) {
      * 添加会话信息，如果存在则更新
      */
     @Synchronized
-    fun addConversation(userId: Long, conversation: PushConversation.Conversation) {
+    fun addConversation(userId: Long, conversation: PrPushConversation.Conversation) {
         val writableDatabase = db.writableDatabase
         try {
             // 会话不存在，插入会话

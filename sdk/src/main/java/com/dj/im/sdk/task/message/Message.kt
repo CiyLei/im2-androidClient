@@ -5,8 +5,8 @@ import android.os.Looper
 import com.dj.im.sdk.Constant;
 import com.dj.im.sdk.ITask;
 import com.dj.im.sdk.entity.User
-import com.dj.im.sdk.message.ResponseMessage
-import com.dj.im.sdk.message.SendMessage
+import com.dj.im.sdk.proto.PrResponseMessage
+import com.dj.im.sdk.proto.PrSendMessage
 import com.dj.im.sdk.service.ServiceManager
 import java.util.*
 
@@ -104,15 +104,15 @@ open class Message : ITask.Stub() {
 
     private val mHandler = Handler(Looper.getMainLooper())
 
-    override fun onReq2Buf(): ByteArray = SendMessage.SendMessageRequest.newBuilder()
+    override fun onReq2Buf(): ByteArray = PrSendMessage.SendMessageRequest.newBuilder()
         .setConversationId(conversationId).setConversationType(conversationType)
         .setFromId(fromId).setToId(toId).setType(type).setData(data).setSummary(summary)
         .build().toByteArray()
 
     override fun onBuf2Resp(buf: ByteArray?) {
-        val response = ResponseMessage.Response.parseFrom(buf)
+        val response = PrResponseMessage.Response.parseFrom(buf)
         if (response.success) {
-            val result = SendMessage.SendMessageResponse.parseFrom(response.data)
+            val result = PrSendMessage.SendMessageResponse.parseFrom(response.data)
             id = result.id
             createTime = Date(result.createTime)
             // 还是发送中的状态，等kafka的回调

@@ -4,15 +4,11 @@ import android.util.Log
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.ResultEnum
 import com.dj.im.sdk.entity.User
-import com.dj.im.sdk.task.message.Message
-import com.dj.im.sdk.message.AuthMessage
-import com.dj.im.sdk.message.PrPushReadConversation
-import com.dj.im.sdk.message.PushMessage
-import com.dj.im.sdk.message.ResponseMessage
+import com.dj.im.sdk.proto.PrAuth
+import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.utils.EncryptUtil
 import com.dj.im.sdk.utils.HexUtil
 import com.dj.im.sdk.utils.SpUtil
-import com.dj.im.server.modules.im.message.PushConversation
 import com.tencent.mars.app.AppLogic
 import com.tencent.mars.sdt.SdtLogic
 import com.tencent.mars.stn.StnLogic
@@ -67,7 +63,7 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
                     responseData
                 )}】"
             )
-            val response = ResponseMessage.Response.parseFrom(responseData)
+            val response = PrResponseMessage.Response.parseFrom(responseData)
             service.pushHandler[cmdid]?.onHandle(response)
         } else {
             Log.d("MarsCallBack", "【推送解密失败,cmdid:$cmdid,data:${Arrays.toString(data)}】")
@@ -176,7 +172,7 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
         // 对称加密后的密文
         val asymmetricalEncrypt = EncryptUtil.asymmetricalEncrypt(mCipherKey)
         // 发送验证
-        val request = AuthMessage.AuthRequest.newBuilder().setAppId(service.appId)
+        val request = PrAuth.AuthRequest.newBuilder().setAppId(service.appId)
             .setAppMobileSecret(service.appSecret).setToken(token).setDevice(0)
             .setDeviceCode(service.deviceCode)
             .setCipherKey(HexUtil.hex2String(asymmetricalEncrypt))
@@ -194,9 +190,9 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
      * @return
      */
     override fun onLongLinkIdentifyResp(buffer: ByteArray?, hashCodeBuffer: ByteArray?): Boolean {
-        val response = ResponseMessage.Response.parseFrom(buffer)
+        val response = PrResponseMessage.Response.parseFrom(buffer)
         if (response.success) {
-            val authResponse = AuthMessage.AuthResponse.parseFrom(response.data)
+            val authResponse = PrAuth.AuthResponse.parseFrom(response.data)
             val userResponse = authResponse.userInfo
             service.userInfo =
                 User(

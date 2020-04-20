@@ -1,5 +1,5 @@
 syntax = "proto3";
-option java_package = "com.dj.im.sdk.message";
+option java_package = "com.dj.im.sdk.proto";
 option java_outer_classname = "PrPushReadConversation";
 
 message PushReadConversationResponse {

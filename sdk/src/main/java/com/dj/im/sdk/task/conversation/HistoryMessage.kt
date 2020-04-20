@@ -5,10 +5,10 @@ import android.os.Looper
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.ITask
 import com.dj.im.sdk.conversation.Conversation
-import com.dj.im.sdk.message.ResponseMessage
+import com.dj.im.sdk.proto.PrGetHistoryMessage
+import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.task.message.Message
-import com.dj.im.server.modules.im.message.PrGetHistoryMessage
 
 /**
  * Create by ChenLei on 2020/4/20
@@ -25,7 +25,7 @@ internal class HistoryMessage(private val mConversationId: String, private val m
         .setConversationId(mConversationId).setMessageId(mMessageId).build().toByteArray()
 
     override fun onBuf2Resp(buf: ByteArray?) {
-        val response = ResponseMessage.Response.parseFrom(buf)
+        val response = PrResponseMessage.Response.parseFrom(buf)
         if (response.success) {
             val userId = ServiceManager.instance.getUserId()
             if (userId != null) {

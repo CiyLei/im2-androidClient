@@ -2,7 +2,7 @@ package com.dj.im.sdk.task.conversation
 
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.ITask
-import com.dj.im.sdk.message.PrReadConversation
+import com.dj.im.sdk.proto.PrReadConversation
 
 
 /**

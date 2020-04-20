@@ -1,8 +1,8 @@
 syntax = "proto3";
-option java_package = "com.dj.im.server.modules.im.message";
-option java_outer_classname = "PushConversation";
-import "pushMessage.proto";
-import "user.proto";
+option java_package = "com.dj.im.sdk.proto";
+option java_outer_classname = "PrPushConversation";
+import "prPushMessage.proto";
+import "prUser.proto";
 
 // 推送会话情况
 message PushConversationResponse {

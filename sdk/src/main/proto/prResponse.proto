@@ -1,6 +1,6 @@
 syntax = "proto3";
-option java_package = "com.dj.im.sdk.message";
-option java_outer_classname = "ResponseMessage";
+option java_package = "com.dj.im.sdk.proto";
+option java_outer_classname = "PrResponseMessage";
 
 // 所有的返回需要被这个嵌套
 message Response {

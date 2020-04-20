@@ -1,6 +1,6 @@
 package com.dj.im.sdk.service.handler
 
-import com.dj.im.sdk.message.ResponseMessage
+import com.dj.im.sdk.proto.PrResponseMessage
 
 
 /**
@@ -8,5 +8,5 @@ import com.dj.im.sdk.message.ResponseMessage
  * Describe: 推送消息的处理器
  */
 internal interface IPushHandler {
-    fun onHandle(response: ResponseMessage.Response)
+    fun onHandle(response: PrResponseMessage.Response)
 }

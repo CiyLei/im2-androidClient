@@ -1,7 +1,7 @@
 package com.dj.im.sdk.service.handler
 
-import com.dj.im.sdk.message.PrPushReadConversation
-import com.dj.im.sdk.message.ResponseMessage
+import com.dj.im.sdk.proto.PrPushReadConversation
+import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.service.ImService
 
 
@@ -11,7 +11,7 @@ import com.dj.im.sdk.service.ImService
  */
 internal class PushReadConversationHandler(private val mService: ImService) : IPushHandler {
 
-    override fun onHandle(response: ResponseMessage.Response) {
+    override fun onHandle(response: PrResponseMessage.Response) {
         // 已读推送
         val readResponse =
             PrPushReadConversation.PushReadConversationResponse.parseFrom(

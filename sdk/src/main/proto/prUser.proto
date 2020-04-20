@@ -1,6 +1,6 @@
 syntax = "proto3";
-option java_package = "com.dj.im.server.modules.im.message";
-option java_outer_classname = "User";
+option java_package = "com.dj.im.sdk.proto";
+option java_outer_classname = "PrUser";
 
 message UserResponse {
     int64 userId = 1;
