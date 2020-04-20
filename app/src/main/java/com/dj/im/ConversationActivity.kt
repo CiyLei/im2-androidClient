@@ -39,9 +39,9 @@ class ConversationActivity : BaseActivity() {
                 helper.setText(R.id.tvUnreadCount, item.unReadCount.toString())
                 val lastMessage = item.lastMessage()
                 if (lastMessage?.isRead == true || lastMessage?.fromId != DJIM.getUserId()) {
-                    helper.setText(R.id.tvMessage, item.lastMessage()?.summary)
+                    helper.setText(R.id.tvMessage, item.lastMessage()?.getSummaryDesc())
                 } else {
-                    helper.setText(R.id.tvMessage, "[未读]${item.lastMessage()?.summary}")
+                    helper.setText(R.id.tvMessage, "[未读]${item.lastMessage()?.getSummaryDesc()}")
                 }
             }
         }

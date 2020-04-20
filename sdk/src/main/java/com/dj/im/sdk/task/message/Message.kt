@@ -85,12 +85,6 @@ open class Message : ITask.Stub() {
      * 消息内容的摘要（作为为消息记录的搜索字段，如果这字段为空则以data字段进行搜索）
      */
     var summary = ""
-        get() {
-            return if (field.isBlank())
-                data
-            else
-                field
-        }
 
     /**
      * 创建时间
@@ -167,4 +161,12 @@ open class Message : ITask.Stub() {
         }
         return null
     }
+
+    /**
+     * 消息描述
+     */
+    fun getSummaryDesc(): String = if (summary.isBlank())
+        data
+    else
+        summary
 }

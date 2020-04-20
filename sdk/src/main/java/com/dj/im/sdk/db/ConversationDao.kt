@@ -303,7 +303,7 @@ internal class ConversationDao(context: Context) {
         val readableDatabase = db.readableDatabase
         try {
             val cursor = readableDatabase.rawQuery(
-                "SELECT * FROM Message WHERE userId = ? AND conversationId = ? ORDER BY createTime DESC LIMIT 0, 1",
+                "SELECT * FROM Message WHERE userId = ? AND conversationId = ? ORDER BY createTime DESC, id DESC LIMIT 0, 1",
                 arrayOf(userId.toString(), conversationId)
             )
             if (cursor.moveToNext()) {
@@ -375,7 +375,7 @@ internal class ConversationDao(context: Context) {
         val readableDatabase = db.readableDatabase
         try {
             val cursor = readableDatabase.rawQuery(
-                "SELECT * FROM Message WHERE userId = ? AND conversationId = ? ORDER BY createTime DESC LIMIT 0, ?",
+                "SELECT * FROM Message WHERE userId = ? AND conversationId = ? ORDER BY createTime DESC, id DESC LIMIT 0, ?",
                 arrayOf(userId.toString(), conversationId, pageSize.toString())
             )
             while (cursor.moveToNext()) {

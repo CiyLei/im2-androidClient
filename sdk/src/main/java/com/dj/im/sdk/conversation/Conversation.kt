@@ -30,6 +30,10 @@ abstract class Conversation {
      * 保存所有消息，以防在同步消息的时候重复
      */
     private val mHistoryMessage = HashSet<Message>()
+    /**
+     * 最后一条消息
+     */
+    private var mLastMessage: Message? = null
 
     /**
      * 会话处理消息后的回调
@@ -149,10 +153,12 @@ abstract class Conversation {
      * 返回最后一条消息
      */
     fun lastMessage(): Message? {
-        ServiceManager.instance.getUserId()?.let {
-            return ServiceManager.instance.conversationDao.getLastMessage(it, getConversationId())
+        if (mLastMessage == null) {
+            ServiceManager.instance.getUserId()?.let {
+                mLastMessage =  ServiceManager.instance.conversationDao.getLastMessage(it, getConversationId())
+            }
         }
-        return null
+        return mLastMessage
     }
 
     /**
