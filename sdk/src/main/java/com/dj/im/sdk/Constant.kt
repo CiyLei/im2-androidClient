@@ -36,6 +36,11 @@ internal object Constant {
          * 推送已读会话
          */
         var PUSH_READ_CONVERSATION = 1008
+
+        /**
+         * 获取历史消息
+         */
+        var GET_HISTORY_MESSAGE = 1009
     }
 
     object URL {

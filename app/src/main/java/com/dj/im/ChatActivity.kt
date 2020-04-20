@@ -45,6 +45,12 @@ class ChatActivity : BaseActivity() {
             mAdapter.notifyDataSetChanged()
         }
 
+        override fun onReadHistoryMessage(messageList: List<Message>) {
+            mMessageList.addAll(messageList)
+            mAdapter.notifyDataSetChanged()
+            srl.finishRefresh()
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,6 +74,10 @@ class ChatActivity : BaseActivity() {
             scrollToPositionWithOffset(0, Int.MIN_VALUE)
         }
         rvMessageList.adapter = mAdapter
+        srl.setOnRefreshListener {
+            // 刷新获取历史消息
+            mConversation.getHistoryMessage(mMessageList.last().id)
+        }
 
         chat_input.setMenuClickListener(object : OnMenuClickListener {
             override fun switchToMicrophoneMode(): Boolean = true

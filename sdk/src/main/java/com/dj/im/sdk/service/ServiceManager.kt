@@ -36,7 +36,6 @@ internal class ServiceManager private constructor() : ServiceConnection {
     private lateinit var mAppSecret: String
     private lateinit var mDeviceCode: String
     private lateinit var mApplication: Application
-//    private lateinit var mConversationDao: ConversationDao
     private var mHandler = Handler(Looper.getMainLooper())
 
     // 连接情况回调

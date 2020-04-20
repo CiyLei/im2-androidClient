@@ -35,4 +35,11 @@ open class ImListener {
      * 会话已读监听
      */
     open fun onChangeConversationRead(conversationId: String) {}
+
+    /**
+     * 成功读取历史消息
+     * @param conversationId 读取的会话id
+     * @param messageList 读取的历史消息
+     */
+    open fun onReadHistoryMessage(conversationId: String, messageList: List<Message>) {}
 }

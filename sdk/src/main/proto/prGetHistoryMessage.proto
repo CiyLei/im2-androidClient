@@ -1,0 +1,15 @@
+syntax = "proto3";
+option java_package = "com.dj.im.sdk.message";
+option java_outer_classname = "PrGetHistoryMessage";
+import "pushMessage.proto";
+
+message GetHistoryMessageRequest {
+    // 读取的会话
+    string conversationId = 1;
+    // 在这条消息之前
+    int64 messageId = 2;
+}
+
+message GetHistoryMessageResponse {
+    repeated PushMessageResponse messages = 1;
+}

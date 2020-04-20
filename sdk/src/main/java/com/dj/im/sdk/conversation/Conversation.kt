@@ -3,6 +3,7 @@ package com.dj.im.sdk.conversation
 import com.dj.im.sdk.task.message.Message
 import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
+import com.dj.im.sdk.task.conversation.HistoryMessage
 import com.dj.im.sdk.task.conversation.ReadConversation
 import kotlin.random.Random
 
@@ -14,7 +15,7 @@ abstract class Conversation {
 
     companion object {
         // 每次获取的条数
-        private const val pageSize = 20
+        const val pageSize = 20
     }
 
     /**
@@ -24,6 +25,7 @@ abstract class Conversation {
         fun onPushMessage(message: Message)
         fun onChaneMessageState(messageId: Long, state: Int)
         fun onConversationRead()
+        fun onReadHistoryMessage(messageList: List<Message>)
     }
 
     /**
@@ -77,6 +79,12 @@ abstract class Conversation {
                     it.isRead = true
                 }
                 conversationListener?.onConversationRead()
+            }
+        }
+
+        override fun onReadHistoryMessage(conversationId: String, messageList: List<Message>) {
+            if (conversationId == getConversationId()) {
+                conversationListener?.onReadHistoryMessage(messageList)
             }
         }
     }
@@ -155,7 +163,8 @@ abstract class Conversation {
     fun lastMessage(): Message? {
         if (mLastMessage == null) {
             ServiceManager.instance.getUserId()?.let {
-                mLastMessage =  ServiceManager.instance.conversationDao.getLastMessage(it, getConversationId())
+                mLastMessage =
+                    ServiceManager.instance.conversationDao.getLastMessage(it, getConversationId())
             }
         }
         return mLastMessage
@@ -177,5 +186,13 @@ abstract class Conversation {
         ServiceManager.instance.imListeners.forEach { it.onChangeConversions() }
         // 发送会话已读消息
         ServiceManager.instance.sendTask(ReadConversation(getConversationId()))
+    }
+
+    /**
+     * 获取指定消息之前的历史消息列表
+     * 先从网络中获取，如果获取失败再从数据库中获取
+     */
+    fun getHistoryMessage(messageId: Long) {
+        ServiceManager.instance.sendTask(HistoryMessage(getConversationId(), messageId))
     }
 }

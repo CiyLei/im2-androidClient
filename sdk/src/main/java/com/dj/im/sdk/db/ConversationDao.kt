@@ -458,4 +458,78 @@ internal class ConversationDao(context: Context) {
             writableDatabase.close()
         }
     }
+
+    /**
+     * 获取指定消息之前的消息列表（即读取历史消息）
+     * @param pageSize 如果等于-1就查询全部
+     */
+    @Synchronized
+    fun getHistoryMessage(
+        userId: Long,
+        conversationId: String,
+        messageId: Long,
+        pageSize: Int = -1
+    ): List<Message> {
+        val result = ArrayList<Message>()
+        val readableDatabase = db.readableDatabase
+        try {
+            var cursor: Cursor? = null
+            if (pageSize == -1) {
+                // 查询全部
+                cursor = readableDatabase.rawQuery(
+                    "SELECT\n" +
+                            "\t* \n" +
+                            "FROM\n" +
+                            "\tMessage \n" +
+                            "WHERE\n" +
+                            "\tuserId = ? \n" +
+                            "\tAND conversationId = ? \n" +
+                            "\tAND ( createTime < ( SELECT createTime FROM Message WHERE userId = ? AND conversationId = ? AND id = ? ) OR id < ? ) \n" +
+                            "ORDER BY\n" +
+                            "\tcreateTime DESC,\n" +
+                            "\tid DESC", arrayOf(
+                        userId.toString(),
+                        conversationId,
+                        userId.toString(),
+                        conversationId,
+                        messageId.toString(),
+                        messageId.toString()
+                    )
+                )
+            } else {
+                cursor = readableDatabase.rawQuery(
+                    "SELECT\n" +
+                            "\t* \n" +
+                            "FROM\n" +
+                            "\tMessage \n" +
+                            "WHERE\n" +
+                            "\tuserId = ? \n" +
+                            "\tAND conversationId = ? \n" +
+                            "\tAND ( createTime < ( SELECT createTime FROM Message WHERE userId = ? AND conversationId = ? AND id = ? ) OR id < ? ) \n" +
+                            "ORDER BY\n" +
+                            "\tcreateTime DESC,\n" +
+                            "\tid DESC \n" +
+                            "\tLIMIT 0,?", arrayOf(
+                        userId.toString(),
+                        conversationId,
+                        userId.toString(),
+                        conversationId,
+                        messageId.toString(),
+                        messageId.toString(),
+                        pageSize.toString()
+                    )
+                )
+            }
+            while (cursor!!.moveToNext()) {
+                val message = getMessageFromCursor(cursor)
+                result.add(MessageConvertFactory.convert(message))
+            }
+            cursor.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            readableDatabase.close()
+        }
+        return result
+    }
 }
