@@ -16,11 +16,11 @@ open class SendTextMessageTask : AbsSendMessageTask() {
 
     private lateinit var mMessage: ImMessage
 
-    override fun sendMessage(message: Message): Boolean {
+    override fun sendMessage(message: Message): Message? {
         this.mMessage = message.getImMessage()
         // 开始发送
         startSend()
-        return true
+        return message
     }
 
     override fun onCmdId(): Int = Constant.CMD.SEND_MESSAGE

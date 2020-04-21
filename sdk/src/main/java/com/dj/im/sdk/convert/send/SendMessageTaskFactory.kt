@@ -11,14 +11,15 @@ object SendMessageTaskFactory {
 
     val sendMessageTasks = ArrayList<AbsSendMessageTask>()
 
-    fun sendMessageTask(message: Message) {
+    fun sendMessageTask(message: Message): Message? {
         sendMessageTasks.forEach {
-            // 如果发送任务成功，结束
-            if (it.sendMessage(message)) {
-                return
+            // 寻找发送此消息的任务
+            val sendMessage = it.sendMessage(message)
+            if (sendMessage != null) {
+                return sendMessage
             }
         }
         // 保底发送文字消息
-        SendTextMessageTask().sendMessage(message)
+        return SendTextMessageTask().sendMessage(message)
     }
 }

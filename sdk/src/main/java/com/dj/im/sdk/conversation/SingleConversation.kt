@@ -16,7 +16,7 @@ class SingleConversation(val toUser: ImUser) : Conversation() {
     /**
      * 修改关键的信息
      */
-    override fun sendMessage(message: Message) {
+    override fun sendMessage(message: Message): Boolean {
         message.getImMessage().conversationId = getConversationId()
         message.getImMessage().conversationType = Constant.ConversationType.SINGLE
         message.getImMessage().fromId = getFromUserId()
@@ -25,7 +25,7 @@ class SingleConversation(val toUser: ImUser) : Conversation() {
         ServiceManager.instance.getUserInfo()?.id?.let {
             ServiceManager.instance.getDb()?.addUser(it, toUser)
         }
-        super.sendMessage(message)
+        return super.sendMessage(message)
     }
 
     /**

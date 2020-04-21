@@ -101,7 +101,7 @@ abstract class Conversation {
     /**
      * 发送消息
      */
-    open fun sendMessage(message: Message) {
+    open fun sendMessage(message: Message): Boolean {
         // 修改状态为发送中，随便指定一个id，发送成功会话会更正为服务器的id，否则就是这个随机的id
         message.getImMessage().id = Random.nextLong()
         message.getImMessage().state = ImMessage.State.LOADING
@@ -110,8 +110,12 @@ abstract class Conversation {
             message.getImMessage().isRead = true
         }
         // 在发送任务的工厂中找到真正的发送任务类
-        SendMessageTaskFactory.sendMessageTask(message)
-        addMessage(message)
+        val sendMessage = SendMessageTaskFactory.sendMessageTask(message)
+        if (sendMessage != null) {
+            addMessage(message)
+            return true
+        }
+        return false
     }
 
     /**

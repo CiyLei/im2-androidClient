@@ -50,12 +50,12 @@ internal class HistoryMessageTask(
         ServiceManager.instance.getUserInfo()?.id?.run {
             val historyMessage = ArrayList<ImMessage>()
             if (errCode != 0) {
-                // 网络获取失败，返回数据库中所有的历史消息
+                // 网络获取失败，返回数据库中100条的历史消息
                 ServiceManager.instance.getDb()?.getHistoryMessage(
                     this,
                     mConversationId,
                     mMessageId,
-                    -1
+                    100
                 )?.forEach { m ->
                     historyMessage.add(m)
                 }

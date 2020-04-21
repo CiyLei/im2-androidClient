@@ -16,9 +16,12 @@ abstract class AbsSendMessageTask() : ITask.Stub() {
     val mainHandler = Handler(Looper.getMainLooper())
 
     /**
-     * 验证类型是不是自己要发送的任务，不是自己的类型，返回false
+     * 发送消息
+     *
+     * @param message 需要发送的消息
+     * @return 真正发送的消息，null为不是我要发送的
      */
-    abstract fun sendMessage(message: Message): Boolean
+    abstract fun sendMessage(message: Message): Message?
 
     /**
      * 开发发送
