@@ -150,6 +150,21 @@ class ChatActivity : BaseActivity() {
             intent.setType("*/*")
             this.startActivityForResult(intent, 12345)
         }
+
+        btnTest.setOnClickListener {
+            val s = System.currentTimeMillis()
+            var f = s
+            println("----开始发送时间:$s")
+            for (i in 1..100) {
+                mConversation.sendMessage(TextMessage(i.toString()))
+                if (i % 10 == 0) {
+                    println("----当前发送进度:${i}, 耗时:${System.currentTimeMillis() - f}")
+                    f = System.currentTimeMillis()
+                }
+            }
+            val e = System.currentTimeMillis()
+            println("----结束发送时间:${e}, 总耗时:${e - s}")
+        }
     }
 
     override fun onDestroy() {

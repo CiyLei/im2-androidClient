@@ -19,6 +19,12 @@
     </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 
     <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btnTest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="开始测试"/>
+
+    <android.support.v7.widget.AppCompatButton
         android:id="@+id/btnFile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
