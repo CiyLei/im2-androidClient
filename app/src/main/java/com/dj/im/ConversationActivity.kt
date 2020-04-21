@@ -38,15 +38,15 @@ class ConversationActivity : BaseActivity() {
                 helper.setText(R.id.tvUserName, "${item.toUser.userName}(${item.toUser.id})")
                 helper.setText(R.id.tvUnreadCount, item.unReadCount.toString())
                 val lastMessage = item.lastMessage()
-                if (lastMessage?.getImMessage()?.isRead == true || lastMessage?.getImMessage()?.fromId != DJIM.getUserInfo()?.id) {
+                if (lastMessage?.imMessage?.isRead == true || lastMessage?.imMessage?.fromId != DJIM.getUserInfo()?.id) {
                     helper.setText(
                         R.id.tvMessage,
-                        item.lastMessage()?.getImMessage()?.getSummaryDesc()
+                        item.lastMessage()?.imMessage?.getSummaryDesc()
                     )
                 } else {
                     helper.setText(
                         R.id.tvMessage,
-                        "[未读]${item.lastMessage()?.getImMessage()?.getSummaryDesc()}"
+                        "[未读]${item.lastMessage()?.imMessage?.getSummaryDesc()}"
                     )
                 }
             }

@@ -17,10 +17,10 @@ class SingleConversation(val toUser: ImUser) : Conversation() {
      * 修改关键的信息
      */
     override fun sendMessage(message: Message): Boolean {
-        message.getImMessage().conversationId = getConversationId()
-        message.getImMessage().conversationType = Constant.ConversationType.SINGLE
-        message.getImMessage().fromId = getFromUserId()
-        message.getImMessage().toId = toUser.id
+        message.imMessage.conversationId = getConversationId()
+        message.imMessage.conversationType = Constant.ConversationType.SINGLE
+        message.imMessage.fromId = getFromUserId()
+        message.imMessage.toId = toUser.id
         // 保存接收者的用户消息
         ServiceManager.instance.getUserInfo()?.id?.let {
             ServiceManager.instance.getDb()?.addUser(it, toUser)

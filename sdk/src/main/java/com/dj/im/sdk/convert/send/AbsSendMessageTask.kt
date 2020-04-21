@@ -23,20 +23,13 @@ abstract class AbsSendMessageTask() : ITask.Stub() {
      */
     abstract fun sendMessage(message: Message): Message?
 
+    abstract fun getMessage(): Message
+
     /**
      * 开发发送
      */
     protected fun startSend() {
         ServiceManager.instance.sendTask(this)
-    }
-
-    /**
-     * 添加到数据库中
-     */
-    protected fun save(message: ImMessage) {
-        ServiceManager.instance.getUserInfo()?.id?.let {
-            ServiceManager.instance.getDb()?.addPushMessage(it, message)
-        }
     }
 
     /**

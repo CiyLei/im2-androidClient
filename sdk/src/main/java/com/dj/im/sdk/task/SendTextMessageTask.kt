@@ -14,48 +14,52 @@ import java.util.*
  */
 open class SendTextMessageTask : AbsSendMessageTask() {
 
-    private lateinit var mMessage: ImMessage
+    private lateinit var mMessage: Message
 
     override fun sendMessage(message: Message): Message? {
-        this.mMessage = message.getImMessage()
+        this.mMessage = message
         // 开始发送
         startSend()
         return message
     }
 
+    override fun getMessage(): Message = mMessage
+
     override fun onCmdId(): Int = Constant.CMD.SEND_MESSAGE
 
     override fun onReq2Buf(): ByteArray = PrSendMessage.SendMessageRequest.newBuilder()
-        .setConversationId(mMessage.conversationId).setConversationType(mMessage.conversationType)
-        .setFromId(mMessage.fromId).setToId(mMessage.toId).setType(mMessage.type).setData(mMessage.data)
-        .setSummary(mMessage.summary)
+        .setConversationId(getMessage().imMessage.conversationId)
+        .setConversationType(getMessage().imMessage.conversationType)
+        .setFromId(getMessage().imMessage.fromId)
+        .setToId(getMessage().imMessage.toId)
+        .setType(getMessage().imMessage.type)
+        .setData(getMessage().imMessage.data)
+        .setSummary(getMessage().imMessage.summary)
         .build().toByteArray()
 
     override fun onBuf2Resp(buf: ByteArray?) {
         val response = PrResponseMessage.Response.parseFrom(buf)
         if (response.success) {
             val result = PrSendMessage.SendMessageResponse.parseFrom(response.data)
-            mMessage.id = result.id
-            mMessage.createTime = Date(result.createTime)
+            getMessage().imMessage.id = result.id
+            getMessage().imMessage.createTime = Date(result.createTime)
             // 还是发送中的状态，等kafka的回调
-            mMessage.state = ImMessage.State.LOADING
+            getMessage().imMessage.state = ImMessage.State.LOADING
         } else {
             // 发送失败
-            mMessage.createTime = Date()
-            mMessage.state = ImMessage.State.FAIL
+            getMessage().imMessage.state = ImMessage.State.FAIL
         }
     }
 
     override fun onTaskEnd(errType: Int, errCode: Int) {
         if (errCode != 0) {
             // 如果有错误（一般是网络问题）,设置为发送失败
-            mMessage.createTime = Date()
-            mMessage.state = ImMessage.State.FAIL
+            getMessage().imMessage.state = ImMessage.State.FAIL
         }
         // 保存到数据库中
-        save(mMessage)
+        getMessage().save()
         // 通知更新
-        notifyChangeState(mMessage.id, mMessage.state)
+        notifyChangeState(getMessage().imMessage.id, getMessage().imMessage.state)
     }
 
 }

@@ -12,7 +12,8 @@ class MessageAdapter(data: List<Message>) : MultipleItemRvAdapter<Message, BaseV
 
     override fun registerItemProvider() {
         mProviderDelegate.registerProvider(TextMessageAdapter())
+        mProviderDelegate.registerProvider(FileMessageAdapter())
     }
 
-    override fun getViewType(t: Message?): Int = t?.getImMessage()?.type ?: 0
+    override fun getViewType(t: Message?): Int = t?.imMessage?.type ?: 0
 }

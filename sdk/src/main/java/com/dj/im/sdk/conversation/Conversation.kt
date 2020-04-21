@@ -64,12 +64,12 @@ abstract class Conversation {
 
         override fun onChangeMessageSendState(messageId: Long, state: Int) {
             // 判断更新状态的消息是不是当前会话的
-            val index = mHistoryMessage.map { it.getImMessage().id }.indexOf(messageId)
+            val index = mHistoryMessage.map { it.imMessage.id }.indexOf(messageId)
             if (index >= 0) {
                 // 更改消息的发送状态
                 for (message in mHistoryMessage) {
-                    if (message.getImMessage().id == messageId) {
-                        message.getImMessage().state = state
+                    if (message.imMessage.id == messageId) {
+                        message.imMessage.state = state
                     }
                 }
                 conversationListener?.onChaneMessageState(messageId, state)
@@ -80,7 +80,7 @@ abstract class Conversation {
             if (conversationId == getConversationId()) {
                 // 如果是自己的会话被对方已读，更新回调
                 mHistoryMessage.forEach {
-                    it.getImMessage().isRead = true
+                    it.imMessage.isRead = true
                 }
                 conversationListener?.onConversationRead()
             }
@@ -103,11 +103,11 @@ abstract class Conversation {
      */
     open fun sendMessage(message: Message): Boolean {
         // 修改状态为发送中，随便指定一个id，发送成功会话会更正为服务器的id，否则就是这个随机的id
-        message.getImMessage().id = Random.nextLong()
-        message.getImMessage().state = ImMessage.State.LOADING
+        message.imMessage.id = Random.nextLong()
+        message.imMessage.state = ImMessage.State.LOADING
         // 如果是自己给自己发送消息，默认已读
-        if (message.getImMessage().fromId == message.getImMessage().toId) {
-            message.getImMessage().isRead = true
+        if (message.imMessage.fromId == message.imMessage.toId) {
+            message.imMessage.isRead = true
         }
         // 在发送任务的工厂中找到真正的发送任务类
         val sendMessage = SendMessageTaskFactory.sendMessageTask(message)
@@ -123,12 +123,12 @@ abstract class Conversation {
      */
     private fun addMessage(message: Message) {
         // 首先判断是不是此会话下面的消息
-        if (message.getImMessage().conversationId == getConversationId()) {
+        if (message.imMessage.conversationId == getConversationId()) {
             synchronized(mHistoryMessage) {
                 // 没有重复消息
                 if (!mHistoryMessage.map {
-                        it.getImMessage().id
-                    }.contains(message.getImMessage().id)) {
+                        it.imMessage.id
+                    }.contains(message.imMessage.id)) {
                     mHistoryMessage.add(message)
                     conversationListener?.onPushMessage(message)
                 }

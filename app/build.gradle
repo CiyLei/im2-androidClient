@@ -39,7 +39,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation project(path: ':sdk')
     implementation "com.squareup.okhttp3:okhttp:4.5.0"
-    implementation 'cn.jiguang.imui:messagelist:0.8.0'
     implementation 'cn.jiguang.imui:chatinput:0.10.0'
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.50'

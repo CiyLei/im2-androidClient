@@ -9,7 +9,7 @@ import com.dj.im.sdk.entity.ImMessage
 object MessageConvertFactory {
 
     // 消息转换工厂
-    val messageConverts = arrayListOf<IMessageConvert<Message>>()
+    val messageConverts = arrayListOf<IMessageConvert<out Message>>(FileMessageConvert())
 
     /**
      * 将消息转换我对应的类型

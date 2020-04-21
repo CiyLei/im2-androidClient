@@ -76,6 +76,10 @@ data class ImMessage(
          * 文字类型
          */
         const val TEXT = 0
+        /**
+         * 文件类型
+         */
+        const val FILE = 4
     }
 
     /**
@@ -141,6 +145,15 @@ data class ImMessage(
         val CREATOR: Parcelable.Creator<ImMessage> = object : Parcelable.Creator<ImMessage> {
             override fun createFromParcel(source: Parcel): ImMessage = ImMessage(source)
             override fun newArray(size: Int): Array<ImMessage?> = arrayOfNulls(size)
+        }
+    }
+
+    /**
+     * 保存到数据库中
+     */
+    internal fun save() {
+        ServiceManager.instance.getUserInfo()?.id?.let {
+            ServiceManager.instance.getDb()?.addPushMessage(it, this)
         }
     }
 }

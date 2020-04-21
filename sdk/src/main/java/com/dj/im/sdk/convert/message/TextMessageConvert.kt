@@ -11,8 +11,6 @@ import com.dj.im.sdk.entity.TextMessage
 class TextMessageConvert : IMessageConvert<TextMessage> {
 
     override fun convert(message: ImMessage): TextMessage {
-        val textMessage = TextMessage(message.data)
-        textMessage.injectImMessage(message)
-        return textMessage
+        return TextMessage(message)
     }
 }
