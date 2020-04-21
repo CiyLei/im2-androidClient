@@ -1,6 +1,6 @@
 package com.dj.im.sdk.listener
 
-import com.dj.im.sdk.task.message.Message
+import com.dj.im.sdk.convert.message.Message
 
 
 /**

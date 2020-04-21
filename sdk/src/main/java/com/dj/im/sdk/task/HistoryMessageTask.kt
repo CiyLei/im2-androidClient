@@ -1,20 +1,25 @@
-package com.dj.im.sdk.task.conversation
+package com.dj.im.sdk.task
 
 import android.os.Handler
 import android.os.Looper
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.ITask
 import com.dj.im.sdk.conversation.Conversation
+import com.dj.im.sdk.convert.message.MessageConvertFactory
 import com.dj.im.sdk.proto.PrGetHistoryMessage
 import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.service.ServiceManager
-import com.dj.im.sdk.task.message.Message
+import com.dj.im.sdk.entity.ImMessage
+import com.dj.im.sdk.utils.MessageConvertUtil
 
 /**
  * Create by ChenLei on 2020/4/20
  * Describe: 获取历史消息
  */
-internal class HistoryMessage(private val mConversationId: String, private val mMessageId: Long) :
+internal class HistoryMessageTask(
+    private val mConversationId: String,
+    private val mMessageId: Long
+) :
     ITask.Stub() {
 
     private val mHandler = Handler(Looper.getMainLooper())
@@ -27,13 +32,14 @@ internal class HistoryMessage(private val mConversationId: String, private val m
     override fun onBuf2Resp(buf: ByteArray?) {
         val response = PrResponseMessage.Response.parseFrom(buf)
         if (response.success) {
-            val userId = ServiceManager.instance.getUserId()
+            val userId = ServiceManager.instance.getUserInfo()?.id
             if (userId != null) {
                 // 回调历史消息
                 val rsp = PrGetHistoryMessage.GetHistoryMessageResponse.parseFrom(response.data)
                 rsp.messagesList.forEach {
                     // 添加消息
-                    ServiceManager.instance.conversationDao.addPushMessage(userId, it)
+                    ServiceManager.instance.getDb()
+                        ?.addPushMessage(userId, MessageConvertUtil.prPushMessage2ImMessage(it))
                 }
             }
         }
@@ -41,34 +47,35 @@ internal class HistoryMessage(private val mConversationId: String, private val m
 
     override fun onTaskEnd(errType: Int, errCode: Int) {
         // 从数据库中读取历史消息（请求成功已经保存到数据库，请求失败也返回数据库中的数据）
-        ServiceManager.instance.getUserId()?.run {
-            val historyMessage = ArrayList<Message>()
+        ServiceManager.instance.getUserInfo()?.id?.run {
+            val historyMessage = ArrayList<ImMessage>()
             if (errCode != 0) {
                 // 网络获取失败，返回数据库中所有的历史消息
-                historyMessage.addAll(
-                    ServiceManager.instance.conversationDao.getHistoryMessage(
-                        this,
-                        mConversationId,
-                        mMessageId
-                    )
-                )
+                ServiceManager.instance.getDb()?.getHistoryMessage(
+                    this,
+                    mConversationId,
+                    mMessageId,
+                    -1
+                )?.forEach { m ->
+                    historyMessage.add(m)
+                }
             } else {
                 // 网络获取成功，返回最新的20条历史消息
-                historyMessage.addAll(
-                    ServiceManager.instance.conversationDao.getHistoryMessage(
-                        this,
-                        mConversationId,
-                        mMessageId,
-                        Conversation.pageSize
-                    )
-                )
+                ServiceManager.instance.getDb()?.getHistoryMessage(
+                    this,
+                    mConversationId,
+                    mMessageId,
+                    Conversation.pageSize
+                )?.forEach { m ->
+                    historyMessage.add(m)
+                }
             }
             // 在主线程中回调
             mHandler.post {
                 ServiceManager.instance.imListeners.forEach {
                     it.onReadHistoryMessage(
                         mConversationId,
-                        historyMessage
+                        historyMessage.map { m -> MessageConvertFactory.convert(m) }
                     )
                 }
             }

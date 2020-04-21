@@ -1,10 +1,13 @@
 package com.dj.im.sdk.conversation
 
-import com.dj.im.sdk.task.message.Message
+import com.dj.im.sdk.convert.send.SendMessageTaskFactory
+import com.dj.im.sdk.convert.message.Message
+import com.dj.im.sdk.convert.message.MessageConvertFactory
+import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
-import com.dj.im.sdk.task.conversation.HistoryMessage
-import com.dj.im.sdk.task.conversation.ReadConversation
+import com.dj.im.sdk.task.HistoryMessageTask
+import com.dj.im.sdk.task.ReadConversationTask
 import kotlin.random.Random
 
 /**
@@ -32,6 +35,7 @@ abstract class Conversation {
      * 保存所有消息，以防在同步消息的时候重复
      */
     private val mHistoryMessage = HashSet<Message>()
+
     /**
      * 最后一条消息
      */
@@ -60,12 +64,12 @@ abstract class Conversation {
 
         override fun onChangeMessageSendState(messageId: Long, state: Int) {
             // 判断更新状态的消息是不是当前会话的
-            val index = mHistoryMessage.map { it.id }.indexOf(messageId)
+            val index = mHistoryMessage.map { it.getImMessage().id }.indexOf(messageId)
             if (index >= 0) {
                 // 更改消息的发送状态
                 for (message in mHistoryMessage) {
-                    if (message.id == messageId) {
-                        message.state = state
+                    if (message.getImMessage().id == messageId) {
+                        message.getImMessage().state = state
                     }
                 }
                 conversationListener?.onChaneMessageState(messageId, state)
@@ -76,7 +80,7 @@ abstract class Conversation {
             if (conversationId == getConversationId()) {
                 // 如果是自己的会话被对方已读，更新回调
                 mHistoryMessage.forEach {
-                    it.isRead = true
+                    it.getImMessage().isRead = true
                 }
                 conversationListener?.onConversationRead()
             }
@@ -84,7 +88,7 @@ abstract class Conversation {
 
         override fun onReadHistoryMessage(conversationId: String, messageList: List<Message>) {
             if (conversationId == getConversationId()) {
-                conversationListener?.onReadHistoryMessage(messageList)
+                conversationListener?.onReadHistoryMessage(messageList.map { it })
             }
         }
     }
@@ -99,9 +103,14 @@ abstract class Conversation {
      */
     open fun sendMessage(message: Message) {
         // 修改状态为发送中，随便指定一个id，发送成功会话会更正为服务器的id，否则就是这个随机的id
-        message.id = Random.nextLong()
-        message.state = Message.State.LOADING
-        ServiceManager.instance.sendTask(message)
+        message.getImMessage().id = Random.nextLong()
+        message.getImMessage().state = ImMessage.State.LOADING
+        // 如果是自己给自己发送消息，默认已读
+        if (message.getImMessage().fromId == message.getImMessage().toId) {
+            message.getImMessage().isRead = true
+        }
+        // 在发送任务的工厂中找到真正的发送任务类
+        SendMessageTaskFactory.sendMessageTask(message)
         addMessage(message)
     }
 
@@ -110,10 +119,12 @@ abstract class Conversation {
      */
     private fun addMessage(message: Message) {
         // 首先判断是不是此会话下面的消息
-        if (message.conversationId == getConversationId()) {
+        if (message.getImMessage().conversationId == getConversationId()) {
             synchronized(mHistoryMessage) {
                 // 没有重复消息
-                if (!mHistoryMessage.map { it.id }.contains(message.id)) {
+                if (!mHistoryMessage.map {
+                        it.getImMessage().id
+                    }.contains(message.getImMessage().id)) {
                     mHistoryMessage.add(message)
                     conversationListener?.onPushMessage(message)
                 }
@@ -129,7 +140,7 @@ abstract class Conversation {
     /**
      * 获取当前用户id
      */
-    protected fun getFromUserId(): Long = ServiceManager.instance.getUserId() ?: 0
+    protected fun getFromUserId(): Long = ServiceManager.instance.getUserInfo()?.id ?: 0
 
     /**
      * 在对应的生命周期中调用
@@ -144,14 +155,14 @@ abstract class Conversation {
      */
     fun getNewestMessages(): List<Message> {
         val result = ArrayList<Message>()
-        ServiceManager.instance.getUserId()?.let {
-            result.addAll(
-                ServiceManager.instance.conversationDao.getNewestMessages(
-                    it,
-                    getConversationId(),
-                    pageSize
-                )
-            )
+        ServiceManager.instance.getUserInfo()?.id?.let {
+            ServiceManager.instance.getDb()?.getNewestMessages(
+                it,
+                getConversationId(),
+                pageSize
+            )?.forEach { msg ->
+                result.add(MessageConvertFactory.convert(msg))
+            }
         }
         mHistoryMessage.addAll(result)
         return result
@@ -162,9 +173,12 @@ abstract class Conversation {
      */
     fun lastMessage(): Message? {
         if (mLastMessage == null) {
-            ServiceManager.instance.getUserId()?.let {
-                mLastMessage =
-                    ServiceManager.instance.conversationDao.getLastMessage(it, getConversationId())
+            ServiceManager.instance.getUserInfo()?.id?.let {
+                val lastMessage =
+                    ServiceManager.instance.getDb()?.getLastMessage(it, getConversationId())
+                if (lastMessage != null) {
+                    mLastMessage = MessageConvertFactory.convert(lastMessage)
+                }
             }
         }
         return mLastMessage
@@ -176,8 +190,8 @@ abstract class Conversation {
     fun read() {
         unReadCount = 0
         // 更新数据库中的会话未读数量
-        ServiceManager.instance.getUserId()?.let {
-            ServiceManager.instance.conversationDao.clearConversationUnReadCount(
+        ServiceManager.instance.getUserInfo()?.id?.let {
+            ServiceManager.instance.getDb()?.clearConversationUnReadCount(
                 it,
                 getConversationId()
             )
@@ -185,7 +199,11 @@ abstract class Conversation {
         // 通知会话更新
         ServiceManager.instance.imListeners.forEach { it.onChangeConversions() }
         // 发送会话已读消息
-        ServiceManager.instance.sendTask(ReadConversation(getConversationId()))
+        ServiceManager.instance.sendTask(
+            ReadConversationTask(
+                getConversationId()
+            )
+        )
     }
 
     /**
@@ -193,6 +211,11 @@ abstract class Conversation {
      * 先从网络中获取，如果获取失败再从数据库中获取
      */
     fun getHistoryMessage(messageId: Long) {
-        ServiceManager.instance.sendTask(HistoryMessage(getConversationId(), messageId))
+        ServiceManager.instance.sendTask(
+            HistoryMessageTask(
+                getConversationId(),
+                messageId
+            )
+        )
     }
 }

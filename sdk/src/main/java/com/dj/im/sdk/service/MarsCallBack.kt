@@ -3,7 +3,7 @@ package com.dj.im.sdk.service
 import android.util.Log
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.ResultEnum
-import com.dj.im.sdk.entity.User
+import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.proto.PrAuth
 import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.utils.EncryptUtil
@@ -195,14 +195,14 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
             val authResponse = PrAuth.AuthResponse.parseFrom(response.data)
             val userResponse = authResponse.userInfo
             service.userInfo =
-                User(
+                ImUser(
                     userResponse.userId,
                     userResponse.userName,
                     userResponse.alias,
                     userResponse.avatarUrl
                 )
             // 保存自己的用户消息
-            service.conversationDao.addUser(userResponse.userId, service.userInfo!!)
+            service.dbDao.addUser(userResponse.userId, service.userInfo!!)
             // 回调连接
             service.marsListener?.onConnect(ResultEnum.Success.code, ResultEnum.Success.message)
             // 保存token

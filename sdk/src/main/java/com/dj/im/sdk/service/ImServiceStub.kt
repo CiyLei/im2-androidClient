@@ -1,6 +1,7 @@
 package com.dj.im.sdk.service
 
 import com.dj.im.sdk.*
+import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.net.RetrofitManager
 import com.dj.im.sdk.utils.RxUtil.o
 import com.dj.im.sdk.utils.SpUtil
@@ -31,6 +32,11 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
     }
 
     /**
+     * 获取用户信息
+     */
+    override fun getUserInfo(): ImUser? = service.userInfo
+
+    /**
      * 登录
      *
      * @param token 登录Token
@@ -53,26 +59,6 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
             )
         }))
     }
-
-    /**
-     * 获取用户id
-     */
-    override fun getUserId(): Long = service.userInfo?.id ?: 0L
-
-    /**
-     * 获取用户名
-     */
-    override fun getUserName(): String = service.userInfo?.userName ?: ""
-
-    /**
-     * 用户别名
-     */
-    override fun getAlias(): String = service.userInfo?.alias ?: ""
-
-    /**
-     * 用户头像
-     */
-    override fun getAvatarUrl(): String = service.userInfo?.avatarUrl ?: ""
 
     /**
      * 退出登录
@@ -98,6 +84,8 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
     override fun setOnMarsListener(listener: IMarsListener?) {
         service.marsListener = listener
     }
+
+    override fun getDbDao(): IDBDao = service.dbDao
 
     /**
      * 发送任务

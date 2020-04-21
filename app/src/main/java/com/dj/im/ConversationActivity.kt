@@ -9,7 +9,7 @@ import com.chad.library.adapter.base.BaseViewHolder
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.SingleConversation
-import com.dj.im.sdk.entity.User
+import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.listener.ImListener
 import kotlinx.android.synthetic.main.activity_conversation.*
 
@@ -21,9 +21,9 @@ import kotlinx.android.synthetic.main.activity_conversation.*
 class ConversationActivity : BaseActivity() {
 
     companion object {
-        val user1 = User(697027057683677184L, "q903736665", "", "")
-        val user2 = User(697032868820094976L, "q903736668", "", "")
-        val user3 = User(697417018887741440L, "q903736669", "", "")
+        val user1 = ImUser(697027057683677184L, "q903736665", "", "")
+        val user2 = ImUser(697032868820094976L, "q903736668", "", "")
+        val user3 = ImUser(697417018887741440L, "q903736669", "", "")
     }
 
     /**
@@ -38,10 +38,16 @@ class ConversationActivity : BaseActivity() {
                 helper.setText(R.id.tvUserName, "${item.toUser.userName}(${item.toUser.id})")
                 helper.setText(R.id.tvUnreadCount, item.unReadCount.toString())
                 val lastMessage = item.lastMessage()
-                if (lastMessage?.isRead == true || lastMessage?.fromId != DJIM.getUserId()) {
-                    helper.setText(R.id.tvMessage, item.lastMessage()?.getSummaryDesc())
+                if (lastMessage?.getImMessage()?.isRead == true || lastMessage?.getImMessage()?.fromId != DJIM.getUserInfo()?.id) {
+                    helper.setText(
+                        R.id.tvMessage,
+                        item.lastMessage()?.getImMessage()?.getSummaryDesc()
+                    )
                 } else {
-                    helper.setText(R.id.tvMessage, "[未读]${item.lastMessage()?.getSummaryDesc()}")
+                    helper.setText(
+                        R.id.tvMessage,
+                        "[未读]${item.lastMessage()?.getImMessage()?.getSummaryDesc()}"
+                    )
                 }
             }
         }
@@ -71,7 +77,7 @@ class ConversationActivity : BaseActivity() {
         }
         rvConversation.adapter = mAdapter
 
-        title = DJIM.getUserName()
+        title = DJIM.getUserInfo()?.userName
         mConversations.addAll(DJIM.getAllConversations())
         mAdapter.notifyDataSetChanged()
 

@@ -6,7 +6,8 @@ import android.content.Context.ACTIVITY_SERVICE
 import android.os.Process
 import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.SingleConversation
-import com.dj.im.sdk.entity.User
+import com.dj.im.sdk.convert.conversation.ConversationConvertFactory
+import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
 
@@ -68,35 +69,11 @@ object DJIM {
     }
 
     /**
-     * 获取用户id
+     * 获取用户信息
      */
-    fun getUserId(): Long? {
+    fun getUserInfo(): ImUser? {
         assertionInit()
-        return ServiceManager.instance.getUserId()
-    }
-
-    /**
-     * 获取用户名
-     */
-    fun getUserName(): String? {
-        assertionInit()
-        return ServiceManager.instance.getUserName()
-    }
-
-    /**
-     * 用户别名
-     */
-    fun getAlias(): String? {
-        assertionInit()
-        return ServiceManager.instance.getAlias()
-    }
-
-    /**
-     * 用户头像
-     */
-    fun getAvatarUrl(): String? {
-        assertionInit()
-        return ServiceManager.instance.getAvatarUrl()
+        return ServiceManager.instance.getUserInfo()
     }
 
     /**
@@ -107,7 +84,7 @@ object DJIM {
     /**
      * 返回单聊的会话
      */
-    fun getSingleConversation(toUser: User): Conversation {
+    fun getSingleConversation(toUser: ImUser): Conversation {
         assertionInit()
         return SingleConversation(toUser)
     }
@@ -117,8 +94,16 @@ object DJIM {
      */
     fun getAllConversations(): List<Conversation> {
         assertionInit()
-        ServiceManager.instance.getUserId()?.let {
-            return ServiceManager.instance.conversationDao.getConversations(it)
+        ServiceManager.instance.getUserInfo()?.id?.let {
+            val conversations = ServiceManager.instance.getDb()?.getConversations(it)
+            val result = ArrayList<Conversation>()
+            conversations?.forEach { c ->
+                val convert = ConversationConvertFactory.convert(c)
+                if (convert != null) {
+                    result.add(convert)
+                }
+            }
+            return result
         }
         return emptyList()
     }

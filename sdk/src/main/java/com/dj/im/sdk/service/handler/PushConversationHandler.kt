@@ -4,6 +4,7 @@ import android.util.Log
 import com.dj.im.sdk.proto.PrPushConversation
 import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.service.ImService
+import com.dj.im.sdk.utils.MessageConvertUtil
 
 
 /**
@@ -17,14 +18,14 @@ internal class PushConversationHandler(private val mService: ImService) : IPushH
         val conversationResponse =
             PrPushConversation.PushConversationResponse.parseFrom(response.data)
         // 先清空会话信息
-        mService.conversationDao.clearConversation(mService.userInfo!!.id)
+        mService.dbDao.clearConversation(mService.userInfo!!.id)
         // 保存到数据库中
         for (conversation in conversationResponse.conversationsList) {
-            mService.conversationDao.addUser(
+            mService.dbDao.addUser(
                 mService.userInfo!!.id,
-                conversation.toUserInfo
+                MessageConvertUtil.prUser2ImUser(conversation.toUserInfo)
             )
-            mService.conversationDao.addConversation(mService.userInfo!!.id, conversation)
+            mService.dbDao.addConversation(mService.userInfo!!.id, conversation)
         }
         // 通知回调
         mService.marsListener?.onChangeConversions()

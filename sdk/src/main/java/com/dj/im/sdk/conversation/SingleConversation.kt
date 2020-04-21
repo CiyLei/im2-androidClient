@@ -1,8 +1,8 @@
 package com.dj.im.sdk.conversation
 
 import com.dj.im.sdk.Constant
-import com.dj.im.sdk.entity.User
-import com.dj.im.sdk.task.message.Message
+import com.dj.im.sdk.convert.message.Message
+import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.utils.EncryptUtil
 
@@ -11,19 +11,19 @@ import com.dj.im.sdk.utils.EncryptUtil
  * Create by ChenLei on 2020/4/14
  * Describe: 单聊会话
  */
-class SingleConversation(val toUser: User) : Conversation() {
+class SingleConversation(val toUser: ImUser) : Conversation() {
 
     /**
      * 修改关键的信息
      */
     override fun sendMessage(message: Message) {
-        message.conversationId = getConversationId()
-        message.conversationType = Constant.ConversationType.SINGLE
-        message.fromId = getFromUserId()
-        message.toId = toUser.id
+        message.getImMessage().conversationId = getConversationId()
+        message.getImMessage().conversationType = Constant.ConversationType.SINGLE
+        message.getImMessage().fromId = getFromUserId()
+        message.getImMessage().toId = toUser.id
         // 保存接收者的用户消息
-        ServiceManager.instance.getUserId()?.let {
-            ServiceManager.instance.conversationDao.addUser(it, toUser)
+        ServiceManager.instance.getUserInfo()?.id?.let {
+            ServiceManager.instance.getDb()?.addUser(it, toUser)
         }
         super.sendMessage(message)
     }

@@ -3,7 +3,8 @@ package com.dj.im.sdk.service.handler
 import com.dj.im.sdk.proto.PrPushMessage
 import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.service.ImService
-import com.dj.im.sdk.task.message.Message
+import com.dj.im.sdk.entity.ImMessage
+import com.dj.im.sdk.utils.MessageConvertUtil
 
 
 /**
@@ -16,22 +17,26 @@ internal class PushMessageHandler(private val mService: ImService) : IPushHandle
         // 有推送消息
         val pushResponse = PrPushMessage.PushMessageResponse.parseFrom(response.data)
         // 保存消息
-        mService.conversationDao.addPushMessage(mService.userInfo!!.id, pushResponse)
-        // 保存消息对方的用户消息
-        mService.conversationDao.addUser(
+        mService.dbDao.addPushMessage(
             mService.userInfo!!.id,
-            pushResponse.otherSideUserInfo
+            MessageConvertUtil.prPushMessage2ImMessage(pushResponse)
+        )
+        // 保存消息对方的用户消息
+        mService.dbDao.addUser(
+            mService.userInfo!!.id,
+            MessageConvertUtil.prUser2ImUser(pushResponse.otherSideUserInfo)
         )
         // 添加会话
-        mService.conversationDao.addConversationForPushMessage(
+        mService.dbDao.addConversationForPushMessage(
             mService.userInfo!!.id,
-            pushResponse
+            MessageConvertUtil.prPushMessage2ImMessage(pushResponse)
         )
+        // 通知更新
         mService.marsListener?.onPushMessage(pushResponse.id)
         mService.marsListener?.onChangeConversions()
         mService.marsListener?.onChangeMessageState(
             pushResponse.id,
-            Message.State.SUCCESS
+            ImMessage.State.SUCCESS
         )
     }
 

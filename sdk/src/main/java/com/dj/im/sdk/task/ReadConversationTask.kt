@@ -1,4 +1,4 @@
-package com.dj.im.sdk.task.conversation
+package com.dj.im.sdk.task
 
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.ITask
@@ -9,7 +9,7 @@ import com.dj.im.sdk.proto.PrReadConversation
  * Create by ChenLei on 2020/4/19
  * Describe: 已读会话消息任务
  */
-internal class ReadConversation(private val mConversationId: String) : ITask.Stub() {
+internal class ReadConversationTask(private val mConversationId: String) : ITask.Stub() {
 
     override fun onCmdId(): Int = Constant.CMD.READ_CONVERSATION
 

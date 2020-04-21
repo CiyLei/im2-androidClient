@@ -9,9 +9,9 @@ import com.dj.im.sdk.Constant
 import com.dj.im.sdk.IMarsListener
 import com.dj.im.sdk.ITask
 import com.dj.im.sdk.ResultEnum
-import com.dj.im.sdk.db.ConversationDao
+import com.dj.im.sdk.db.ImDbDao
 import com.dj.im.sdk.entity.ServerSituationEntity
-import com.dj.im.sdk.entity.User
+import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.service.handler.IPushHandler
 import com.dj.im.sdk.service.handler.PushConversationHandler
 import com.dj.im.sdk.service.handler.PushMessageHandler
@@ -46,7 +46,7 @@ internal class ImService : Service() {
     var serverList: ServerSituationEntity? = null
 
     // 用户信息
-    var userInfo: User? = null
+    var userInfo: ImUser? = null
 
     // app应用id
     lateinit var appId: String
@@ -63,8 +63,8 @@ internal class ImService : Service() {
     // 发送任务列表
     val tasks: ConcurrentHashMap<Int, ITask> = ConcurrentHashMap();
 
-    // 消息Dao
-    val conversationDao = ConversationDao(this)
+    // 数据库Dao
+    val dbDao = ImDbDao(this)
 
     // 推送消息处理器
     val pushHandler = HashMap<Int, IPushHandler>()

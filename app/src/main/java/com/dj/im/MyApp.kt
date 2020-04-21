@@ -5,7 +5,7 @@ import android.support.multidex.MultiDexApplication
 import android.widget.Toast
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.ResultEnum
-import com.dj.im.sdk.task.message.Message
+import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.listener.ImListener
 
 
@@ -25,7 +25,7 @@ class MyApp : MultiDexApplication() {
                 }
             }
 
-            override fun onPushMessage(message: Message) {
+            override fun onPushMessage(message: ImMessage) {
 //                Toast.makeText(this@MyApp, "接收到消息：${message.data}", Toast.LENGTH_SHORT).show()
             }
         })

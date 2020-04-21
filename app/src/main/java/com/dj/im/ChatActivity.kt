@@ -7,9 +7,9 @@ import cn.jiguang.imui.chatinput.model.FileItem
 import com.dj.im.adapter.MessageAdapter
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.conversation.Conversation
-import com.dj.im.sdk.entity.User
-import com.dj.im.sdk.task.message.Message
-import com.dj.im.sdk.task.message.TextMessage
+import com.dj.im.sdk.convert.message.Message
+import com.dj.im.sdk.entity.ImUser
+import com.dj.im.sdk.entity.TextMessage
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlin.properties.Delegates
 
@@ -19,7 +19,7 @@ import kotlin.properties.Delegates
  */
 class ChatActivity : BaseActivity() {
 
-    private var mUser by Delegates.notNull<User>()
+    private var mUser by Delegates.notNull<ImUser>()
     private lateinit var mConversation: Conversation
 
     // 消息列表
@@ -37,7 +37,7 @@ class ChatActivity : BaseActivity() {
         }
 
         override fun onChaneMessageState(messageId: Long, state: Int) {
-            val index = mMessageList.map { it.id }.indexOf(messageId)
+            val index = mMessageList.map { it.getImMessage().id }.indexOf(messageId)
             mAdapter.notifyItemChanged(index)
         }
 
@@ -57,7 +57,7 @@ class ChatActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
-        mUser = intent.getSerializableExtra("user") as User
+        mUser = intent.getParcelableExtra("user") as ImUser
         title = mUser.userName
         // 获取会话对象
         mConversation = DJIM.getSingleConversation(mUser)
@@ -76,7 +76,7 @@ class ChatActivity : BaseActivity() {
         rvMessageList.adapter = mAdapter
         srl.setOnRefreshListener {
             // 刷新获取历史消息
-            mConversation.getHistoryMessage(mMessageList.last().id)
+            mConversation.getHistoryMessage(mMessageList.last().getImMessage().id)
         }
 
         chat_input.setMenuClickListener(object : OnMenuClickListener {

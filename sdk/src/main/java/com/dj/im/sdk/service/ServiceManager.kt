@@ -9,11 +9,12 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import com.dj.im.sdk.IDBDao
 import com.dj.im.sdk.IImService
 import com.dj.im.sdk.IMarsListener
 import com.dj.im.sdk.ITask
-import com.dj.im.sdk.db.ConversationDao
-import com.dj.im.sdk.task.message.Message
+import com.dj.im.sdk.convert.message.MessageConvertFactory
+import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.listener.ImListener
 
 
@@ -29,8 +30,6 @@ internal class ServiceManager private constructor() : ServiceConnection {
             ServiceManager()
         }
     }
-
-    val conversationDao: ConversationDao by lazy { ConversationDao(mApplication) }
 
     private lateinit var mAppId: String
     private lateinit var mAppSecret: String
@@ -69,10 +68,11 @@ internal class ServiceManager private constructor() : ServiceConnection {
          * 消息推送监听
          */
         override fun onPushMessage(messageId: Long) {
-            val message = conversationDao.getMessageForId(getUserId()!!, messageId)
+            val message = getDb()?.getMessageForId(getUserInfo()?.id!!, messageId)
             if (message != null) {
+                val convert = MessageConvertFactory.convert(message)
                 mHandler.post {
-                    imListeners.forEach { it.onPushMessage(message) }
+                    imListeners.forEach { it.onPushMessage(convert) }
                 }
             }
         }
@@ -128,30 +128,19 @@ internal class ServiceManager private constructor() : ServiceConnection {
     }
 
     /**
-     * 获取用户id
+     * 获取用户信息
      */
-    fun getUserId(): Long? = mImService?.userId
-
-    /**
-     * 获取用户名
-     */
-    fun getUserName(): String? = mImService?.userName
-
-    /**
-     * 获取用户id
-     */
-    fun getAlias(): String? = mImService?.alias
-
-    /**
-     * 获取用户名
-     */
-    fun getAvatarUrl(): String? = mImService?.avatarUrl
+    fun getUserInfo(): ImUser? = mImService?.userInfo
 
     /**
      * 发送消息
      */
     fun sendTask(task: ITask) {
         mImService?.sendTask(task)
+    }
+
+    fun getDb(): IDBDao? {
+        return mImService?.dbDao
     }
 
     /**

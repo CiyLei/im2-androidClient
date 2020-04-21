@@ -2,7 +2,7 @@ package com.dj.im.adapter
 
 import com.chad.library.adapter.base.BaseViewHolder
 import com.chad.library.adapter.base.MultipleItemRvAdapter
-import com.dj.im.sdk.task.message.Message
+import com.dj.im.sdk.convert.message.Message
 
 class MessageAdapter(data: List<Message>) : MultipleItemRvAdapter<Message, BaseViewHolder>(data) {
 
@@ -14,5 +14,5 @@ class MessageAdapter(data: List<Message>) : MultipleItemRvAdapter<Message, BaseV
         mProviderDelegate.registerProvider(TextMessageAdapter())
     }
 
-    override fun getViewType(t: Message?): Int = t?.type ?: 0
+    override fun getViewType(t: Message?): Int = t?.getImMessage()?.type ?: 0
 }

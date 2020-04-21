@@ -21,14 +21,14 @@ internal class PushReadConversationHandler(private val mService: ImService) : IP
         val isSelf = readResponse.readUserId == mService.userInfo?.id
         if (isSelf) {
             // 如果是自己已读，则清空会话的未读数量
-            mService.conversationDao.clearConversationUnReadCount(
+            mService.dbDao.clearConversationUnReadCount(
                 mService.userInfo!!.id,
                 readResponse.conversationId
             )
             mService.marsListener?.onChangeConversions()
         } else {
             // 如果是会话对方已读，则设置会话中的消息全部已读
-            mService.conversationDao.readConversationMessage(
+            mService.dbDao.readConversationMessage(
                 mService.userInfo!!.id,
                 readResponse.conversationId
             )
