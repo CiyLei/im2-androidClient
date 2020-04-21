@@ -17,7 +17,8 @@ import com.dj.im.sdk.listener.ImListener
 class MyApp : MultiDexApplication() {
 
     var s = System.currentTimeMillis()
-    var f = System.currentTimeMillis()
+    var p = System.currentTimeMillis()
+    var count = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -33,12 +34,15 @@ class MyApp : MultiDexApplication() {
                 val data = message.imMessage.data.toInt()
                 if (data == 1) {
                     s = System.currentTimeMillis()
-                    f = s
+                    p = s
                     println("----开始接收时间:$s")
                 }
-                if (data % 10 == 0) {
-                    println("----当前接收进度:${data}, 耗时:${System.currentTimeMillis() - f}")
-                    f = System.currentTimeMillis()
+                val c = System.currentTimeMillis()
+                count++
+                if (c - p >= 1000) {
+                    println("----接收性能:${count}")
+                    p = c
+                    count = 0
                 }
                 if (data == 100) {
                     val e = System.currentTimeMillis()
