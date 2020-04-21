@@ -7,7 +7,7 @@ import java.io.File
  * Create by ChenLei on 2020/4/21
  * Describe: 图标消息
  */
-class ImageMessage : FileMessage {
+open class ImageMessage : FileMessage {
 
     constructor(file: File) : super(
         ImMessage(
@@ -15,9 +15,7 @@ class ImageMessage : FileMessage {
             type = ImMessage.Type.IMAGE,
             summary = "[图片]"
         )
-    ) {
-        fileEntity = FileEntity(file.absolutePath, file.name)
-    }
+    )
 
     constructor(imMessage: ImMessage) : super(imMessage)
 }

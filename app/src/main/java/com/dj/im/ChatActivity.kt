@@ -1,24 +1,22 @@
 package com.dj.im
 
 import android.app.Activity
-import android.content.ContentResolver
 import android.content.Intent
-import android.database.Cursor
-import android.net.Uri
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import cn.jiguang.imui.chatinput.listener.OnMenuClickListener
+import cn.jiguang.imui.chatinput.listener.RecordVoiceListener
 import cn.jiguang.imui.chatinput.model.FileItem
 import com.dj.im.adapter.MessageAdapter
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.convert.message.Message
-import com.dj.im.sdk.entity.FileMessage
-import com.dj.im.sdk.entity.ImUser
-import com.dj.im.sdk.entity.ImageMessage
-import com.dj.im.sdk.entity.TextMessage
+import com.dj.im.sdk.entity.*
 import kotlinx.android.synthetic.main.activity_chat.*
 import java.io.File
+import java.text.DateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
 
@@ -115,6 +113,34 @@ class ChatActivity : BaseActivity() {
                     }
                 }
             }
+        })
+        chat_input.setRecordVoiceListener(object : RecordVoiceListener {
+
+            override fun onFinishRecord(voiceFile: File?, duration: Int) {
+                if (voiceFile != null) {
+                    // 发送语音消息
+                    mConversation.sendMessage(VoiceMessage(voiceFile, duration))
+                }
+            }
+
+            override fun onCancelRecord() {
+            }
+
+            override fun onPreviewCancel() {
+            }
+
+            override fun onPreviewSend() {
+            }
+
+            override fun onStartRecord() {
+                // 设置存放录音文件目录
+                val rootDir: File = filesDir
+                val fileDir = rootDir.absolutePath + "/voice"
+                chat_input.recordVoiceButton.setVoiceFilePath(
+                    fileDir, System.currentTimeMillis().toString()
+                )
+            }
+
         })
 
         btnFile.setOnClickListener {

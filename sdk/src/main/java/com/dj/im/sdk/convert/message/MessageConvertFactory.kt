@@ -11,6 +11,7 @@ object MessageConvertFactory {
     // 消息转换工厂
     val messageConverts = arrayListOf<IMessageConvert<out Message>>(
         ImageMessageConvert(),
+        VoiceMessageConvert(),
         FileMessageConvert()
     )
 

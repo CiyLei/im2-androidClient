@@ -59,5 +59,9 @@ data class FileEntity(
     /**
      * 网络资源id
      */
-    var netResId: String = ""
+    var netResId: String = "",
+    /**
+     * 额外的信息
+     */
+    var extra: HashMap<String, String> = HashMap()
 )

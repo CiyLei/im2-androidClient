@@ -84,7 +84,6 @@ class ConversationActivity : BaseActivity() {
 
         btnLogout.setOnClickListener { logout() }
 
-//        Glide.with(this).load("http://192.168.2.116:8081/download/eb41fbbce47848d2a9a6ee2894b351c1").into(ivTest)
     }
 
     override fun onDestroy() {

@@ -81,6 +81,10 @@ data class ImMessage(
          */
         const val IMAGE = 1
         /**
+         * 语音类型
+         */
+        const val VOICE = 3
+        /**
          * 文件类型
          */
         const val FILE = 4
