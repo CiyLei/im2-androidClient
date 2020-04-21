@@ -8,7 +8,7 @@ import java.io.File
  * Create by ChenLei on 2020/4/21
  * Describe: 文件消息
  */
-class FileMessage : Message {
+open class FileMessage : Message {
 
     private val mGson = Gson()
 

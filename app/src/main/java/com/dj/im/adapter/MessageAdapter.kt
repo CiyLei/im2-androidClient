@@ -12,6 +12,7 @@ class MessageAdapter(data: List<Message>) : MultipleItemRvAdapter<Message, BaseV
 
     override fun registerItemProvider() {
         mProviderDelegate.registerProvider(TextMessageAdapter())
+        mProviderDelegate.registerProvider(ImageMessageAdapter())
         mProviderDelegate.registerProvider(FileMessageAdapter())
     }
 

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.dj.im.sdk.DJIM
@@ -82,6 +83,8 @@ class ConversationActivity : BaseActivity() {
         mAdapter.notifyDataSetChanged()
 
         btnLogout.setOnClickListener { logout() }
+
+//        Glide.with(this).load("http://192.168.2.116:8081/download/eb41fbbce47848d2a9a6ee2894b351c1").into(ivTest)
     }
 
     override fun onDestroy() {

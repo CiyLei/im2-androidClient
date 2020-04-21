@@ -77,6 +77,10 @@ data class ImMessage(
          */
         const val TEXT = 0
         /**
+         * 图片类型
+         */
+        const val IMAGE = 1
+        /**
          * 文件类型
          */
         const val FILE = 4

@@ -15,6 +15,7 @@ import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.entity.FileMessage
 import com.dj.im.sdk.entity.ImUser
+import com.dj.im.sdk.entity.ImageMessage
 import com.dj.im.sdk.entity.TextMessage
 import kotlinx.android.synthetic.main.activity_chat.*
 import java.io.File
@@ -97,13 +98,22 @@ class ChatActivity : BaseActivity() {
             override fun switchToGalleryMode(): Boolean = true
 
             override fun onSendTextMessage(input: CharSequence?): Boolean {
-                // 发送消息
-                mConversation.sendMessage(TextMessage(input.toString()))
+                if (input?.isNotBlank() == true) {
+                    // 发送消息
+                    mConversation.sendMessage(TextMessage(input.toString()))
+                }
                 return true
             }
 
             override fun onSendFiles(list: MutableList<FileItem>?) {
-
+                if (list?.isNotEmpty() == true) {
+                    when (list[0].type) {
+                        FileItem.Type.Image -> {
+                            // 发送图片消息
+                            mConversation.sendMessage(ImageMessage(File(list[0].filePath)))
+                        }
+                    }
+                }
             }
         })
 
