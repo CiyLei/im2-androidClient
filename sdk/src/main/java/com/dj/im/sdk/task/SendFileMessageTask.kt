@@ -16,7 +16,7 @@ import okhttp3.MultipartBody
  * Create by ChenLei on 2020/4/21
  * Describe: 发送文件的任务
  */
-class SendFileMessageTask : SendTextMessageTask() {
+open class SendFileMessageTask : SendTextMessageTask() {
 
     private lateinit var mFileMessage: FileMessage
     // 临时保存的本地文件路径

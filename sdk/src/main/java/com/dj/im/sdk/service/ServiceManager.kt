@@ -31,10 +31,10 @@ internal class ServiceManager private constructor() : ServiceConnection {
         }
     }
 
+    lateinit var application: Application
     private lateinit var mAppId: String
     private lateinit var mAppSecret: String
     private lateinit var mDeviceCode: String
-    private lateinit var mApplication: Application
     private var mHandler = Handler(Looper.getMainLooper())
 
     // 连接情况回调
@@ -109,7 +109,7 @@ internal class ServiceManager private constructor() : ServiceConnection {
      * 初始化
      */
     fun init(application: Application, appId: String, appSecret: String, deviceCode: String) {
-        mApplication = application
+        this.application = application
         mAppId = appId
         mAppSecret = appSecret
         mDeviceCode = deviceCode
@@ -165,12 +165,12 @@ internal class ServiceManager private constructor() : ServiceConnection {
      */
     private fun checkStartService() {
         if (mImService == null) {
-            val imIntent = Intent(mApplication, ImService::class.java)
+            val imIntent = Intent(application, ImService::class.java)
             imIntent.putExtra("appId", mAppId)
             imIntent.putExtra("appSecret", mAppSecret)
             imIntent.putExtra("deviceCode", mDeviceCode)
-            mApplication.startService(imIntent)
-            if (!mApplication.bindService(imIntent, this, Service.BIND_AUTO_CREATE)) {
+            application.startService(imIntent)
+            if (!application.bindService(imIntent, this, Service.BIND_AUTO_CREATE)) {
                 Log.e("ServiceManager", "【ImService 开启失败】")
             }
         }

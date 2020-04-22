@@ -68,4 +68,9 @@ internal object Constant {
          */
         const val GROUP = 1
     }
+
+    /**
+     * 消息内容（data）的最大长度
+     */
+    const val MESSAGE_DATA_MAX_LENGTH = 20000
 }

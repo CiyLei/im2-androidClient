@@ -112,7 +112,7 @@ abstract class Conversation {
         // 在发送任务的工厂中找到真正的发送任务类
         val sendMessage = SendMessageTaskFactory.sendMessageTask(message)
         if (sendMessage != null) {
-            addMessage(message)
+            addMessage(sendMessage)
             return true
         }
         return false

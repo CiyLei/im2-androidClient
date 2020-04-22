@@ -16,10 +16,6 @@ import com.dj.im.sdk.listener.ImListener
  */
 class MyApp : MultiDexApplication() {
 
-    var s = System.currentTimeMillis()
-    var p = System.currentTimeMillis()
-    var count = 0
-
     override fun onCreate() {
         super.onCreate()
         DJIM.getImListeners().add(object : ImListener() {
@@ -40,23 +36,6 @@ class MyApp : MultiDexApplication() {
             }
 
             override fun onPushMessage(message: Message) {
-                val data = message.imMessage.data.toInt()
-                if (data == 1) {
-                    s = System.currentTimeMillis()
-                    p = s
-                    println("----开始接收时间:$s")
-                }
-                val c = System.currentTimeMillis()
-                count++
-                if (c - p >= 1000) {
-                    println("----接收性能:${count}")
-                    p = c
-                    count = 0
-                }
-                if (data == 100) {
-                    val e = System.currentTimeMillis()
-                    println("----结束接收时间:${e}, 总耗时:${e - s}")
-                }
             }
         })
         DJIM.init(

@@ -1,6 +1,7 @@
 package com.dj.im.sdk.convert.send
 
 import com.dj.im.sdk.convert.message.Message
+import com.dj.im.sdk.task.SendBigTextMessageTask
 import com.dj.im.sdk.task.SendFileMessageTask
 import com.dj.im.sdk.task.SendTextMessageTask
 
@@ -10,7 +11,8 @@ import com.dj.im.sdk.task.SendTextMessageTask
  */
 object SendMessageTaskFactory {
 
-    val sendMessageTasks = arrayListOf<AbsSendMessageTask>(SendFileMessageTask())
+    val sendMessageTasks =
+        arrayListOf<AbsSendMessageTask>(SendBigTextMessageTask(), SendFileMessageTask())
 
     fun sendMessageTask(message: Message): Message? {
         sendMessageTasks.forEach {

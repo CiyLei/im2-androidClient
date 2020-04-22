@@ -88,6 +88,10 @@ data class ImMessage(
          * 文件类型
          */
         const val FILE = 4
+        /**
+         * 大文本类型
+         */
+        const val BIG_TEXT = 5
     }
 
     /**
@@ -164,4 +168,18 @@ data class ImMessage(
             ServiceManager.instance.getDb()?.addPushMessage(it, this)
         }
     }
+
+    fun clone(): ImMessage = ImMessage(
+        id,
+        conversationId,
+        conversationType,
+        fromId,
+        toId,
+        type,
+        data,
+        summary,
+        createTime,
+        state,
+        isRead
+    )
 }

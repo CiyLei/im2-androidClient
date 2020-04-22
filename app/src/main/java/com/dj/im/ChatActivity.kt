@@ -150,25 +150,6 @@ class ChatActivity : BaseActivity() {
             intent.setType("*/*")
             this.startActivityForResult(intent, 12345)
         }
-
-        btnTest.setOnClickListener {
-            val s = System.currentTimeMillis()
-            var p = s
-            var count = 0
-            println("----开始发送时间:$s")
-            for (i in 1..100) {
-                count++
-                mConversation.sendMessage(TextMessage(i.toString()))
-                val c = System.currentTimeMillis()
-                if (c - p >= 1000) {
-                    println("----发送性能:${count}")
-                    p = c
-                    count = 0
-                }
-            }
-            val e = System.currentTimeMillis()
-            println("----结束发送时间:${e}, 总耗时:${e - s}")
-        }
     }
 
     override fun onDestroy() {

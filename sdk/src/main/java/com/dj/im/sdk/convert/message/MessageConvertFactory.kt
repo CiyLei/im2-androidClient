@@ -12,7 +12,8 @@ object MessageConvertFactory {
     val messageConverts = arrayListOf<IMessageConvert<out Message>>(
         ImageMessageConvert(),
         VoiceMessageConvert(),
-        FileMessageConvert()
+        FileMessageConvert(),
+        BigTextMessageConvert()
     )
 
     /**
