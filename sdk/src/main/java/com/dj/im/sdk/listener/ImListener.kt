@@ -42,4 +42,9 @@ open class ImListener {
      * @param messageList 读取的历史消息
      */
     open fun onReadHistoryMessage(conversationId: String, messageList: List<Message>) {}
+
+    /**
+     * 离线监听
+     */
+    open fun onOffline(code: Int, message: String) {};
 }

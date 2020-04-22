@@ -13,6 +13,11 @@ internal object Constant {
         const val AUTH = 1001
 
         /**
+         * 下线
+         */
+        var OFFLINE = 1002
+
+        /**
          * 发送消息
          */
         const val SEND_MESSAGE = 1004

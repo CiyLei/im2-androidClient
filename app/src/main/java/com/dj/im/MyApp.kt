@@ -1,12 +1,12 @@
 package com.dj.im
 
+import android.content.Intent
 import android.provider.Settings
 import android.support.multidex.MultiDexApplication
 import android.widget.Toast
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.ResultEnum
 import com.dj.im.sdk.convert.message.Message
-import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.listener.ImListener
 
 
@@ -23,6 +23,15 @@ class MyApp : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         DJIM.getImListeners().add(object : ImListener() {
+
+            override fun onOffline(code: Int, message: String) {
+                Toast.makeText(this@MyApp, message, Toast.LENGTH_SHORT).show()
+                //指向登录界面
+                val intent = Intent(this@MyApp, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+            }
+
             override fun onLogin(code: Int, message: String) {
                 if (code != ResultEnum.Success.code) {
                     Toast.makeText(this@MyApp, message, Toast.LENGTH_SHORT).show()

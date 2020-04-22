@@ -56,6 +56,15 @@ internal class ServiceManager private constructor() : ServiceConnection {
         }
 
         /**
+         * 离线监听
+         */
+        override fun onOffline(code: Int, message: String) {
+            mHandler.post {
+                imListeners.forEach { it.onOffline(code, message) }
+            }
+        }
+
+        /**
          * 服务连接监听
          */
         override fun onConnect(code: Int, message: String) {

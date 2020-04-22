@@ -12,7 +12,9 @@ import com.dj.im.sdk.ResultEnum
 import com.dj.im.sdk.db.ImDbDao
 import com.dj.im.sdk.entity.ServerSituationEntity
 import com.dj.im.sdk.entity.ImUser
+import com.dj.im.sdk.service.handler.*
 import com.dj.im.sdk.service.handler.IPushHandler
+import com.dj.im.sdk.service.handler.OfflineHandler
 import com.dj.im.sdk.service.handler.PushConversationHandler
 import com.dj.im.sdk.service.handler.PushMessageHandler
 import com.dj.im.sdk.service.handler.PushReadConversationHandler
@@ -76,6 +78,7 @@ internal class ImService : Service() {
         pushHandler[Constant.CMD.PUSH_MESSAGE] = PushMessageHandler(this)
         pushHandler[Constant.CMD.PUSH_CONVERSATION] = PushConversationHandler(this)
         pushHandler[Constant.CMD.PUSH_READ_CONVERSATION] = PushReadConversationHandler(this)
+        pushHandler[Constant.CMD.OFFLINE] = OfflineHandler(this)
         Mars.loadDefaultMarsLibrary()
     }
 
