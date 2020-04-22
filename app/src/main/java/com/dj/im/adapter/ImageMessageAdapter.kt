@@ -30,7 +30,7 @@ class ImageMessageAdapter : BaseItemProvider<ImageMessage, BaseViewHolder>() {
             // 如果是自己发送的话
             helper.setText(
                 R.id.rvSelfUserName,
-                "${data?.getFromUser()?.userName}(${data?.getFromUser()?.id})"
+                "${data?.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
             )
             val iv = helper.getView<ImageView>(R.id.ivSelfData)
             if (data?.fileEntity?.localPath?.isNotBlank() == true) {
@@ -56,7 +56,7 @@ class ImageMessageAdapter : BaseItemProvider<ImageMessage, BaseViewHolder>() {
             // 不是自己发送的
             helper.setText(
                 R.id.rvOtherUserName,
-                "${data?.getFromUser()?.userName}(${data?.getFromUser()?.id})"
+                "${data?.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
             )
             val iv = helper.getView<ImageView>(R.id.ivOtherData)
             if (data?.fileEntity?.localPath?.isNotBlank() == true) {

@@ -30,7 +30,7 @@ class VoiceMessageAdapter : BaseItemProvider<VoiceMessage, BaseViewHolder>() {
             // 如果是自己发送的话
             helper.setText(
                 R.id.rvSelfUserName,
-                "${data?.getFromUser()?.userName}(${data?.getFromUser()?.id})"
+                "${data?.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
             )
             helper.setText(R.id.tvSelfData, "假装我是语音：${data?.duration}秒")
             helper.setText(
@@ -49,7 +49,7 @@ class VoiceMessageAdapter : BaseItemProvider<VoiceMessage, BaseViewHolder>() {
             // 不是自己发送的
             helper.setText(
                 R.id.rvOtherUserName,
-                "${data?.getFromUser()?.userName}(${data?.getFromUser()?.id})"
+                "${data?.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
             )
             helper.setText(R.id.tvOtherData, "假装我是语音：${data?.duration}秒")
         }

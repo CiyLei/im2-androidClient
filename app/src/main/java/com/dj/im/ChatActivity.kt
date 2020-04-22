@@ -65,7 +65,7 @@ class ChatActivity : BaseActivity() {
         setContentView(R.layout.activity_chat)
 
         mUser = intent.getParcelableExtra("user") as ImUser
-        title = mUser.userName
+        title = "${mUser.alias}(${mUser.userName})"
         // 获取会话对象
         mConversation = DJIM.getSingleConversation(mUser)
         // 添加最新的消息列表

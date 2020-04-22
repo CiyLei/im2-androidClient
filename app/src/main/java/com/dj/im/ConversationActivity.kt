@@ -36,7 +36,7 @@ class ConversationActivity : BaseActivity() {
 
         override fun convert(helper: BaseViewHolder, item: Conversation?) {
             if (item is SingleConversation) {
-                helper.setText(R.id.tvUserName, "${item.toUser.userName}(${item.toUser.id})")
+                helper.setText(R.id.tvUserName, "${item.toUser.alias}(${item.toUser.userName})")
                 helper.setText(R.id.tvUnreadCount, item.unReadCount.toString())
                 val lastMessage = item.lastMessage()
                 if (lastMessage?.imMessage?.isRead == true || lastMessage?.imMessage?.fromId != DJIM.getUserInfo()?.id) {
@@ -78,7 +78,7 @@ class ConversationActivity : BaseActivity() {
         }
         rvConversation.adapter = mAdapter
 
-        title = DJIM.getUserInfo()?.userName
+        title = "${DJIM.getUserInfo()?.alias}(${DJIM.getUserInfo()?.userName})"
         mConversations.addAll(DJIM.getAllConversations())
         mAdapter.notifyDataSetChanged()
 

@@ -26,7 +26,7 @@ class FileMessageAdapter : BaseItemProvider<FileMessage, BaseViewHolder>() {
             // 如果是自己发送的话
             helper.setText(
                 R.id.rvSelfUserName,
-                "${data?.getFromUser()?.userName}(${data?.getFromUser()?.id})"
+                "${data?.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
             )
             helper.setText(
                 R.id.tvSelfData,
@@ -48,7 +48,7 @@ class FileMessageAdapter : BaseItemProvider<FileMessage, BaseViewHolder>() {
             // 不是自己发送的
             helper.setText(
                 R.id.rvOtherUserName,
-                "${data?.getFromUser()?.userName}(${data?.getFromUser()?.id})"
+                "${data?.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
             )
             helper.setText(R.id.tvOtherData, "假装自己是文件:${data?.imMessage?.data}")
         }

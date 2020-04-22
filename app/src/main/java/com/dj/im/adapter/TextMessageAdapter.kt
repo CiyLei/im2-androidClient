@@ -27,7 +27,7 @@ class TextMessageAdapter : BaseItemProvider<TextMessage, BaseViewHolder>() {
             // 如果是自己发送的话
             helper.setText(
                 R.id.rvSelfUserName,
-                "${data?.getFromUser()?.userName}(${data?.getFromUser()?.id})"
+                "${data?.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
             )
             helper.setText(R.id.tvSelfData, data?.imMessage?.data)
             helper.setText(
@@ -46,7 +46,7 @@ class TextMessageAdapter : BaseItemProvider<TextMessage, BaseViewHolder>() {
             // 不是自己发送的
             helper.setText(
                 R.id.rvOtherUserName,
-                "${data?.getFromUser()?.userName}(${data?.getFromUser()?.id})"
+                "${data?.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
             )
             helper.setText(R.id.tvOtherData, data?.imMessage?.data)
         }
