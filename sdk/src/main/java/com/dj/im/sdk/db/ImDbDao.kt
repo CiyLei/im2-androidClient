@@ -144,7 +144,7 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
                         message.toId,
                         message.data,
                         message.summary,
-                        message.createTime,
+                        message.createTime.time,
                         message.state,
                         message.isRead
                     )
