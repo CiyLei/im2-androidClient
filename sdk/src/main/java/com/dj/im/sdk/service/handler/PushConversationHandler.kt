@@ -21,6 +21,7 @@ internal class PushConversationHandler(private val mService: ImService) : IPushH
         mService.dbDao.clearConversation(mService.userInfo!!.id)
         // 保存到数据库中
         for (conversation in conversationResponse.conversationsList) {
+            // 先添加用户信息
             mService.dbDao.addUser(
                 mService.userInfo!!.id,
                 MessageConvertUtil.prUser2ImUser(conversation.toUserInfo)

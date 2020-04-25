@@ -37,7 +37,7 @@ internal class ImDB private constructor(context: Context) :
             "CREATE TABLE `Message`  (\n" +
                     "  `userId` INTEGER(0) NOT NULL ,\n" +
                     "  `id` INTEGER(0) NOT NULL ,\n" +
-                    "  `conversationId` char(32) NULL ,\n" +
+                    "  `conversationKey` char(32) NULL ,\n" +
                     "  `conversationType` INTEGER(0) NULL ,\n" +
                     "  `type` INTEGER(0) NULL ,\n" +
                     "  `fromId` INTEGER(0) NULL ,\n" +
@@ -50,7 +50,7 @@ internal class ImDB private constructor(context: Context) :
                     "  PRIMARY KEY (`userId`, `id`)\n" +
                     ");"
         )
-        db?.execSQL("CREATE INDEX userId_conversationId_index ON Message (userId,conversationId);")
+        db?.execSQL("CREATE INDEX userId_conversationKey_index ON Message (userId,conversationKey);")
         // 创建用户表
         db?.execSQL(
             "CREATE TABLE `User`  (\n" +
@@ -66,11 +66,11 @@ internal class ImDB private constructor(context: Context) :
         db?.execSQL(
             "CREATE TABLE `Conversation`  (\n" +
                     "  `userId` INTEGER(0) NOT NULL,\n" +
-                    "  `id` char(32) NOT NULL,\n" +
+                    "  `cKey` char(32) NOT NULL,\n" +
                     "  `type` INTEGER(0) NULL,\n" +
                     "  `unReadCount` INTEGER(0) NULL,\n" +
                     "  `tUserId` INTEGER(0) NULL,\n" +
-                    "  PRIMARY KEY (`userId`, `id`)\n" +
+                    "  PRIMARY KEY (`userId`, `cKey`)\n" +
                     ");"
         )
     }

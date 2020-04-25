@@ -17,7 +17,7 @@ class SingleConversation(val toUser: ImUser) : Conversation() {
      * 修改关键的信息
      */
     override fun sendMessage(message: Message): Boolean {
-        message.imMessage.conversationId = getConversationId()
+        message.imMessage.conversationKey = getConversationKey()
         message.imMessage.conversationType = Constant.ConversationType.SINGLE
         message.imMessage.fromId = getFromUserId()
         message.imMessage.toId = toUser.id
@@ -31,7 +31,7 @@ class SingleConversation(val toUser: ImUser) : Conversation() {
     /**
      * 生成单聊的会话id
      */
-    override fun getConversationId(): String {
+    override fun getConversationKey(): String {
         return generateConversationId(getFromUserId(), toUser.id)
     }
 

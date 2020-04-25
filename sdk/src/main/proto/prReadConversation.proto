@@ -3,6 +3,6 @@ option java_package = "com.dj.im.sdk.proto";
 option java_outer_classname = "PrReadConversation";
 
 message ReadConversationRequest {
-    // 会话id
-    string conversationId = 1;
+    // 会话key
+    string conversationKey = 1;
 }

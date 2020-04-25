@@ -15,7 +15,7 @@ object MessageConvertUtil {
     fun prPushMessage2ImMessage(prMessage: PrPushMessage.PushMessageResponse): ImMessage {
         return ImMessage(
             prMessage.id,
-            prMessage.conversationId,
+            prMessage.conversationKey,
             prMessage.conversationType,
             prMessage.fromId,
             prMessage.toId,

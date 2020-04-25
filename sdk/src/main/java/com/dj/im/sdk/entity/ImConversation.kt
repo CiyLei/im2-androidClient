@@ -12,7 +12,7 @@ data class ImConversation(
     /**
      * 会话id
      */
-    val id: String,
+    val key: String,
     /**
      * 会话类型
      */
@@ -36,7 +36,7 @@ data class ImConversation(
     override fun describeContents() = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
-        writeString(id)
+        writeString(key)
         writeInt(type)
         writeInt(unReadCount)
         writeLong(otherSideUserId)

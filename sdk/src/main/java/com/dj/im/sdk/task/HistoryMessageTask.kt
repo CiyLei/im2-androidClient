@@ -17,7 +17,7 @@ import com.dj.im.sdk.utils.MessageConvertUtil
  * Describe: 获取历史消息
  */
 internal class HistoryMessageTask(
-    private val mConversationId: String,
+    private val mConversationKey: String,
     private val mMessageId: Long
 ) :
     ITask.Stub() {
@@ -27,7 +27,7 @@ internal class HistoryMessageTask(
     override fun onCmdId(): Int = Constant.CMD.GET_HISTORY_MESSAGE
 
     override fun onReq2Buf(): ByteArray = PrGetHistoryMessage.GetHistoryMessageRequest.newBuilder()
-        .setConversationId(mConversationId).setMessageId(mMessageId).build().toByteArray()
+        .setConversationKey(mConversationKey).setMessageId(mMessageId).build().toByteArray()
 
     override fun onBuf2Resp(buf: ByteArray?) {
         val response = PrResponseMessage.Response.parseFrom(buf)
@@ -53,7 +53,7 @@ internal class HistoryMessageTask(
                 // 网络获取失败，返回数据库中100条的历史消息
                 ServiceManager.instance.getDb()?.getHistoryMessage(
                     this,
-                    mConversationId,
+                    mConversationKey,
                     mMessageId,
                     100
                 )?.forEach { m ->
@@ -63,7 +63,7 @@ internal class HistoryMessageTask(
                 // 网络获取成功，返回最新的20条历史消息
                 ServiceManager.instance.getDb()?.getHistoryMessage(
                     this,
-                    mConversationId,
+                    mConversationKey,
                     mMessageId,
                     Conversation.pageSize
                 )?.forEach { m ->
@@ -74,7 +74,7 @@ internal class HistoryMessageTask(
             mHandler.post {
                 ServiceManager.instance.imListeners.forEach {
                     it.onReadHistoryMessage(
-                        mConversationId,
+                        mConversationKey,
                         historyMessage.map { m -> MessageConvertFactory.convert(m) }
                     )
                 }

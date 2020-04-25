@@ -34,7 +34,7 @@ open class ImListener {
     /**
      * 会话已读监听
      */
-    open fun onChangeConversationRead(conversationId: String) {}
+    open fun onChangeConversationRead(conversationKey: String) {}
 
     /**
      * 成功读取历史消息

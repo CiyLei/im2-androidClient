@@ -28,7 +28,7 @@ open class SendTextMessageTask : AbsSendMessageTask() {
     override fun onCmdId(): Int = Constant.CMD.SEND_MESSAGE
 
     override fun onReq2Buf(): ByteArray = PrSendMessage.SendMessageRequest.newBuilder()
-        .setConversationId(getMessage().imMessage.conversationId)
+        .setConversationKey(getMessage().imMessage.conversationKey)
         .setConversationType(getMessage().imMessage.conversationType)
         .setFromId(getMessage().imMessage.fromId)
         .setToId(getMessage().imMessage.toId)

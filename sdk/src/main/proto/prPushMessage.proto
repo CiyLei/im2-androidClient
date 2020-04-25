@@ -6,8 +6,8 @@ import "prUser.proto";
 message PushMessageResponse {
     // 消息id
     int64 id = 1;
-    // 会话id（单聊:MD5(低位用户id + 高位用户id)，群聊:群Id）
-    string conversationId = 2;
+    // 会话key（单聊:MD5(低位用户id + 高位用户id)，群聊:群Id）
+    string conversationKey = 2;
     // 会话类型（0:单聊、1:群聊）
     int32 conversationType = 3;
     // 消息来源用户id

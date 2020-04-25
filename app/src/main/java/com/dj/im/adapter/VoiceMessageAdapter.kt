@@ -15,7 +15,7 @@ import com.dj.im.sdk.entity.VoiceMessage
  */
 class VoiceMessageAdapter : BaseItemProvider<VoiceMessage, BaseViewHolder>() {
 
-    private val mImagePrefix = "http://192.168.2.116:8081/download/"
+    private val mImagePrefix = "http://192.168.1.101:8081/download/"
     private var mMediaPlayer: MediaPlayer? = null
 
     override fun layout(): Int = R.layout.item_voice

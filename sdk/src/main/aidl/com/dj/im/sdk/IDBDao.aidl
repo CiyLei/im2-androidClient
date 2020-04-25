@@ -10,13 +10,12 @@ interface IDBDao {
     void addConversationForPushMessage(long userId,in ImMessage message);
     void addUser(long userId,in ImUser user);
     void clearConversation(long userId);
-//    void addConversation(long userId,in ImConversation conversation);
-    void clearConversationUnReadCount(long userId, String conversationId);
-    void readConversationMessage(long userId, String conversationId);
+    void clearConversationUnReadCount(long userId, String conversationKey);
+    void readConversationMessage(long userId, String conversationKey);
     List<ImConversation> getConversations(long userId);
-    ImMessage getLastMessage(long userId, String conversationId);
+    ImMessage getLastMessage(long userId, String conversationKey);
     ImMessage getMessageForId(long userId, long messageId);
-    List<ImMessage> getNewestMessages(long userId, String conversationId, int pageSize);
+    List<ImMessage> getNewestMessages(long userId, String conversationKey, int pageSize);
     ImUser getUser(long userId, long id);
-    List<ImMessage> getHistoryMessage(long userId, String conversationId, long messageId, int pageSize);
+    List<ImMessage> getHistoryMessage(long userId, String conversationKey, long messageId, int pageSize);
 }

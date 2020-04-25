@@ -11,8 +11,8 @@ message PushConversationResponse {
 
 // 一条会话的具体信息
 message Conversation {
-    // 会话id
-    string conversationId = 1;
+    // 会话key
+    string conversationKey = 1;
     // 会话类型（0:单聊、1:群聊）
     int32 conversationType = 2;
     // 未读数量

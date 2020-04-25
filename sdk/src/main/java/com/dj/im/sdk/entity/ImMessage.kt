@@ -20,7 +20,7 @@ data class ImMessage(
     /**
      * 会话id（单聊:MD5(低位用户id + 高位用户id)，群聊:群Id）
      */
-    var conversationId: String = "",
+    var conversationKey: String = "",
 
     /**
      * 会话类别（0:单聊、1:群聊）
@@ -140,7 +140,7 @@ data class ImMessage(
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
         writeLong(id)
-        writeString(conversationId)
+        writeString(conversationKey)
         writeInt(conversationType)
         writeLong(fromId)
         writeLong(toId)
@@ -171,7 +171,7 @@ data class ImMessage(
 
     fun clone(): ImMessage = ImMessage(
         id,
-        conversationId,
+        conversationKey,
         conversationType,
         fromId,
         toId,

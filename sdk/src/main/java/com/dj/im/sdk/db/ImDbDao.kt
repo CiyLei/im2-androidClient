@@ -26,7 +26,7 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
     @Synchronized
     override fun getHistoryMessage(
         userId: Long,
-        conversationId: String?,
+        conversationKey: String?,
         messageId: Long,
         pageSize: Int
     ): MutableList<ImMessage> {
@@ -43,15 +43,15 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
                             "\tMessage \n" +
                             "WHERE\n" +
                             "\tuserId = ? \n" +
-                            "\tAND conversationId = ? \n" +
-                            "\tAND ( createTime < ( SELECT createTime FROM Message WHERE userId = ? AND conversationId = ? AND id = ? ) OR id < ? ) \n" +
+                            "\tAND conversationKey = ? \n" +
+                            "\tAND ( createTime < ( SELECT createTime FROM Message WHERE userId = ? AND conversationKey = ? AND id = ? ) OR id < ? ) \n" +
                             "ORDER BY\n" +
                             "\tcreateTime DESC,\n" +
                             "\tid DESC", arrayOf(
                         userId.toString(),
-                        conversationId,
+                        conversationKey,
                         userId.toString(),
-                        conversationId,
+                        conversationKey,
                         messageId.toString(),
                         messageId.toString()
                     )
@@ -64,16 +64,16 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
                             "\tMessage \n" +
                             "WHERE\n" +
                             "\tuserId = ? \n" +
-                            "\tAND conversationId = ? \n" +
-                            "\tAND ( createTime < ( SELECT createTime FROM Message WHERE userId = ? AND conversationId = ? AND id = ? ) OR id < ? ) \n" +
+                            "\tAND conversationKey = ? \n" +
+                            "\tAND ( createTime < ( SELECT createTime FROM Message WHERE userId = ? AND conversationKey = ? AND id = ? ) OR id < ? ) \n" +
                             "ORDER BY\n" +
                             "\tcreateTime DESC,\n" +
                             "\tid DESC \n" +
                             "\tLIMIT 0,?", arrayOf(
                         userId.toString(),
-                        conversationId,
+                        conversationKey,
                         userId.toString(),
-                        conversationId,
+                        conversationKey,
                         messageId.toString(),
                         messageId.toString(),
                         pageSize.toString()
@@ -100,7 +100,7 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
     private fun getMessageFromCursor(cursor: Cursor): ImMessage {
         val message = ImMessage()
         message.id = cursor.getLong(cursor.getColumnIndex("id"))
-        message.conversationId = cursor.getString(cursor.getColumnIndex("conversationId"))
+        message.conversationKey = cursor.getString(cursor.getColumnIndex("conversationKey"))
         message.conversationType = cursor.getInt(cursor.getColumnIndex("conversationType"))
         message.type = cursor.getInt(cursor.getColumnIndex("type"))
         message.fromId = cursor.getLong(cursor.getColumnIndex("fromId"))
@@ -133,11 +133,11 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
             } else {
                 // 如果消息不存在则插入
                 writableDatabase.execSQL(
-                    "insert into Message(userId,id,conversationId,conversationType,type,fromId,toId,data,summary,createTime,state,isRead) values (?,?,?,?,?,?,?,?,?,?,?,?)"
+                    "insert into Message(userId,id,conversationKey,conversationType,type,fromId,toId,data,summary,createTime,state,isRead) values (?,?,?,?,?,?,?,?,?,?,?,?)"
                     , arrayOf(
                         userId,
                         message.id,
-                        message.conversationId,
+                        message.conversationKey,
                         message.conversationType,
                         message.type,
                         message.fromId,
@@ -180,7 +180,7 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
         try {
             val cursor = readableDatabase.rawQuery(
                 "SELECT\n" +
-                        "\tConversation.id,\n" +
+                        "\tConversation.cKey,\n" +
                         "\tConversation.type,\n" +
                         "\tConversation.unReadCount,\n" +
                         "\tUser.id AS userId,\n" +
@@ -193,22 +193,22 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
                         "\tLEFT OUTER JOIN User ON Conversation.userId = User.userId \n" +
                         "\tAND Conversation.tUserId = User.id \n" +
                         "\tLEFT OUTER JOIN Message ON Conversation.userId = Message.userId \n" +
-                        "\tAND Conversation.id = Message.conversationId\n" +
-                        "\tGROUP BY Conversation.userId,Conversation.id\n" +
+                        "\tAND Conversation.cKey = Message.conversationKey\n" +
+                        "\tGROUP BY Conversation.userId,Conversation.cKey\n" +
                         "HAVING\n" +
                         "\tConversation.userId = ?\n" +
                         "\tORDER BY createTime DESC",
                 arrayOf(userId.toString())
             )
             while (cursor.moveToNext()) {
-                val id = cursor.getString(cursor.getColumnIndex("id"))
+                val key = cursor.getString(cursor.getColumnIndex("cKey"))
                 val type = cursor.getInt(cursor.getColumnIndex("type"))
                 val unReadCount = cursor.getInt(cursor.getColumnIndex("unReadCount"))
                 val otherSideUserId = cursor.getLong(cursor.getColumnIndex("userId"))
 //                val userName = cursor.getString(cursor.getColumnIndex("userName"))
 //                val alias = cursor.getString(cursor.getColumnIndex("alias"))
 //                val avatarUrl = cursor.getString(cursor.getColumnIndex("avatarUrl"))
-                result.add(ImConversation(id, type, unReadCount, otherSideUserId))
+                result.add(ImConversation(key, type, unReadCount, otherSideUserId))
             }
             cursor.close()
         } catch (e: Exception) {
@@ -253,12 +253,12 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
      * 获取某个会话的最后一条消息
      */
     @Synchronized
-    override fun getLastMessage(userId: Long, conversationId: String?): ImMessage? {
+    override fun getLastMessage(userId: Long, conversationKey: String?): ImMessage? {
         val readableDatabase = db.readableDatabase
         try {
             val cursor = readableDatabase.rawQuery(
-                "SELECT * FROM Message WHERE userId = ? AND conversationId = ? ORDER BY createTime DESC, id DESC LIMIT 0, 1",
-                arrayOf(userId.toString(), conversationId)
+                "SELECT * FROM Message WHERE userId = ? AND conversationKey = ? ORDER BY createTime DESC, id DESC LIMIT 0, 1",
+                arrayOf(userId.toString(), conversationKey)
             )
             if (cursor.moveToNext()) {
                 val message = getMessageFromCursor(cursor)
@@ -284,10 +284,10 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
         try {
             // 会话不存在，插入会话
             writableDatabase.execSQL(
-                "insert into Conversation(userId,id,type,unReadCount,tUserId) values (?,?,?,?,?)",
+                "insert into Conversation(userId,cKey,type,unReadCount,tUserId) values (?,?,?,?,?)",
                 arrayOf(
                     userId,
-                    conversation.conversationId,
+                    conversation.conversationKey,
                     conversation.conversationType,
                     conversation.unReadCount,
                     conversation.toUserInfo.userId
@@ -308,15 +308,15 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
     @Synchronized
     override fun getNewestMessages(
         userId: Long,
-        conversationId: String?,
+        conversationKey: String?,
         pageSize: Int
     ): MutableList<ImMessage> {
         val result = ArrayList<ImMessage>()
         val readableDatabase = db.readableDatabase
         try {
             val cursor = readableDatabase.rawQuery(
-                "SELECT * FROM Message WHERE userId = ? AND conversationId = ? ORDER BY createTime DESC, id DESC LIMIT 0, ?",
-                arrayOf(userId.toString(), conversationId, pageSize.toString())
+                "SELECT * FROM Message WHERE userId = ? AND conversationKey = ? ORDER BY createTime DESC, id DESC LIMIT 0, ?",
+                arrayOf(userId.toString(), conversationKey, pageSize.toString())
             )
             while (cursor.moveToNext()) {
                 val message = getMessageFromCursor(cursor)
@@ -367,8 +367,8 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
         val isSelf = message.fromId == userId
         try {
             val cursor = writableDatabase.rawQuery(
-                "select * from Conversation where userId = ? and id = ?", arrayOf(
-                    userId.toString(), message.conversationId
+                "select * from Conversation where userId = ? and cKey = ?", arrayOf(
+                    userId.toString(), message.conversationKey
                 )
             )
             if (cursor.moveToNext()) {
@@ -376,18 +376,18 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
                 if (!isSelf) {
                     // 如果会话存在，未读数量加1
                     writableDatabase.execSQL(
-                        "update Conversation set unReadCount = unReadCount + 1 where userId = ? and id = ?",
-                        arrayOf(userId, message.conversationId)
+                        "update Conversation set unReadCount = unReadCount + 1 where userId = ? and cKey = ?",
+                        arrayOf(userId, message.conversationKey)
                     )
                 }
             } else {
                 // TODO 群聊需要区分
                 // 如果会话不存在，创建一个会话
                 writableDatabase.execSQL(
-                    "insert into Conversation(userId,id,type,unReadCount,tUserId) values (?,?,?,?,?)",
+                    "insert into Conversation(userId,cKey,type,unReadCount,tUserId) values (?,?,?,?,?)",
                     arrayOf(
                         userId,
-                        message.conversationId,
+                        message.conversationKey,
                         message.conversationType,
                         // 如果是自己发送消息的话，未读数量为0，否则数量为1
                         if (isSelf) 0 else 1,
@@ -407,12 +407,12 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
      * 自己查看了这个会话
      */
     @Synchronized
-    override fun clearConversationUnReadCount(userId: Long, conversationId: String?) {
+    override fun clearConversationUnReadCount(userId: Long, conversationKey: String?) {
         val writableDatabase = db.writableDatabase
         try {
             writableDatabase.execSQL(
-                "update Conversation set unReadCount = 0 where userId = ? and id = ?",
-                arrayOf(userId, conversationId)
+                "update Conversation set unReadCount = 0 where userId = ? and cKey = ?",
+                arrayOf(userId, conversationKey)
             )
         } catch (e: Exception) {
             e.printStackTrace()
@@ -426,12 +426,12 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
      * 被人查看了这个会话
      */
     @Synchronized
-    override fun readConversationMessage(userId: Long, conversationId: String?) {
+    override fun readConversationMessage(userId: Long, conversationKey: String?) {
         val writableDatabase = db.writableDatabase
         try {
             writableDatabase.execSQL(
-                "update Message set isRead = 1 where userId = ? and conversationId = ?",
-                arrayOf(userId, conversationId)
+                "update Message set isRead = 1 where userId = ? and conversationKey = ?",
+                arrayOf(userId, conversationKey)
             )
         } catch (e: Exception) {
             e.printStackTrace()
