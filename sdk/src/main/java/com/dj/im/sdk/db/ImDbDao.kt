@@ -382,7 +382,6 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
                     )
                 }
             } else {
-                // TODO 群聊需要区分
                 // 如果会话不存在，创建一个会话
                 writableDatabase.execSQL(
                     "insert into Conversation(userId,cKey,type,unReadCount,tUserId) values (?,?,?,?,?)",

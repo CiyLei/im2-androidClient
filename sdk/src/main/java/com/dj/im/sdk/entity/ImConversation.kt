@@ -22,10 +22,25 @@ data class ImConversation(
      */
     val unReadCount: Int,
     /**
-     * 对方用户id
+     * 对方用户id，群聊的话，为群id
      */
     val otherSideUserId: Long
 ) : Parcelable {
+    /**
+     * 会话类型
+     */
+    object Type {
+        /**
+         * 单聊
+         */
+        const val SINGLE = 0
+
+        /**
+         * 群聊
+         */
+        const val GROUP = 1
+    }
+
     constructor(source: Parcel) : this(
         source.readString(),
         source.readInt(),
