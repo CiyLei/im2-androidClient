@@ -20,7 +20,8 @@ import java.util.*
  * Create by ChenLei on 2020/4/11
  * Describe: Mars各种回调
  */
-internal class MarsCallBack(private val service: ImService, val token: String) : SdtLogic.ICallBack,
+internal class MarsCallBack(private val mService: ImService, private val mToken: String) :
+    SdtLogic.ICallBack,
     StnLogic.ICallBack,
     AppLogic.ICallBack {
 
@@ -51,7 +52,7 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
      * @param data
      */
     override fun onPush(cmdid: Int, data: ByteArray?) {
-        if (service.userInfo == null) {
+        if (mService.userInfo == null) {
             return
         }
         // 解密
@@ -64,7 +65,7 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
                 )}】"
             )
             val response = PrResponseMessage.Response.parseFrom(responseData)
-            service.pushHandler[cmdid]?.onHandle(response)
+            mService.pushHandler[cmdid]?.onHandle(response)
         } else {
             Log.d("MarsCallBack", "【推送解密失败,cmdid:$cmdid,data:${Arrays.toString(data)}】")
         }
@@ -78,7 +79,7 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
     override fun onNewDns(host: String?): Array<String>? {
         if (host == ImService.HOST) {
             // 返回推荐服务器地址
-            return arrayOf(service.serverList!!.recommend)
+            return arrayOf(mService.serverList!!.recommend)
         }
         return null
     }
@@ -100,7 +101,7 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
      * @return
      */
     override fun onTaskEnd(taskID: Int, userContext: Any?, errType: Int, errCode: Int): Int {
-        service.tasks.remove(taskID)?.onTaskEnd(errType, errCode)
+        mService.tasks.remove(taskID)?.onTaskEnd(errType, errCode)
         return 0
     }
 
@@ -142,13 +143,13 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
         errCode: IntArray?,
         channelSelect: Int
     ): Int {
-        if (!service.tasks.containsKey(taskID)) {
+        if (!mService.tasks.containsKey(taskID)) {
             return StnLogic.RESP_FAIL_HANDLE_TASK_END
         }
         try {
             // 解密
             val responseData = EncryptUtil.symmetricDecrypt(mCipherKey, respBuffer)
-            service.tasks[taskID]?.onBuf2Resp(responseData)
+            mService.tasks[taskID]?.onBuf2Resp(responseData)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -171,10 +172,16 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
         mCipherKey = EncryptUtil.generateSymmetricEncryptionKey()
         // 对称加密后的密文
         val asymmetricalEncrypt = EncryptUtil.asymmetricalEncrypt(mCipherKey)
+        // 加密app秘钥
+        val appMobileSecret =
+            EncryptUtil.symmetricEncrypt(mCipherKey, mService.appSecret.toByteArray())
+        // 加密token
+        val token = EncryptUtil.symmetricEncrypt(mCipherKey, mToken.toByteArray())
         // 发送验证
-        val request = PrAuth.AuthRequest.newBuilder().setAppId(service.appId)
-            .setAppMobileSecret(service.appSecret).setToken(token).setDevice(0)
-            .setDeviceCode(service.deviceCode)
+        val request = PrAuth.AuthRequest.newBuilder().setAppId(mService.appId)
+            .setAppMobileSecret(HexUtil.hex2String(appMobileSecret))
+            .setToken(HexUtil.hex2String(token)).setDevice(0)
+            .setDeviceCode(mService.deviceCode)
             .setCipherKey(HexUtil.hex2String(asymmetricalEncrypt))
             .build()
         identifyReqBuf?.write(request.toByteArray())
@@ -194,7 +201,7 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
         if (response.success) {
             val authResponse = PrAuth.AuthResponse.parseFrom(response.data)
             val userResponse = authResponse.userInfo
-            service.userInfo =
+            mService.userInfo =
                 ImUser(
                     userResponse.userId,
                     userResponse.userName,
@@ -202,14 +209,14 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
                     userResponse.avatarUrl
                 )
             // 保存自己的用户消息
-            service.dbDao.addUser(userResponse.userId, service.userInfo!!)
+            mService.dbDao.addUser(userResponse.userId, mService.userInfo!!)
             // 回调连接
-            service.marsListener?.onConnect(ResultEnum.Success.code, ResultEnum.Success.message)
+            mService.marsListener?.onConnect(ResultEnum.Success.code, ResultEnum.Success.message)
             // 保存token
-            SpUtil.getSp(service).edit().putString(ImService.SP_KEY_TOKEN, token).apply()
+            SpUtil.getSp(mService).edit().putString(ImService.SP_KEY_TOKEN, mToken).apply()
         } else {
-            service.marsListener?.onConnect(response.code, response.msg)
-            service.clearToken()
+            mService.marsListener?.onConnect(response.code, response.msg)
+            mService.clearToken()
         }
         return response.success
     }
@@ -230,7 +237,7 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
         channelSelect: Int,
         host: String?
     ): Boolean {
-        val data = service.tasks[taskID]
+        val data = mService.tasks[taskID]
         if (data != null) {
             try {
                 // 加密，发送消息
@@ -265,7 +272,7 @@ internal class MarsCallBack(private val service: ImService, val token: String) :
      * STN 会将配置文件进行存储，如连网IPPort策略、心跳策略等，此类信息将会被存储在客户端上层指定的目录下
      * @return APP目录
      */
-    override fun getAppFilePath(): String = service.cacheDir.path
+    override fun getAppFilePath(): String = mService.cacheDir.path
 
     /**
      * STN 会根据客户端的登陆状态进行网络连接策略的动态调整，当用户非登陆态时，网络会将连接的频率降低
