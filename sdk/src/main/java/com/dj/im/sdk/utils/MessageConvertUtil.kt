@@ -27,6 +27,6 @@ object MessageConvertUtil {
     }
 
     fun prUser2ImUser(prUser: PrUser.UserResponse): ImUser {
-        return ImUser(prUser.userId, prUser.userName, prUser.alias, prUser.avatarUrl)
+        return ImUser(prUser.userId, prUser.userName, prUser.alias, prUser.avatarUrl, prUser.type)
     }
 }

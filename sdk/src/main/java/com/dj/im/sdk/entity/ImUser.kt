@@ -8,13 +8,20 @@ import android.os.Parcelable
  * Create by ChenLei on 2020/4/18
  * Describe: 用户对象
  */
-data class ImUser(val id: Long, val userName: String, val alias: String, val avatarUrl: String) :
+data class ImUser(
+    val id: Long,
+    val userName: String,
+    val alias: String,
+    val avatarUrl: String,
+    val type: Int = 0
+) :
     Parcelable {
     constructor(source: Parcel) : this(
         source.readLong(),
         source.readString(),
         source.readString(),
-        source.readString()
+        source.readString(),
+        source.readInt()
     )
 
     override fun describeContents() = 0
@@ -24,6 +31,7 @@ data class ImUser(val id: Long, val userName: String, val alias: String, val ava
         writeString(userName)
         writeString(alias)
         writeString(avatarUrl)
+        writeInt(type)
     }
 
     companion object {

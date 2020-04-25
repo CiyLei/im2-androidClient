@@ -59,6 +59,7 @@ internal class ImDB private constructor(context: Context) :
                     "  `userName` varchar(36) NULL,\n" +
                     "  `alias` varchar(50) NULL,\n" +
                     "  `avatarUrl` varchar(512) NULL,\n" +
+                    "  `type` INTEGER(0) NULL,\n" +
                     "  PRIMARY KEY (`userId`, `id`)\n" +
                     ");"
         )

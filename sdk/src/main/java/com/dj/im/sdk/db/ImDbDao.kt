@@ -237,8 +237,9 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
                 val userName = cursor.getString(cursor.getColumnIndex("userName"))
                 val alias = cursor.getString(cursor.getColumnIndex("alias"))
                 val avatarUrl = cursor.getString(cursor.getColumnIndex("avatarUrl"))
+                val type = cursor.getInt(cursor.getColumnIndex("type"))
                 cursor.close()
-                return ImUser(uid, userName, alias, avatarUrl)
+                return ImUser(uid, userName, alias, avatarUrl, type)
             }
             cursor.close()
         } catch (e: Exception) {
@@ -454,11 +455,12 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
             if (cursor.moveToNext()) {
                 // 用户存在，更新用户信息
                 writableDatabase.execSQL(
-                    "update User set userName=?,alias=?,avatarUrl=? where userId = ? and id = ?",
+                    "update User set userName=?,alias=?,avatarUrl=?,type=? where userId = ? and id = ?",
                     arrayOf(
                         user.userName,
                         user.alias,
                         user.avatarUrl,
+                        user.type,
                         userId,
                         user.id
                     )
@@ -466,13 +468,14 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
             } else {
                 // 用户不存在，插入用户
                 writableDatabase.execSQL(
-                    "insert into User(userId,id,userName,alias,avatarUrl) values (?,?,?,?,?)",
+                    "insert into User(userId,id,userName,alias,avatarUrl,type) values (?,?,?,?,?,?)",
                     arrayOf(
                         userId,
                         user.id,
                         user.userName,
                         user.alias,
-                        user.avatarUrl
+                        user.avatarUrl,
+                        user.type
                     )
                 )
             }
