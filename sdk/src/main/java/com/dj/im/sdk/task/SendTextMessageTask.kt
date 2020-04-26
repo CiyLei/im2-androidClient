@@ -42,7 +42,7 @@ open class SendTextMessageTask : AbsSendMessageTask() {
         if (response.success) {
             val result = PrSendMessage.SendMessageResponse.parseFrom(response.data)
             getMessage().imMessage.id = result.id
-            getMessage().imMessage.createTime = Date(result.createTime)
+            getMessage().imMessage.createTime = result.createTime
             // 还是发送中的状态，等kafka的回调
             getMessage().imMessage.state = ImMessage.State.LOADING
         } else {

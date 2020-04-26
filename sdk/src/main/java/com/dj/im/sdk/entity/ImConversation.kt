@@ -1,5 +1,8 @@
 package com.dj.im.sdk.entity
 
+import android.arch.persistence.room.ColumnInfo
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.PrimaryKey
 import android.os.Parcel
 import android.os.Parcelable
 import com.dj.im.sdk.Constant
@@ -8,23 +11,34 @@ import com.dj.im.sdk.Constant
  * Create by ChenLei on 2020/4/20
  * Describe: 会话
  */
+@Entity(tableName = "Conversation", primaryKeys = ["userId", "key"])
 data class ImConversation(
     /**
      * 会话id
      */
-    val key: String,
+    @ColumnInfo(name = "key")
+    var key: String,
     /**
      * 会话类型
      */
-    val type: Int,
+    @ColumnInfo(name = "type")
+    var type: Int,
     /**
      * 未读数量
      */
-    val unReadCount: Int,
+    @ColumnInfo(name = "unReadCount")
+    var unReadCount: Int,
     /**
      * 对方用户id，群聊的话，为群id
      */
-    val otherSideUserId: Long
+    @ColumnInfo(name = "otherSideUserId")
+    var otherSideUserId: Long,
+
+    /**
+     * 在数据库中表示这条消息是属于哪个用户缓存的
+     */
+    @ColumnInfo(name = "userId")
+    var userId: Long = 0L
 ) : Parcelable {
     /**
      * 会话类型
@@ -45,6 +59,7 @@ data class ImConversation(
         source.readString(),
         source.readInt(),
         source.readInt(),
+        source.readLong(),
         source.readLong()
     )
 
@@ -55,6 +70,7 @@ data class ImConversation(
         writeInt(type)
         writeInt(unReadCount)
         writeLong(otherSideUserId)
+        writeLong(userId)
     }
 
     companion object {

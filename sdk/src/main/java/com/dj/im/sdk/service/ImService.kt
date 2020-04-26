@@ -66,7 +66,7 @@ internal class ImService : Service() {
     val tasks: ConcurrentHashMap<Int, ITask> = ConcurrentHashMap();
 
     // 数据库Dao
-    val dbDao = ImDbDao(this)
+    lateinit var dbDao: ImDbDao
 
     // 推送消息处理器
     val pushHandler = HashMap<Int, IPushHandler>()
@@ -80,6 +80,7 @@ internal class ImService : Service() {
         pushHandler[Constant.CMD.PUSH_READ_CONVERSATION] = PushReadConversationHandler(this)
         pushHandler[Constant.CMD.OFFLINE] = OfflineHandler(this)
         Mars.loadDefaultMarsLibrary()
+        dbDao = ImDbDao(this)
     }
 
     override fun onDestroy() {
