@@ -10,6 +10,7 @@ import cn.jiguang.imui.chatinput.model.FileItem
 import com.dj.im.adapter.MessageAdapter
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.conversation.Conversation
+import com.dj.im.sdk.conversation.SingleConversation
 import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.entity.*
 import kotlinx.android.synthetic.main.activity_chat.*
@@ -24,10 +25,10 @@ import kotlin.properties.Delegates
  * Create by ChenLei on 2020/4/14
  * Describe:
  */
-class ChatActivity : BaseActivity() {
+class SingleChatActivity : BaseActivity() {
 
-    private var mUser by Delegates.notNull<ImUser>()
-    private lateinit var mConversation: Conversation
+    private var mUser: ImUser? = null
+    private lateinit var mConversation: SingleConversation
 
     // 消息列表
     private val mMessageList = ArrayList<Message>()
@@ -58,16 +59,25 @@ class ChatActivity : BaseActivity() {
             srl.finishRefresh()
         }
 
+        override fun onUserInfoChange(userId: Long) {
+            mAdapter.notifyDataSetChanged()
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
-        mUser = intent.getParcelableExtra("user") as ImUser
-        title = "${mUser.alias}(${mUser.userName})"
+        val userId = intent.getLongExtra("userId", 0L)
         // 获取会话对象
-        mConversation = DJIM.getSingleConversation(mUser)
+        mConversation = DJIM.getSingleConversation(userId)
+        mUser = mConversation.getOtherSideUserInfo()
+        if (mUser == null) {
+            title = "$userId"
+        } else {
+            title = "${mUser?.alias}(${mUser?.userName})"
+        }
         // 添加最新的消息列表
         mMessageList.addAll(mConversation.getNewestMessages())
         // 设置会话的回调

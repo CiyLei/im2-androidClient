@@ -47,4 +47,9 @@ open class ImListener {
      * 离线监听
      */
     open fun onOffline(code: Int, message: String) {};
+
+    /**
+     * 用户信息更改回调
+     */
+    open fun onUserInfoChange(userId: Long) {}
 }

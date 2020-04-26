@@ -1,7 +1,6 @@
 package com.dj.im.sdk.convert.conversation
 
 import com.dj.im.sdk.Constant
-import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.SingleConversation
 import com.dj.im.sdk.entity.ImConversation
@@ -20,13 +19,9 @@ class SingleConversationConvert : IConversationConvert {
         if (conversation.type == Constant.ConversationType.SINGLE) {
             val currentUserId = ServiceManager.instance.getUserInfo()?.id
             if (currentUserId != null) {
-                val user = ServiceManager.instance.getDb()
-                    ?.getUser(currentUserId, conversation.otherSideUserId)
-                if (user != null) {
-                    val result = SingleConversation(user)
-                    result.unReadCount = conversation.unReadCount
-                    return result
-                }
+                val result = SingleConversation(conversation.associatedId)
+                result.unReadCount = conversation.unReadCount
+                return result
             }
         }
         return null

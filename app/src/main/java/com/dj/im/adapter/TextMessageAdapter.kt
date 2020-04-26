@@ -20,15 +20,20 @@ class TextMessageAdapter : BaseItemProvider<TextMessage, BaseViewHolder>() {
     override fun viewType(): Int = ImMessage.Type.TEXT
 
     override fun convert(helper: BaseViewHolder, data: TextMessage?, position: Int) {
+        val fromUser = data?.getFromUser()
         val isSelf = data?.imMessage?.fromId == DJIM.getUserInfo()?.id
         helper.setGone(R.id.clSelf, isSelf)
         helper.setGone(R.id.clOther, !isSelf)
         if (isSelf) {
             // 如果是自己发送的话
-            helper.setText(
-                R.id.rvSelfUserName,
-                "${data?.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
-            )
+            if (fromUser == null) {
+                helper.setText(R.id.rvSelfUserName, "${data?.imMessage?.fromId}")
+            } else {
+                helper.setText(
+                    R.id.rvSelfUserName,
+                    "${data.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
+                )
+            }
             helper.setText(R.id.tvSelfData, data?.imMessage?.data)
             helper.setText(
                 R.id.tvSelfState,
@@ -44,10 +49,14 @@ class TextMessageAdapter : BaseItemProvider<TextMessage, BaseViewHolder>() {
             )
         } else {
             // 不是自己发送的
-            helper.setText(
-                R.id.rvOtherUserName,
-                "${data?.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
-            )
+            if (fromUser == null) {
+                helper.setText(R.id.rvOtherUserName, "${data?.imMessage?.fromId}")
+            } else {
+                helper.setText(
+                    R.id.rvOtherUserName,
+                    "${data.getFromUser()?.alias}(${data.getFromUser()?.userName})"
+                )
+            }
             helper.setText(R.id.tvOtherData, data?.imMessage?.data)
         }
     }

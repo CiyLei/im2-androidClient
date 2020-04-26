@@ -71,7 +71,12 @@ internal class ImService : Service() {
     // 推送消息处理器
     val pushHandler = HashMap<Int, IPushHandler>()
 
-    override fun onBind(intent: Intent?): IBinder? = ImServiceStub(this)
+    lateinit var imServiceStub: ImServiceStub
+
+    override fun onBind(intent: Intent?): IBinder? {
+        imServiceStub = ImServiceStub(this)
+        return imServiceStub
+    }
 
     override fun onCreate() {
         super.onCreate()

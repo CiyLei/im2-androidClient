@@ -1,0 +1,13 @@
+syntax = "proto3";
+option java_package = "com.dj.im.sdk.proto";
+option java_outer_classname = "PrGetUserInfo";
+import "prUser.proto";
+
+message GetUserInfoRequest {
+    int64 userId = 1;
+}
+
+message GetUserInfoResponse {
+    // 用户信息
+    UserResponse userInfo = 1;
+}

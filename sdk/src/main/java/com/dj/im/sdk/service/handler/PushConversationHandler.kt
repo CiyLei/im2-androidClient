@@ -1,6 +1,7 @@
 package com.dj.im.sdk.service.handler
 
 import android.util.Log
+import com.dj.im.sdk.entity.ImConversation
 import com.dj.im.sdk.proto.PrPushConversation
 import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.service.ImService
@@ -21,11 +22,14 @@ internal class PushConversationHandler(private val mService: ImService) : IPushH
         mService.dbDao.clearConversation(mService.userInfo!!.id)
         // 保存到数据库中
         for (conversation in conversationResponse.conversationsList) {
-            // 先添加用户信息
-            mService.dbDao.addUser(
-                mService.userInfo!!.id,
-                MessageConvertUtil.prUser2ImUser(conversation.toUserInfo)
-            )
+            if (conversation.conversationType == ImConversation.Type.SINGLE) {
+                // 如果是单聊的话，先保存用户信息
+                mService.dbDao.addUser(
+                    mService.userInfo!!.id,
+                    MessageConvertUtil.prUser2ImUser(conversation.otherSideUserInfo)
+                )
+            }
+            // 添加会话
             mService.dbDao.addConversation(mService.userInfo!!.id, conversation)
         }
         // 通知回调

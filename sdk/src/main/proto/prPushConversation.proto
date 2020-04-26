@@ -19,6 +19,6 @@ message Conversation {
     int32 unReadCount = 3;
     // 最后20条的消息
     repeated PushMessageResponse messages = 4;
-    // 对方信息
-    UserResponse toUserInfo = 5;
+    // 对方信息(单聊)
+    UserResponse otherSideUserInfo = 5;
 }

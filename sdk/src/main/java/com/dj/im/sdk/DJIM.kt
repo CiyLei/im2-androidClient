@@ -10,6 +10,7 @@ import com.dj.im.sdk.convert.conversation.ConversationConvertFactory
 import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
+import com.dj.im.sdk.task.GetUserInfoTask
 
 
 /**
@@ -84,9 +85,9 @@ object DJIM {
     /**
      * 返回单聊的会话
      */
-    fun getSingleConversation(toUser: ImUser): Conversation {
+    fun getSingleConversation(toUserId: Long): SingleConversation {
         assertionInit()
-        return SingleConversation(toUser)
+        return SingleConversation(toUserId)
     }
 
     /**
@@ -106,6 +107,21 @@ object DJIM {
             return result
         }
         return emptyList()
+    }
+
+    /**
+     * 获取用户信息
+     */
+    fun getUserInfo(userId: Long): ImUser? {
+        ServiceManager.instance.getUserInfo()?.id?.let {
+            val result = ServiceManager.instance.getDb()?.getUser(it, userId)
+            if (result == null) {
+                // 如果在本地无法找到用户的信息，那就从网络获取
+                ServiceManager.instance.sendTask(GetUserInfoTask(userId))
+            }
+            return result
+        }
+        return null
     }
 
     /**

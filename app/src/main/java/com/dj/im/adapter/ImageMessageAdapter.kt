@@ -23,15 +23,20 @@ class ImageMessageAdapter : BaseItemProvider<ImageMessage, BaseViewHolder>() {
     override fun viewType(): Int = ImMessage.Type.IMAGE
 
     override fun convert(helper: BaseViewHolder, data: ImageMessage?, position: Int) {
+        val fromUser = data?.getFromUser()
         val isSelf = data?.imMessage?.fromId == DJIM.getUserInfo()?.id
         helper.setGone(R.id.clSelf, isSelf)
         helper.setGone(R.id.clOther, !isSelf)
         if (isSelf) {
             // 如果是自己发送的话
-            helper.setText(
-                R.id.rvSelfUserName,
-                "${data?.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
-            )
+            if (fromUser == null) {
+                helper.setText(R.id.rvSelfUserName, "${data?.imMessage?.fromId}")
+            } else {
+                helper.setText(
+                    R.id.rvSelfUserName,
+                    "${data.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
+                )
+            }
             val iv = helper.getView<ImageView>(R.id.ivSelfData)
             if (data?.fileEntity?.localPath?.isNotBlank() == true) {
                 Glide.with(mContext).load(data.fileEntity.localPath).into(iv)
@@ -54,10 +59,14 @@ class ImageMessageAdapter : BaseItemProvider<ImageMessage, BaseViewHolder>() {
             )
         } else {
             // 不是自己发送的
-            helper.setText(
-                R.id.rvOtherUserName,
-                "${data?.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
-            )
+            if (fromUser == null) {
+                helper.setText(R.id.rvOtherUserName, "${data?.imMessage?.fromId}")
+            } else {
+                helper.setText(
+                    R.id.rvOtherUserName,
+                    "${data.getFromUser()?.alias}(${data.getFromUser()?.userName})"
+                )
+            }
             val iv = helper.getView<ImageView>(R.id.ivOtherData)
             if (data?.fileEntity?.localPath?.isNotBlank() == true) {
                 Glide.with(mContext).load(data.fileEntity.localPath).into(iv)

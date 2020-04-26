@@ -3,13 +3,13 @@ option java_package = "com.dj.im.sdk.proto";
 option java_outer_classname = "PrSendMessage";
 
 message SendMessageRequest {
-    // 会话key（单聊:MD5(低位用户id + 高位用户id)，群聊:群Id）
+    // 会话key（单聊:MD5(低位用户id + 高位用户id)，群聊:MD5(群Id)）
     string conversationKey = 1;
     // 会话类型（0:单聊、1:群聊）
     int32 conversationType = 2;
     // 消息来源用户id
     int64 fromId = 3;
-    // 消息接收用户id（群聊为空）
+    // 消息接收用户id（群聊为群聊id）
     int64 toId = 4;
     // 消息类别（0:文字，1:图片，2:视频，3:语音，1000+:定为自定义消息体）
     int32 type = 5;

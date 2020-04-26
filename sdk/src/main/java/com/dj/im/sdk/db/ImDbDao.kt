@@ -92,7 +92,7 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
                 conversation.conversationKey,
                 conversation.conversationType,
                 conversation.unReadCount,
-                conversation.toUserInfo.userId,
+                conversation.otherSideUserInfo.userId,
                 userId
             )
         )
@@ -181,8 +181,8 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
     @Synchronized
     override fun addUser(userId: Long, user: ImUser) {
         val imUser = roomDao.getUser(userId, user.id)
+        user.userId = userId
         if (imUser == null) {
-            user.userId = userId
             roomDao.addUser(user)
         } else {
             roomDao.updateUser(user)

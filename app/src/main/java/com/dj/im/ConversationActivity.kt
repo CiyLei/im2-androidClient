@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.dj.im.sdk.DJIM
@@ -36,7 +35,15 @@ class ConversationActivity : BaseActivity() {
 
         override fun convert(helper: BaseViewHolder, item: Conversation?) {
             if (item is SingleConversation) {
-                helper.setText(R.id.tvUserName, "${item.toUser.alias}(${item.toUser.userName})")
+                val otherSideUserInfo = item.getOtherSideUserInfo()
+                if (otherSideUserInfo == null) {
+                    helper.setText(R.id.tvUserName, "${item.toUserId}")
+                } else {
+                    helper.setText(
+                        R.id.tvUserName,
+                        "${otherSideUserInfo.alias}(${otherSideUserInfo.userName})"
+                    )
+                }
                 helper.setText(R.id.tvUnreadCount, item.unReadCount.toString())
                 val lastMessage = item.lastMessage()
                 if (lastMessage?.imMessage?.isRead == true || lastMessage?.imMessage?.fromId != DJIM.getUserInfo()?.id) {
@@ -61,6 +68,10 @@ class ConversationActivity : BaseActivity() {
             mConversations.addAll(DJIM.getAllConversations())
             mAdapter.notifyDataSetChanged()
         }
+
+        override fun onUserInfoChange(userId: Long) {
+            mAdapter.notifyDataSetChanged()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,8 +82,8 @@ class ConversationActivity : BaseActivity() {
         mAdapter.setOnItemClickListener { _, _, position ->
             val conversation = mConversations[position]
             if (conversation is SingleConversation) {
-                startActivity(Intent(this, ChatActivity::class.java).apply {
-                    putExtra("user", conversation.toUser)
+                startActivity(Intent(this, SingleChatActivity::class.java).apply {
+                    putExtra("userId", conversation.toUserId)
                 })
             }
         }
@@ -105,20 +116,20 @@ class ConversationActivity : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.c1 -> {
-                startActivity(Intent(this, ChatActivity::class.java).apply {
-                    putExtra("user", user1)
+                startActivity(Intent(this, SingleChatActivity::class.java).apply {
+                    putExtra("userId", user1.id)
                 })
                 return true
             }
             R.id.c2 -> {
-                startActivity(Intent(this, ChatActivity::class.java).apply {
-                    putExtra("user", user2)
+                startActivity(Intent(this, SingleChatActivity::class.java).apply {
+                    putExtra("userId", user2.id)
                 })
                 return true
             }
             R.id.c3 -> {
-                startActivity(Intent(this, ChatActivity::class.java).apply {
-                    putExtra("user", user3)
+                startActivity(Intent(this, SingleChatActivity::class.java).apply {
+                    putExtra("userId", user3.id)
                 })
                 return true
             }

@@ -29,6 +29,7 @@ abstract class Conversation {
         fun onChaneMessageState(messageId: Long, state: Int)
         fun onConversationRead()
         fun onReadHistoryMessage(messageList: List<Message>)
+        fun onUserInfoChange(userId: Long)
     }
 
     /**
@@ -89,6 +90,12 @@ abstract class Conversation {
         override fun onReadHistoryMessage(conversationId: String, messageList: List<Message>) {
             if (conversationId == getConversationKey()) {
                 conversationListener?.onReadHistoryMessage(messageList.map { it })
+            }
+        }
+
+        override fun onUserInfoChange(userId: Long) {
+            if (mHistoryMessage.indexOfFirst { it.imMessage.fromId == userId } != -1) {
+                conversationListener?.onUserInfoChange(userId)
             }
         }
     }

@@ -2,10 +2,8 @@ package com.dj.im.sdk.entity
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
 import android.os.Parcel
 import android.os.Parcelable
-import com.dj.im.sdk.Constant
 
 /**
  * Create by ChenLei on 2020/4/20
@@ -29,10 +27,10 @@ data class ImConversation(
     @ColumnInfo(name = "unReadCount")
     var unReadCount: Int,
     /**
-     * 对方用户id，群聊的话，为群id
+     * 关联id，单聊的话为对方用户id，群聊的话，为群id
      */
-    @ColumnInfo(name = "otherSideUserId")
-    var otherSideUserId: Long,
+    @ColumnInfo(name = "associatedId")
+    var associatedId: Long,
 
     /**
      * 在数据库中表示这条消息是属于哪个用户缓存的
@@ -69,7 +67,7 @@ data class ImConversation(
         writeString(key)
         writeInt(type)
         writeInt(unReadCount)
-        writeLong(otherSideUserId)
+        writeLong(associatedId)
         writeLong(userId)
     }
 

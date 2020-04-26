@@ -19,15 +19,20 @@ class FileMessageAdapter : BaseItemProvider<FileMessage, BaseViewHolder>() {
     override fun viewType(): Int = ImMessage.Type.FILE
 
     override fun convert(helper: BaseViewHolder, data: FileMessage?, position: Int) {
+        val fromUser = data?.getFromUser()
         val isSelf = data?.imMessage?.fromId == DJIM.getUserInfo()?.id
         helper.setGone(R.id.clSelf, isSelf)
         helper.setGone(R.id.clOther, !isSelf)
         if (isSelf) {
             // 如果是自己发送的话
-            helper.setText(
-                R.id.rvSelfUserName,
-                "${data?.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
-            )
+            if (fromUser == null) {
+                helper.setText(R.id.rvSelfUserName, "${data?.imMessage?.fromId}")
+            } else {
+                helper.setText(
+                    R.id.rvSelfUserName,
+                    "${data.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
+                )
+            }
             helper.setText(
                 R.id.tvSelfData,
                 "假装自己是文件 进度:${data?.uploadProgress} data:${data?.imMessage?.data}"
@@ -46,10 +51,14 @@ class FileMessageAdapter : BaseItemProvider<FileMessage, BaseViewHolder>() {
             )
         } else {
             // 不是自己发送的
-            helper.setText(
-                R.id.rvOtherUserName,
-                "${data?.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
-            )
+            if (fromUser == null) {
+                helper.setText(R.id.rvOtherUserName, "${data?.imMessage?.fromId}")
+            } else {
+                helper.setText(
+                    R.id.rvOtherUserName,
+                    "${data.getFromUser()?.alias}(${data.getFromUser()?.userName})"
+                )
+            }
             helper.setText(R.id.tvOtherData, "假装自己是文件:${data?.imMessage?.data}")
         }
     }

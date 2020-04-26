@@ -46,6 +46,11 @@ internal object Constant {
          * 获取历史消息
          */
         var GET_HISTORY_MESSAGE = 1009
+
+        /**
+         * 获取用户信息
+         */
+        var GET_USER_INFO = 1010
     }
 
     object URL {

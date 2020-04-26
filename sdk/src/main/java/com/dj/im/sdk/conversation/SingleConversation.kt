@@ -11,7 +11,7 @@ import com.dj.im.sdk.utils.EncryptUtil
  * Create by ChenLei on 2020/4/14
  * Describe: 单聊会话
  */
-class SingleConversation(val toUser: ImUser) : Conversation() {
+class SingleConversation(val toUserId: Long) : Conversation() {
 
     /**
      * 修改关键的信息
@@ -20,11 +20,7 @@ class SingleConversation(val toUser: ImUser) : Conversation() {
         message.imMessage.conversationKey = getConversationKey()
         message.imMessage.conversationType = Constant.ConversationType.SINGLE
         message.imMessage.fromId = getFromUserId()
-        message.imMessage.toId = toUser.id
-        // 保存接收者的用户消息
-        ServiceManager.instance.getUserInfo()?.id?.let {
-            ServiceManager.instance.getDb()?.addUser(it, toUser)
-        }
+        message.imMessage.toId = toUserId
         return super.sendMessage(message)
     }
 
@@ -32,7 +28,7 @@ class SingleConversation(val toUser: ImUser) : Conversation() {
      * 生成单聊的会话id
      */
     override fun getConversationKey(): String {
-        return generateConversationId(getFromUserId(), toUser.id)
+        return generateConversationId(getFromUserId(), toUserId)
     }
 
     /**
@@ -44,5 +40,15 @@ class SingleConversation(val toUser: ImUser) : Conversation() {
         return if (user1Id < user2Id) {
             EncryptUtil.MD5(user1Id.toString() + "_" + user2Id)
         } else EncryptUtil.MD5(user2Id.toString() + "_" + user1Id)
+    }
+
+    /**
+     * 获取对方用户信息
+     */
+    fun getOtherSideUserInfo(): ImUser? {
+        ServiceManager.instance.getUserInfo()?.let {
+            return ServiceManager.instance.getDb()?.getUser(it.id, toUserId)
+        }
+        return null
     }
 }
