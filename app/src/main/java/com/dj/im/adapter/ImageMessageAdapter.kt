@@ -5,6 +5,7 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseViewHolder
 import com.chad.library.adapter.base.provider.BaseItemProvider
+import com.dj.im.ChatActivity
 import com.dj.im.R
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.entity.ImMessage
@@ -49,10 +50,18 @@ class ImageMessageAdapter : BaseItemProvider<ImageMessage, BaseViewHolder>() {
                 R.id.tvSelfState,
                 arrayOf("发送成功", "发送中", "发送失败")[data?.imMessage?.state ?: 0]
             )
-            helper.setText(
-                R.id.tvSelfIsRead,
-                if (data?.getUnReadUserIdList()?.size == 0) "已读" else "未读"
-            )
+            if (ChatActivity.isSingle) {
+                helper.setText(
+                    R.id.tvSelfIsRead,
+                    if (data?.getUnReadUserIdList()?.size == 0) "已读" else "未读"
+                )
+            } else {
+                helper.setText(
+                    R.id.tvSelfIsRead,
+                    if (data?.getUnReadUserIdList()?.size == 0) "全部已读" else "未读[${
+                    data?.getUnReadUserIdList()?.joinToString(",")}]"
+                )
+            }
             helper.setTextColor(
                 R.id.tvSelfIsRead,
                 if (data?.getUnReadUserIdList()?.size == 0) Color.GRAY else Color.BLUE
