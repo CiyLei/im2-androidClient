@@ -1,10 +1,7 @@
 package com.dj.im.sdk.db
 
 import android.arch.persistence.room.*
-import com.dj.im.sdk.entity.ImConversation
-import com.dj.im.sdk.entity.ImMessage
-import com.dj.im.sdk.entity.ImUser
-import com.dj.im.sdk.entity.UnReadMessage
+import com.dj.im.sdk.entity.*
 
 /**
  * Create by ChenLei on 2020/4/26
@@ -167,4 +164,34 @@ interface ImRoomDao {
      */
     @Delete
     fun deleteUnReadMessageUser(unReadUserList: List<UnReadMessage>)
+
+    /**
+     * 添加群信息
+     */
+    @Insert
+    fun addGroup(group: ImGroup)
+
+    /**
+     * 查询群消息
+     */
+    @Query("select * from `Group` where userId = :userId and id = :groupId")
+    fun getGroupInfo(userId: Long, groupId: Long): ImGroup?
+
+    /**
+     * 添加群的用户列表
+     */
+    @Insert
+    fun addUserGroup(userGroupList: List<UserGroupEntity>)
+
+    /**
+     * 获取群的用户列表
+     */
+    @Query("select * from UserGroup where userId = :userId and groupId = :groupId ")
+    fun getUserGroupList(userId: Long, groupId: Long): List<UserGroupEntity>
+
+    /**
+     * 删除群的用户列表
+     */
+    @Delete
+    fun deleteUserGroup(userGroupList: List<UserGroupEntity>)
 }

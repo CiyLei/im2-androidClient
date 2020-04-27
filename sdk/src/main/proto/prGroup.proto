@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "com.dj.im.sdk.proto";
+option java_outer_classname = "PrGroup";
+
+message GroupResponse {
+    int64 groupId = 1;
+    string name = 2;
+    string avatarUrl = 3;
+    repeated int64 userIdList = 4;
+}

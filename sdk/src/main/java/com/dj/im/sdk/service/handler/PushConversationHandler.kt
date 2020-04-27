@@ -28,6 +28,12 @@ internal class PushConversationHandler(private val mService: ImService) : IPushH
                     mService.userInfo!!.id,
                     MessageConvertUtil.prUser2ImUser(conversation.otherSideUserInfo)
                 )
+            } else if (conversation.conversationType == ImConversation.Type.GROUP) {
+                // 如果是群聊的话，先保存群聊信息
+                mService.dbDao.addGroup(
+                    mService.userInfo!!.id,
+                    MessageConvertUtil.prUser2ImGroup(conversation.groupInfo)
+                )
             }
             // 添加会话
             mService.dbDao.addConversation(mService.userInfo!!.id, conversation)

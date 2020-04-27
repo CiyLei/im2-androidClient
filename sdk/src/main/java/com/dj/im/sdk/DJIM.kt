@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context.ACTIVITY_SERVICE
 import android.os.Process
 import com.dj.im.sdk.conversation.Conversation
+import com.dj.im.sdk.conversation.GroupConversation
 import com.dj.im.sdk.conversation.SingleConversation
 import com.dj.im.sdk.convert.conversation.ConversationConvertFactory
 import com.dj.im.sdk.entity.ImUser
@@ -88,6 +89,14 @@ object DJIM {
     fun getSingleConversation(toUserId: Long): SingleConversation {
         assertionInit()
         return SingleConversation(toUserId)
+    }
+
+    /**
+     * 返回群聊的会话
+     */
+    fun getGroupConversation(groupId: Long): GroupConversation {
+        assertionInit()
+        return GroupConversation(groupId)
     }
 
     /**

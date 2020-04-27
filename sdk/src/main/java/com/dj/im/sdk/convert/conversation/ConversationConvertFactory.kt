@@ -9,7 +9,8 @@ import com.dj.im.sdk.entity.ImConversation
  */
 object ConversationConvertFactory {
 
-    val conversationConverts = arrayListOf<IConversationConvert>(SingleConversationConvert())
+    val conversationConverts =
+        arrayListOf<IConversationConvert>(SingleConversationConvert(), GroupConversationConvert())
 
     fun convert(conversation: ImConversation): Conversation? {
         for (conversationConvert in conversationConverts) {

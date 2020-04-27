@@ -4,17 +4,14 @@ import android.arch.persistence.room.Database
 import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
-import com.dj.im.sdk.entity.ImConversation
-import com.dj.im.sdk.entity.ImMessage
-import com.dj.im.sdk.entity.ImUser
-import com.dj.im.sdk.entity.UnReadMessage
+import com.dj.im.sdk.entity.*
 
 /**
  * Create by ChenLei on 2020/4/26
  * Describe: im本地数据Room
  */
 @Database(
-    entities = [ImUser::class, ImMessage::class, ImConversation::class, UnReadMessage::class],
+    entities = [ImUser::class, ImMessage::class, ImConversation::class, UnReadMessage::class, ImGroup::class, UserGroupEntity::class],
     version = 1
 )
 abstract class ImRoomDatabase : RoomDatabase() {

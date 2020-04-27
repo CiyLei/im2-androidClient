@@ -9,4 +9,7 @@
     <item
         android:id="@+id/c3"
         android:title="q903736669" />
+    <item
+        android:id="@+id/g1"
+        android:title="三国演义" />
 </menu>

@@ -1,7 +1,9 @@
 package com.dj.im.sdk.utils
 
+import com.dj.im.sdk.entity.ImGroup
 import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.entity.ImUser
+import com.dj.im.sdk.proto.PrGroup
 import com.dj.im.sdk.proto.PrPushMessage
 import com.dj.im.sdk.proto.PrUser
 import java.util.*
@@ -29,5 +31,14 @@ object MessageConvertUtil {
 
     fun prUser2ImUser(prUser: PrUser.UserResponse): ImUser {
         return ImUser(prUser.userId, prUser.userName, prUser.alias, prUser.avatarUrl, prUser.type)
+    }
+
+    fun prUser2ImGroup(prUser: PrGroup.GroupResponse): ImGroup {
+        return ImGroup(
+            prUser.groupId,
+            prUser.name,
+            prUser.avatarUrl,
+            prUser.userIdListList
+        )
     }
 }

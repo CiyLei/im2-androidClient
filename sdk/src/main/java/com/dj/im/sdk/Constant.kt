@@ -51,6 +51,11 @@ internal object Constant {
          * 获取用户信息
          */
         var GET_USER_INFO = 1010
+
+        /**
+         * 获取群信息
+         */
+        var GET_GROUP_INFO = 1011
     }
 
     object URL {

@@ -32,7 +32,7 @@
         </activity>
         <activity android:name=".ConversationActivity" />
         <activity android:name=".TestActivity" />
-        <activity android:name=".SingleChatActivity" />
+        <activity android:name=".ChatActivity" />
     </application>
 
 </manifest>

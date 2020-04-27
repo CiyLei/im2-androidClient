@@ -2,10 +2,7 @@ package com.dj.im.sdk.db
 
 import android.content.Context
 import com.dj.im.sdk.IDBDao
-import com.dj.im.sdk.entity.ImConversation
-import com.dj.im.sdk.entity.ImMessage
-import com.dj.im.sdk.entity.ImUser
-import com.dj.im.sdk.entity.UnReadMessage
+import com.dj.im.sdk.entity.*
 import com.dj.im.sdk.proto.PrPushConversation
 import com.dj.im.sdk.utils.MessageConvertUtil
 import kotlin.collections.ArrayList
@@ -96,7 +93,10 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
                 conversation.conversationKey,
                 conversation.conversationType,
                 conversation.unReadCount,
-                conversation.otherSideUserInfo.userId,
+                if (conversation.conversationType == ImConversation.Type.SINGLE)
+                    conversation.otherSideUserInfo.userId
+                else
+                    conversation.groupInfo.groupId,
                 userId
             )
         )
@@ -148,7 +148,10 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
                     // 如果是自己发送消息的话，未读数量为0，否则数量为1
                     if (isSelf) 0 else 1,
                     // 如果是自己发送消息的话，id为to，否则是from
-                    if (isSelf) message.toId else message.fromId,
+                    if (message.conversationType == ImConversation.Type.SINGLE)
+                        (if (isSelf) message.toId else message.fromId)
+                    else
+                        message.toId,
                     userId
                 )
             )
@@ -215,5 +218,31 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
     override fun addUnReadMessage(userId: Long, unReadMessageList: MutableList<UnReadMessage>) {
         unReadMessageList.forEach { it.userId = userId }
         roomDao.addUnReadMessageUser(unReadMessageList)
+    }
+
+    /**
+     * 添加群信息
+     */
+    override fun addGroup(userId: Long, group: ImGroup) {
+        group.userId = userId
+        val groupInfo = roomDao.getGroupInfo(userId, group.id)
+        if (groupInfo == null) {
+            roomDao.addGroup(group)
+        }
+        roomDao.deleteUserGroup(roomDao.getUserGroupList(userId, group.id))
+        roomDao.addUserGroup(group.userIdList.map {
+            UserGroupEntity(userId, group.id, it)
+        })
+    }
+
+    /**
+     * 获取群信息
+     */
+    override fun getGroupInfo(userId: Long, groupId: Long): ImGroup? {
+        roomDao.getGroupInfo(userId, groupId)?.let {
+            it.userIdList = ArrayList(roomDao.getUserGroupList(userId, groupId)).map { m -> m.uId }
+            return it
+        }
+        return null
     }
 }

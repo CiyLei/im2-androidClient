@@ -1,10 +1,12 @@
 package com.dj.im.sdk.service.handler
 
+import com.dj.im.sdk.entity.ImConversation
 import com.dj.im.sdk.proto.PrPushMessage
 import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.service.ImService
 import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.entity.UnReadMessage
+import com.dj.im.sdk.task.GetGroupInfoTask
 import com.dj.im.sdk.task.GetUserInfoTask
 import com.dj.im.sdk.utils.MessageConvertUtil
 
@@ -33,6 +35,12 @@ internal class PushMessageHandler(private val mService: ImService) : IPushHandle
         val fromUser = mService.dbDao.getUser(mService.userInfo!!.id, message.fromId)
         if (fromUser == null) {
             mService.imServiceStub.sendTask(GetUserInfoTask(message.fromId))
+        }
+        if (message.conversationType == ImConversation.Type.GROUP) {
+            // 如果是群聊的话，看看有没有群信息，没有的话就获取
+            if (mService.dbDao.getGroupInfo(mService.userInfo!!.id, message.toId) == null) {
+                mService.imServiceStub.sendTask(GetGroupInfoTask(message.toId))
+            }
         }
         // 添加会话
         mService.dbDao.addConversationForPushMessage(

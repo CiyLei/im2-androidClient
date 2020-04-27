@@ -3,6 +3,7 @@ option java_package = "com.dj.im.sdk.proto";
 option java_outer_classname = "PrPushConversation";
 import "prPushMessage.proto";
 import "prUser.proto";
+import "prGroup.proto";
 
 // 推送会话情况
 message PushConversationResponse {
@@ -21,4 +22,6 @@ message Conversation {
     repeated PushMessageResponse messages = 4;
     // 对方信息(单聊)
     UserResponse otherSideUserInfo = 5;
+    // 群信息（群聊）
+    GroupResponse groupInfo = 6;
 }

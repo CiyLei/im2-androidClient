@@ -52,4 +52,9 @@ open class ImListener {
      * 用户信息更改回调
      */
     open fun onUserInfoChange(userId: Long) {}
+
+    /**
+     * 群信息更改回调
+     */
+    open fun onGroupInfoChange(groupId: Long) {}
 }

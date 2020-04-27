@@ -2,56 +2,50 @@ package com.dj.im.sdk.entity
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
+import android.arch.persistence.room.Ignore
 import android.os.Parcel
 import android.os.Parcelable
 
-
 /**
- * Create by ChenLei on 2020/4/18
- * Describe: 用户对象
+ * Create by ChenLei on 2020/4/27
+ * Describe: 群信息
  */
-@Entity(tableName = "User", primaryKeys = ["userId", "id"])
-data class ImUser(
+@Entity(tableName = "Group", primaryKeys = ["userId", "id"])
+data class ImGroup(
     /**
-     * 用户id
+     * 群id
      */
     @ColumnInfo(name = "id")
     var id: Long,
     /**
-     * 用户名
+     * 群名
      */
-    @ColumnInfo(name = "userName")
-    var userName: String,
+    @ColumnInfo(name = "name")
+    var name: String,
     /**
-     * 用户别名(昵称)
-     */
-    @ColumnInfo(name = "alias")
-    var alias: String,
-    /**
-     * 用户头像地址
+     * 群头像地址
      */
     @ColumnInfo(name = "avatarUrl")
     var avatarUrl: String,
     /**
-     * 用户类别
+     * 群用户列表
      */
-    @ColumnInfo(name = "type")
-    var type: Int = 0,
+    @Ignore
+    var userIdList: List<Long>,
 
     /**
      * 在数据库中表示这条消息是属于哪个用户缓存的
      */
     @ColumnInfo(name = "userId")
     var userId: Long = 0L
-) :
-    Parcelable {
+) : Parcelable {
+    constructor() : this(0L, "", "", ArrayList<Long>())
+
     constructor(source: Parcel) : this(
         source.readLong(),
         source.readString(),
         source.readString(),
-        source.readString(),
-        source.readInt(),
+        ArrayList<Long>().apply { source.readList(this, Long::class.java.classLoader) },
         source.readLong()
     )
 
@@ -59,18 +53,17 @@ data class ImUser(
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
         writeLong(id)
-        writeString(userName)
-        writeString(alias)
+        writeString(name)
         writeString(avatarUrl)
-        writeInt(type)
+        writeList(userIdList)
         writeLong(userId)
     }
 
     companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<ImUser> = object : Parcelable.Creator<ImUser> {
-            override fun createFromParcel(source: Parcel): ImUser = ImUser(source)
-            override fun newArray(size: Int): Array<ImUser?> = arrayOfNulls(size)
+        val CREATOR: Parcelable.Creator<ImGroup> = object : Parcelable.Creator<ImGroup> {
+            override fun createFromParcel(source: Parcel): ImGroup = ImGroup(source)
+            override fun newArray(size: Int): Array<ImGroup?> = arrayOfNulls(size)
         }
     }
 }

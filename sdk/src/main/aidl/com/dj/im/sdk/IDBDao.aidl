@@ -3,6 +3,7 @@ package com.dj.im.sdk;
 
 import com.dj.im.sdk.entity.ImMessage;
 import com.dj.im.sdk.entity.ImUser;
+import com.dj.im.sdk.entity.ImGroup;
 import com.dj.im.sdk.entity.ImConversation;
 import com.dj.im.sdk.entity.UnReadMessage;
 
@@ -21,4 +22,6 @@ interface IDBDao {
     List<ImMessage> getHistoryMessage(long userId, String conversationKey, long messageId, int pageSize);
     List<UnReadMessage> getUnReadUserId(long userId, long messageId);
     void addUnReadMessage(long userId,in List<UnReadMessage> unReadMessageList);
+    void addGroup(long userId, in ImGroup group);
+    ImGroup getGroupInfo(long userId, long groupId);
 }

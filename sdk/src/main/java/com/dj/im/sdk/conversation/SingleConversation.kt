@@ -4,6 +4,7 @@ import com.dj.im.sdk.Constant
 import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.service.ServiceManager
+import com.dj.im.sdk.task.GetUserInfoTask
 import com.dj.im.sdk.utils.EncryptUtil
 
 
@@ -47,7 +48,11 @@ class SingleConversation(val toUserId: Long) : Conversation() {
      */
     fun getOtherSideUserInfo(): ImUser? {
         ServiceManager.instance.getUserInfo()?.let {
-            return ServiceManager.instance.getDb()?.getUser(it.id, toUserId)
+            val user = ServiceManager.instance.getDb()?.getUser(it.id, toUserId)
+            if (user == null) {
+                ServiceManager.instance.sendTask(GetUserInfoTask(toUserId))
+            }
+            return user
         }
         return null
     }
