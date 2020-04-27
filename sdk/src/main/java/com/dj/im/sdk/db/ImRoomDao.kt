@@ -172,6 +172,12 @@ interface ImRoomDao {
     fun addGroup(group: ImGroup)
 
     /**
+     * 更新群信息
+     */
+    @Update
+    fun updateGroup(group: ImGroup)
+
+    /**
      * 查询群消息
      */
     @Query("select * from `Group` where userId = :userId and id = :groupId")

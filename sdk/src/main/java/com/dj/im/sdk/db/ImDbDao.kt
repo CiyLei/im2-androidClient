@@ -228,6 +228,8 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
         val groupInfo = roomDao.getGroupInfo(userId, group.id)
         if (groupInfo == null) {
             roomDao.addGroup(group)
+        } else {
+            roomDao.updateGroup(group)
         }
         roomDao.deleteUserGroup(roomDao.getUserGroupList(userId, group.id))
         roomDao.addUserGroup(group.userIdList.map {
