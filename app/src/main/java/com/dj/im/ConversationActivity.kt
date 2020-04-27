@@ -104,6 +104,10 @@ class ConversationActivity : BaseActivity() {
         override fun onUserInfoChange(userId: Long) {
             mAdapter.notifyDataSetChanged()
         }
+
+        override fun onGroupInfoChange(groupId: Long) {
+            mAdapter.notifyDataSetChanged()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

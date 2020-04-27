@@ -28,7 +28,11 @@ import kotlin.properties.Delegates
  */
 class ChatActivity : BaseActivity() {
 
-    private var isSingle = true
+    companion object {
+        @JvmStatic
+        var isSingle = true
+    }
+
     private lateinit var mConversation: Conversation
 
     // 消息列表
