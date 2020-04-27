@@ -22,7 +22,8 @@ object MessageConvertUtil {
             prMessage.type,
             prMessage.data,
             prMessage.summary,
-            prMessage.createTime, ImMessage.State.SUCCESS, prMessage.isRead
+            prMessage.createTime,
+            ImMessage.State.SUCCESS
         )
     }
 

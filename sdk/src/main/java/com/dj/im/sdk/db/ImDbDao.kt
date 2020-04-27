@@ -5,8 +5,10 @@ import com.dj.im.sdk.IDBDao
 import com.dj.im.sdk.entity.ImConversation
 import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.entity.ImUser
+import com.dj.im.sdk.entity.UnReadMessage
 import com.dj.im.sdk.proto.PrPushConversation
 import com.dj.im.sdk.utils.MessageConvertUtil
+import kotlin.collections.ArrayList
 
 /**
  * Create by ChenLei on 2020/4/20
@@ -54,6 +56,8 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
     override fun clearConversation(userId: Long) {
         val conversationList = roomDao.getConversationList(userId)
         roomDao.deleteConversation(conversationList)
+        // 清空所有未读
+        roomDao.deleteUnReadMessageUser(roomDao.getAllUnReadList(userId))
     }
 
     /**
@@ -98,6 +102,11 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
         )
         conversation.messagesList.forEach {
             addPushMessage(userId, MessageConvertUtil.prPushMessage2ImMessage(it))
+            // 保存未读信息
+            val unReadUserIdList = it.unReadUserIdListList
+            addUnReadMessage(userId, ArrayList(unReadUserIdList.map { m ->
+                UnReadMessage(userId, it.id, m)
+            }))
         }
     }
 
@@ -169,10 +178,14 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
      * 被人查看了这个会话
      */
     @Synchronized
-    override fun readConversationMessage(userId: Long, conversationKey: String) {
-        val messageList = roomDao.getConversationUnReadMessage(userId, conversationKey)
-        messageList.forEach { it.isRead = true }
-        roomDao.updateMessageList(messageList)
+    override fun readConversationMessage(userId: Long, conversationKey: String, readUserId: Long) {
+        roomDao.deleteUnReadMessageUser(
+            roomDao.getAllUnReadListOnConversation(
+                userId,
+                conversationKey,
+                readUserId
+            )
+        )
     }
 
     /**
@@ -187,5 +200,20 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
         } else {
             roomDao.updateUser(user)
         }
+    }
+
+    /**
+     * 获取某条消息所有的未读人员
+     */
+    override fun getUnReadUserId(userId: Long, messageId: Long): MutableList<UnReadMessage> {
+        return ArrayList(roomDao.getUnReadList(userId, messageId))
+    }
+
+    /**
+     * 添加用户未读消息
+     */
+    override fun addUnReadMessage(userId: Long, unReadMessageList: MutableList<UnReadMessage>) {
+        unReadMessageList.forEach { it.userId = userId }
+        roomDao.addUnReadMessageUser(unReadMessageList)
     }
 }

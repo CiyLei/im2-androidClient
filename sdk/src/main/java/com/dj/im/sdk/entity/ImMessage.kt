@@ -83,12 +83,6 @@ data class ImMessage(
     var state: Int = State.SUCCESS,
 
     /**
-     * 是否已读
-     */
-    @ColumnInfo(name = "isRead")
-    var isRead: Boolean = false,
-
-    /**
      * 在数据库中表示这条消息是属于哪个用户缓存的
      */
     @ColumnInfo(name = "userId")
@@ -159,7 +153,6 @@ data class ImMessage(
         source.readString(),
         source.readLong(),
         source.readInt(),
-        1 == source.readInt(),
         source.readLong()
     )
 
@@ -176,7 +169,6 @@ data class ImMessage(
         writeString(summary)
         writeLong(createTime)
         writeInt(state)
-        writeInt((if (isRead) 1 else 0))
         writeLong(userId)
     }
 
@@ -208,7 +200,6 @@ data class ImMessage(
         summary,
         createTime,
         state,
-        isRead,
         userId
     )
 }

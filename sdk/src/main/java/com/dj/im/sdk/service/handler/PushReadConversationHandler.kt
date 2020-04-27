@@ -30,7 +30,8 @@ internal class PushReadConversationHandler(private val mService: ImService) : IP
             // 如果是会话对方已读，则设置会话中的消息全部已读
             mService.dbDao.readConversationMessage(
                 mService.userInfo!!.id,
-                readResponse.conversationKey
+                readResponse.conversationKey,
+                readResponse.readUserId
             )
             mService.marsListener?.onChangeConversationRead(readResponse.conversationKey)
             mService.marsListener?.onChangeConversions()

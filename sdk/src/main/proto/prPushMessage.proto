@@ -21,6 +21,6 @@ message PushMessageResponse {
     string summary = 8;
     // 消息创建的时间戳
     int64 createTime = 9;
-    // 是否已读
-    bool isRead = 10;
+    // 未读用户id列表
+    repeated int64 unReadUserIdList = 10;
 }

@@ -3,6 +3,8 @@ package com.dj.im.sdk.convert.message
 import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.service.ServiceManager
+import com.dj.im.sdk.task.GetUserInfoTask
+import java.util.*
 
 /**
  * Create by ChenLei on 2020/4/20
@@ -15,7 +17,11 @@ abstract class Message(val imMessage: ImMessage) {
      */
     fun getFromUser(): ImUser? {
         ServiceManager.instance.getUserInfo()?.id?.let {
-            return ServiceManager.instance.getDb()?.getUser(it, imMessage.fromId)
+            val user = ServiceManager.instance.getDb()?.getUser(it, imMessage.fromId)
+            if (user == null) {
+                ServiceManager.instance.sendTask(GetUserInfoTask(imMessage.fromId))
+            }
+            return user
         }
         return null
     }
@@ -25,9 +31,26 @@ abstract class Message(val imMessage: ImMessage) {
      */
     fun getToUser(): ImUser? {
         ServiceManager.instance.getUserInfo()?.id?.let {
-            return ServiceManager.instance.getDb()?.getUser(it, imMessage.toId)
+            val user = ServiceManager.instance.getDb()?.getUser(it, imMessage.toId)
+            if (user == null) {
+                ServiceManager.instance.sendTask(GetUserInfoTask(imMessage.toId))
+            }
+            return user
         }
         return null
+    }
+
+    /**
+     * 获取未读用户id
+     */
+    fun getUnReadUserIdList(): List<Long> {
+        ServiceManager.instance.getUserInfo()?.id?.let {
+            return ServiceManager.instance.getDb()?.getUnReadUserId(
+                it,
+                imMessage.id
+            )!!.map { m -> m.unReadUserId }
+        }
+        return Collections.emptyList()
     }
 
     /**

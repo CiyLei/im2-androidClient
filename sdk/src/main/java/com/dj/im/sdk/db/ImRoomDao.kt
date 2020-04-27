@@ -4,6 +4,7 @@ import android.arch.persistence.room.*
 import com.dj.im.sdk.entity.ImConversation
 import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.entity.ImUser
+import com.dj.im.sdk.entity.UnReadMessage
 
 /**
  * Create by ChenLei on 2020/4/26
@@ -88,8 +89,8 @@ interface ImRoomDao {
     /**
      * 获取会话中未读的消息
      */
-    @Query("select * from message where conversationKey = :conversationKey and userId = :userId and isRead = 0")
-    fun getConversationUnReadMessage(userId: Long, conversationKey: String): MutableList<ImMessage>
+//    @Query("select * from message where conversationKey = :conversationKey and userId = :userId and isRead = 0")
+//    fun getConversationUnReadMessage(userId: Long, conversationKey: String): MutableList<ImMessage>
 
     /**
      * 添加会话
@@ -126,4 +127,44 @@ interface ImRoomDao {
      */
     @Update
     fun updateUser(user: ImUser)
+
+    /**
+     * 添加用户消息未读
+     */
+    @Insert
+    fun addUnReadMessageUser(unReadUserList: List<UnReadMessage>)
+
+    /**
+     * 添加用户消息未读
+     */
+    @Insert
+    fun addUnReadMessageUser(unReadUser: UnReadMessage)
+
+    /**
+     * 查询某个消息的未读情况
+     */
+    @Query("select * from UnReadMessage where userId = :userId and messageId = :messageId")
+    fun getUnReadList(userId: Long, messageId: Long): List<UnReadMessage>
+
+    /**
+     * 获取所有的未读信息
+     */
+    @Query("select * from UnReadMessage where userId = :userId")
+    fun getAllUnReadList(userId: Long): List<UnReadMessage>
+
+    /**
+     * 获取某个会话下所有某人的未读的消息
+     */
+    @Query("SELECT u.* FROM ( SELECT * FROM Conversation WHERE userId = :userId AND `key` = :conversationKey ) c LEFT JOIN Message m ON c.`key` = m.conversationKey LEFT JOIN UnReadMessage u ON m.id = u.   messageId WHERE u.unReadUserId = :readUserId")
+    fun getAllUnReadListOnConversation(
+        userId: Long,
+        conversationKey: String,
+        readUserId: Long
+    ): List<UnReadMessage>
+
+    /**
+     * 删除用户消息未读
+     */
+    @Delete
+    fun deleteUnReadMessageUser(unReadUserList: List<UnReadMessage>)
 }

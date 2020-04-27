@@ -46,7 +46,7 @@ class ConversationActivity : BaseActivity() {
                 }
                 helper.setText(R.id.tvUnreadCount, item.unReadCount.toString())
                 val lastMessage = item.lastMessage()
-                if (lastMessage?.imMessage?.isRead == true || lastMessage?.imMessage?.fromId != DJIM.getUserInfo()?.id) {
+                if (lastMessage?.getUnReadUserIdList()?.size == 0 || lastMessage?.imMessage?.fromId != DJIM.getUserInfo()?.id) {
                     helper.setText(
                         R.id.tvMessage,
                         item.lastMessage()?.imMessage?.getSummaryDesc()

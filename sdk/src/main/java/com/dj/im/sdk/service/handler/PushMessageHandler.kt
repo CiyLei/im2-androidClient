@@ -4,6 +4,7 @@ import com.dj.im.sdk.proto.PrPushMessage
 import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.service.ImService
 import com.dj.im.sdk.entity.ImMessage
+import com.dj.im.sdk.entity.UnReadMessage
 import com.dj.im.sdk.task.GetUserInfoTask
 import com.dj.im.sdk.utils.MessageConvertUtil
 
@@ -17,7 +18,12 @@ internal class PushMessageHandler(private val mService: ImService) : IPushHandle
     override fun onHandle(response: PrResponseMessage.Response) {
         // 有推送消息
         val pushResponse = PrPushMessage.PushMessageResponse.parseFrom(response.data)
+        // 保存未读信息
+        val unReadUserIdList = pushResponse.unReadUserIdListList
         val message = MessageConvertUtil.prPushMessage2ImMessage(pushResponse)
+        mService.dbDao.addUnReadMessage(mService.userInfo!!.id, ArrayList(unReadUserIdList.map {
+            UnReadMessage(mService.userInfo!!.id, message.id, it)
+        }))
         // 保存消息
         mService.dbDao.addPushMessage(
             mService.userInfo!!.id,

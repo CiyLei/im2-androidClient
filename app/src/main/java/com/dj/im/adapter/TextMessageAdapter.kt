@@ -41,11 +41,11 @@ class TextMessageAdapter : BaseItemProvider<TextMessage, BaseViewHolder>() {
             )
             helper.setText(
                 R.id.tvSelfIsRead,
-                if (data?.imMessage?.isRead == true) "已读" else "未读"
+                if (data?.getUnReadUserIdList()?.size == 0) "已读" else "未读"
             )
             helper.setTextColor(
                 R.id.tvSelfIsRead,
-                if (data?.imMessage?.isRead == true) Color.GRAY else Color.BLUE
+                if (data?.getUnReadUserIdList()?.size == 0) Color.GRAY else Color.BLUE
             )
         } else {
             // 不是自己发送的

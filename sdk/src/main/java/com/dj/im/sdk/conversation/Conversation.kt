@@ -80,9 +80,6 @@ abstract class Conversation {
         override fun onChangeConversationRead(conversationKey: String) {
             if (conversationKey == getConversationKey()) {
                 // 如果是自己的会话被对方已读，更新回调
-                mHistoryMessage.forEach {
-                    it.imMessage.isRead = true
-                }
                 conversationListener?.onConversationRead()
             }
         }
@@ -112,10 +109,6 @@ abstract class Conversation {
         // 修改状态为发送中，随便指定一个id，发送成功会话会更正为服务器的id，否则就是这个随机的id
         message.imMessage.id = Random.nextLong()
         message.imMessage.state = ImMessage.State.LOADING
-        // 如果是自己给自己发送消息，默认已读
-        if (message.imMessage.fromId == message.imMessage.toId) {
-            message.imMessage.isRead = true
-        }
         // 在发送任务的工厂中找到真正的发送任务类
         val sendMessage = SendMessageTaskFactory.sendMessageTask(message)
         if (sendMessage != null) {
