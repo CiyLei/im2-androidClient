@@ -14,5 +14,6 @@ internal class OfflineHandler(private val mService: ImService) : IPushHandler {
         mService.closeMars()
         mService.clearToken()
         mService.marsListener = null
+        mService.userInfo = null
     }
 }
