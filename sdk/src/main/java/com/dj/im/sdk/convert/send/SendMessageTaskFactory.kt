@@ -11,13 +11,15 @@ import com.dj.im.sdk.task.SendTextMessageTask
  */
 object SendMessageTaskFactory {
 
-    val sendMessageTasks =
-        arrayListOf<AbsSendMessageTask>(SendBigTextMessageTask(), SendFileMessageTask())
+    val sendMessageTasks = arrayListOf<Class<out AbsSendMessageTask>>(
+        SendBigTextMessageTask::class.java,
+        SendFileMessageTask::class.java
+    )
 
     fun sendMessageTask(message: Message): Message? {
         sendMessageTasks.forEach {
             // 寻找发送此消息的任务
-            val sendMessage = it.sendMessage(message)
+            val sendMessage = it.newInstance().sendMessage(message)
             if (sendMessage != null) {
                 return sendMessage
             }

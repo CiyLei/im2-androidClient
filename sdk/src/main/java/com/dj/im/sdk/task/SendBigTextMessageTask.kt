@@ -15,12 +15,11 @@ import java.util.*
  * Create by ChenLei on 2020/4/22
  * Describe: 发送大文本消息任务
  */
-open class SendBigTextMessageTask(private val mDataMaxLength: Int = Constant.MESSAGE_DATA_MAX_LENGTH) :
-    SendFileMessageTask() {
+open class SendBigTextMessageTask : SendFileMessageTask() {
 
     override fun sendMessage(message: Message): Message? {
         // 如果消息的内容长度大于指定的长度，改为发送大文本消息
-        if (message is TextMessage && message.imMessage.data.length > mDataMaxLength) {
+        if (message is TextMessage && message.imMessage.data.length > Constant.MESSAGE_DATA_MAX_LENGTH) {
             // 将data保存到本地
             val tmpTxt =
                 File("${ServiceManager.instance.application.cacheDir}/${UUID.randomUUID()}.txt")

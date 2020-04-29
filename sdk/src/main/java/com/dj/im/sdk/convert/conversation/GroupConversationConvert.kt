@@ -10,7 +10,7 @@ import com.dj.im.sdk.service.ServiceManager
  * Create by ChenLei on 2020/4/27
  * Describe: 群聊会话转换
  */
-class GroupConversationConvert:IConversationConvert {
+class GroupConversationConvert : IConversationConvert {
 
     override fun convert(conversation: ImConversation): Conversation? {
         if (conversation.type == Constant.ConversationType.GROUP) {

@@ -15,6 +15,7 @@ object MessageConvertFactory {
         FileMessageConvert(),
         BigTextMessageConvert()
     )
+    private val textMessageConvert = TextMessageConvert()
 
     /**
      * 将消息转换我对应的类型
@@ -27,6 +28,6 @@ object MessageConvertFactory {
             }
         }
         // 保底为文字消息
-        return TextMessageConvert().convert(message)
+        return textMessageConvert.convert(message)
     }
 }
