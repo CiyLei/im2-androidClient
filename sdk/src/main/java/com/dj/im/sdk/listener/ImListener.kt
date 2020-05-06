@@ -38,10 +38,10 @@ open class ImListener {
 
     /**
      * 成功读取历史消息
-     * @param conversationId 读取的会话id
+     * @param conversationKey 读取的会话id
      * @param messageList 读取的历史消息
      */
-    open fun onReadHistoryMessage(conversationId: String, messageList: List<Message>) {}
+    open fun onReadHistoryMessage(conversationKey: String, messageList: List<Message>) {}
 
     /**
      * 离线监听

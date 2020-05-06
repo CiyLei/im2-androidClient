@@ -84,8 +84,8 @@ abstract class Conversation {
             }
         }
 
-        override fun onReadHistoryMessage(conversationId: String, messageList: List<Message>) {
-            if (conversationId == getConversationKey()) {
+        override fun onReadHistoryMessage(conversationKey: String, messageList: List<Message>) {
+            if (conversationKey == getConversationKey()) {
                 conversationListener?.onReadHistoryMessage(messageList.map { it })
             }
         }
