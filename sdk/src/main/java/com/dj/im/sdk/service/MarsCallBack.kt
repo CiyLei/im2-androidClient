@@ -8,6 +8,7 @@ import com.dj.im.sdk.proto.PrAuth
 import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.utils.EncryptUtil
 import com.dj.im.sdk.utils.HexUtil
+import com.dj.im.sdk.utils.MessageConvertUtil
 import com.dj.im.sdk.utils.SpUtil
 import com.tencent.mars.app.AppLogic
 import com.tencent.mars.sdt.SdtLogic
@@ -201,13 +202,7 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
         if (response.success) {
             val authResponse = PrAuth.AuthResponse.parseFrom(response.data)
             val userResponse = authResponse.userInfo
-            mService.userInfo =
-                ImUser(
-                    userResponse.userId,
-                    userResponse.userName,
-                    userResponse.alias,
-                    userResponse.avatarUrl
-                )
+            mService.userInfo = MessageConvertUtil.prUser2ImUser(userResponse)
             // 保存自己的用户消息
             mService.dbDao.addUser(userResponse.userId, mService.userInfo!!)
             // 回调连接

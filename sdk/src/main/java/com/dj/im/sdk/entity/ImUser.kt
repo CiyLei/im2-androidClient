@@ -34,10 +34,10 @@ data class ImUser(
     @ColumnInfo(name = "avatarUrl")
     var avatarUrl: String,
     /**
-     * 用户类别
+     * 用户额外信息
      */
-    @ColumnInfo(name = "type")
-    var type: Int = 0,
+    @ColumnInfo(name = "extra")
+    var extra: String = "",
 
     /**
      * 在数据库中表示这条消息是属于哪个用户缓存的
@@ -51,7 +51,7 @@ data class ImUser(
         source.readString(),
         source.readString(),
         source.readString(),
-        source.readInt(),
+        source.readString(),
         source.readLong()
     )
 
@@ -62,7 +62,7 @@ data class ImUser(
         writeString(userName)
         writeString(alias)
         writeString(avatarUrl)
-        writeInt(type)
+        writeString(extra)
         writeLong(userId)
     }
 
