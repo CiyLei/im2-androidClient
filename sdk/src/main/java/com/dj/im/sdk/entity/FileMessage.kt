@@ -1,5 +1,6 @@
 package com.dj.im.sdk.entity
 
+import com.dj.im.sdk.Constant
 import com.dj.im.sdk.convert.message.Message
 import com.google.gson.Gson
 import java.io.File
@@ -45,6 +46,12 @@ open class FileMessage : Message {
         updateData()
         super.save()
     }
+
+    /**
+     * 获取资源url
+     */
+    fun getResUrl(): String =
+        "${Constant.URL.BASE_URL}${Constant.URL.DOWNLOAD}/${fileEntity.netResId}"
 }
 
 data class FileEntity(

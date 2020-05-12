@@ -17,8 +17,6 @@ import com.dj.im.sdk.entity.ImageMessage
  */
 class ImageMessageAdapter : BaseItemProvider<ImageMessage, BaseViewHolder>() {
 
-    private val mImagePrefix = "http://192.168.2.116:8081/download/"
-
     override fun layout(): Int = R.layout.item_image
 
     override fun viewType(): Int = ImMessage.Type.IMAGE
@@ -43,7 +41,7 @@ class ImageMessageAdapter : BaseItemProvider<ImageMessage, BaseViewHolder>() {
                 Glide.with(mContext).load(data.fileEntity.localPath).into(iv)
             } else {
                 Glide.with(mContext)
-                    .load("$mImagePrefix${data?.fileEntity?.netResId}")
+                    .load(data?.getResUrl())
                     .into(iv)
             }
             helper.setText(
@@ -80,7 +78,7 @@ class ImageMessageAdapter : BaseItemProvider<ImageMessage, BaseViewHolder>() {
             if (data?.fileEntity?.localPath?.isNotBlank() == true) {
                 Glide.with(mContext).load(data.fileEntity.localPath).into(iv)
             } else {
-                val url = "$mImagePrefix${data?.fileEntity?.netResId}"
+                val url = data?.getResUrl()
                 Glide.with(mContext)
                     .load(url)
                     .into(iv)

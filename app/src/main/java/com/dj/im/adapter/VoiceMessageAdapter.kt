@@ -16,7 +16,6 @@ import com.dj.im.sdk.entity.VoiceMessage
  */
 class VoiceMessageAdapter : BaseItemProvider<VoiceMessage, BaseViewHolder>() {
 
-    private val mImagePrefix = "http://192.168.2.116:8081/download/"
     private var mMediaPlayer: MediaPlayer? = null
 
     override fun layout(): Int = R.layout.item_voice
@@ -79,7 +78,7 @@ class VoiceMessageAdapter : BaseItemProvider<VoiceMessage, BaseViewHolder>() {
         if (data?.fileEntity?.localPath?.isNotBlank() == true) {
             voiceUrl = data.fileEntity.localPath
         } else {
-            voiceUrl = "$mImagePrefix${data?.fileEntity?.netResId}"
+            voiceUrl = data?.getResUrl()
         }
         if (mMediaPlayer != null) {
             mMediaPlayer?.release()

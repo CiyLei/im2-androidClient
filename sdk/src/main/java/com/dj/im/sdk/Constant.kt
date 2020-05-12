@@ -59,9 +59,10 @@ internal object Constant {
     }
 
     object URL {
-        const val BASE_URL = "http://192.168.2.116:8081/"
+        const val BASE_URL = "http://192.168.77.107:8081"
         const val DNS = "/dns/server"
         const val UPLOAD = "/upload"
+        const val DOWNLOAD = "/download"
     }
 
     /**
