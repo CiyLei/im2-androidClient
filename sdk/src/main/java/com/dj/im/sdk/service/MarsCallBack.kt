@@ -258,7 +258,7 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
      * @return true 登录 false 未登录
      */
     override fun isLogoned(): Boolean {
-        return false
+        return mService.userInfo == null
     }
 
     override fun requestNetCheckShortLinkHosts(): Array<String> = emptyArray()
@@ -275,7 +275,7 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
      * @return 用户帐号信息
      */
     override fun getAccountInfo(): AppLogic.AccountInfo = AppLogic.AccountInfo(
-        Random(System.currentTimeMillis() / 1000).nextInt().toLong(), "djIM"
+        mService.userInfo?.id ?: 0L, mService.userInfo?.userName ?: ""
     )
 
     /**
