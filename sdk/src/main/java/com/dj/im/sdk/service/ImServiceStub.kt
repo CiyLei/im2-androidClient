@@ -92,6 +92,10 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
      */
     override fun sendTask(task: ITask) {
         val marsTask = StnLogic.Task(StnLogic.Task.ELong, task.onCmdId(), "", ArrayList())
+        // true：无网络直接返回失败
+        marsTask.networkStatusSensitive = true
+        // 重试次数
+        marsTask.retryCount = 0
         service.tasks[marsTask.taskID] = task
         StnLogic.startTask(marsTask)
     }

@@ -68,7 +68,7 @@ interface ImRoomDao {
     /**
      * 获取会话列表
      */
-    @Query("SELECT conversation.*, message.createTime FROM conversation LEFT OUTER JOIN message ON conversation.userId = message.userId AND conversation.`key` = message.conversationKey GROUP BY conversation.userId,Conversation.`key` HAVING conversation.userId = :userId ORDER BY createTime DESC")
+    @Query("SELECT conversation.*, max(message.createTime) FROM conversation LEFT OUTER JOIN message ON conversation.userId = message.userId AND conversation.`key` = message.conversationKey GROUP BY conversation.userId,Conversation.`key` HAVING conversation.userId = :userId ORDER BY createTime DESC")
     fun getConversationList(userId: Long): MutableList<ImConversation>
 
     /**
@@ -158,6 +158,12 @@ interface ImRoomDao {
         conversationKey: String,
         readUserId: Long
     ): List<UnReadMessage>
+
+    /**
+     * 根据消息，获取所有未读用户
+     */
+    @Query("select * from UnReadMessage where userId = :userId and messageId = :messageId")
+    fun getAllUnReadListForMessageId(userId: Long, messageId: Long): List<UnReadMessage>
 
     /**
      * 删除用户消息未读

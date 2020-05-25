@@ -112,6 +112,7 @@ abstract class Conversation {
         // 在发送任务的工厂中找到真正的发送任务类
         val sendMessage = SendMessageTaskFactory.sendMessageTask(message)
         if (sendMessage != null) {
+            addUnReadUser(sendMessage)
             addMessage(sendMessage)
             return true
         }
@@ -140,6 +141,11 @@ abstract class Conversation {
      * 获取会话Key
      */
     abstract fun getConversationKey(): String
+
+    /**
+     * 添加未读用户
+     */
+    abstract fun addUnReadUser(message: Message)
 
     /**
      * 获取当前用户id

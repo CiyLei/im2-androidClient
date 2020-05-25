@@ -54,7 +54,7 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
         val conversationList = roomDao.getConversationList(userId)
         roomDao.deleteConversation(conversationList)
         // 清空所有未读
-        roomDao.deleteUnReadMessageUser(roomDao.getAllUnReadList(userId))
+//        roomDao.deleteUnReadMessageUser(roomDao.getAllUnReadList(userId))
     }
 
     /**
@@ -102,6 +102,7 @@ class ImDbDao(context: Context) : IDBDao.Stub() {
         )
         conversation.messagesList.forEach {
             addPushMessage(userId, MessageConvertUtil.prPushMessage2ImMessage(it))
+            roomDao.deleteUnReadMessageUser(roomDao.getAllUnReadListForMessageId(userId, it.id))
             // 保存未读信息
             val unReadUserIdList = it.unReadUserIdListList
             addUnReadMessage(userId, ArrayList(unReadUserIdList.map { m ->

@@ -6,7 +6,6 @@ import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.proto.PrSendMessage
-import java.util.*
 
 /**
  * Create by ChenLei on 2020/4/20

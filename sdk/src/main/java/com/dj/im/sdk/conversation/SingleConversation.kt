@@ -3,6 +3,7 @@ package com.dj.im.sdk.conversation
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.entity.ImUser
+import com.dj.im.sdk.entity.UnReadMessage
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.task.GetUserInfoTask
 import com.dj.im.sdk.utils.EncryptUtil
@@ -30,6 +31,19 @@ class SingleConversation(val toUserId: Long) : Conversation() {
      */
     override fun getConversationKey(): String {
         return generateConversationId(getFromUserId(), toUserId)
+    }
+
+    /**
+     * 添加未读用户
+     */
+    override fun addUnReadUser(message: Message) {
+        ServiceManager.instance.getUserInfo()?.let {
+            ServiceManager.instance.getDb()?.addUnReadMessage(
+                it.id, arrayListOf(
+                    UnReadMessage(it.id, message.imMessage.id, toUserId)
+                )
+            )
+        }
     }
 
     /**
