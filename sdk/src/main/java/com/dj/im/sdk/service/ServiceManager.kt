@@ -164,7 +164,7 @@ internal class ServiceManager private constructor() : ServiceConnection {
      * 检查开启服务
      */
     private fun checkStartService() {
-        if (mImService == null) {
+        if (mImService == null && ::mAppId.isInitialized && ::mAppSecret.isInitialized && ::mDeviceCode.isInitialized) {
             val imIntent = Intent(application, ImService::class.java)
             imIntent.putExtra("appId", mAppId)
             imIntent.putExtra("appSecret", mAppSecret)
