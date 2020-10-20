@@ -15,6 +15,7 @@ open class FileMessage : Message {
 
     // 保存发送本地路径和网络路径
     var fileEntity: FileEntity
+
     // 上传进度
     var uploadProgress = 0.0f
 
@@ -29,7 +30,12 @@ open class FileMessage : Message {
     }
 
     constructor(imMessage: ImMessage) : super(imMessage) {
-        fileEntity = mGson.fromJson(imMessage.data, FileEntity::class.java)
+        fileEntity = try {
+            mGson.fromJson(imMessage.data, FileEntity::class.java)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+            FileEntity()
+        }
     }
 
     /**

@@ -146,7 +146,7 @@ class ChatActivity : BaseActivity() {
             override fun onFinishRecord(voiceFile: File?, duration: Int) {
                 if (voiceFile != null) {
                     // 发送语音消息
-                    mConversation.sendMessage(VoiceMessage(voiceFile, duration))
+                    mConversation.sendMessage(VoiceMessage(voiceFile, duration * 1000))
                 }
             }
 

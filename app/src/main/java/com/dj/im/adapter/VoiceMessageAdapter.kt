@@ -37,7 +37,7 @@ class VoiceMessageAdapter : BaseItemProvider<VoiceMessage, BaseViewHolder>() {
                     "${data.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
                 )
             }
-            helper.setText(R.id.tvSelfData, "假装我是语音：${data?.duration}秒")
+            helper.setText(R.id.tvSelfData, "假装我是语音：${(data?.duration ?: 0) / 1000}秒")
             helper.setText(
                 R.id.tvSelfState,
                 arrayOf("发送成功", "发送中", "发送失败")[data?.imMessage?.state ?: 0]
@@ -68,7 +68,7 @@ class VoiceMessageAdapter : BaseItemProvider<VoiceMessage, BaseViewHolder>() {
                     "${data.getFromUser()?.alias}(${data.getFromUser()?.userName})"
                 )
             }
-            helper.setText(R.id.tvOtherData, "假装我是语音：${data?.duration}秒")
+            helper.setText(R.id.tvOtherData, "假装我是语音：${(data?.duration ?: 0) / 1000}秒")
         }
     }
 
