@@ -20,9 +20,11 @@ open class SendBigTextMessageTask : SendFileMessageTask() {
     override fun sendMessage(message: Message): Message? {
         // 如果消息的内容长度大于指定的长度，改为发送大文本消息
         if (message is TextMessage && message.imMessage.data.length > Constant.MESSAGE_DATA_MAX_LENGTH) {
+            // 摘要内存
+            val summaryContent = "${message.imMessage.data.substring(0, 10)}。。。"
             // 将data保存到本地
             val tmpTxt =
-                File("${ServiceManager.instance.application.cacheDir}/${UUID.randomUUID()}.txt")
+                File("${ServiceManager.instance.application.cacheDir}/${summaryContent}.txt")
             if (!tmpTxt.exists()) {
                 tmpTxt.createNewFile()
             }
@@ -31,7 +33,7 @@ open class SendBigTextMessageTask : SendFileMessageTask() {
             val result = BigTextMessage(message.imMessage.clone().apply {
                 data = Gson().toJson(FileEntity(tmpTxt.absolutePath, tmpTxt.name))
                 type = ImMessage.Type.BIG_TEXT
-                summary = "[文本:${message.imMessage.data.substring(0, 10)}...]"
+                summary = "[文本:${summaryContent}]"
             })
             // 发送
             return super.sendMessage(result)
