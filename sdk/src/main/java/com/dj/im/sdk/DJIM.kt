@@ -88,7 +88,8 @@ object DJIM {
      */
     fun getSingleConversation(toUserId: Long): SingleConversation {
         assertionInit()
-        return SingleConversation(toUserId)
+        return (getAllConversations().find { it is SingleConversation && it.toUserId == toUserId } as? SingleConversation)
+            ?: SingleConversation(toUserId)
     }
 
     /**
@@ -96,7 +97,8 @@ object DJIM {
      */
     fun getGroupConversation(groupId: Long): GroupConversation {
         assertionInit()
-        return GroupConversation(groupId)
+        return (getAllConversations().find { it is GroupConversation && it.groupId == groupId } as? GroupConversation)
+            ?: GroupConversation(groupId)
     }
 
     /**

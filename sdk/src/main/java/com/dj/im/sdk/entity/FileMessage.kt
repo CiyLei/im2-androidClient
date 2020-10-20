@@ -4,6 +4,7 @@ import com.dj.im.sdk.Constant
 import com.dj.im.sdk.convert.message.Message
 import com.google.gson.Gson
 import java.io.File
+import java.io.Serializable
 
 /**
  * Create by ChenLei on 2020/4/21
@@ -77,4 +78,4 @@ data class FileEntity(
      * 额外的信息
      */
     var extra: HashMap<String, String> = HashMap()
-)
+) : Serializable

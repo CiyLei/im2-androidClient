@@ -95,10 +95,10 @@ class ChatActivity : BaseActivity() {
                 "${groupInfo.name}(${groupInfo.id})"
             }
         }
-        // 添加最新的消息列表
-        mMessageList.addAll(mConversation.getNewestMessages())
         // 设置会话的回调
         mConversation.conversationListener = mConversationListener
+        // 添加最新的消息列表
+        mMessageList.addAll(mConversation.getNewestMessages())
         // 已读消息
         mConversation.read()
 

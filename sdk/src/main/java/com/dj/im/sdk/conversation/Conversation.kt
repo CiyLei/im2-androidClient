@@ -175,6 +175,11 @@ abstract class Conversation {
             }
         }
         mHistoryMessage.addAll(result)
+        // 如果未读数量大于0，说明可能本地消息列表不同步，则从网络中读取记录
+        val lastMessage = result.lastOrNull()
+        if (unReadCount > 0 && lastMessage != null) {
+            getHistoryMessage(lastMessage.imMessage.id)
+        }
         return result
     }
 
