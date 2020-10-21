@@ -47,6 +47,8 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
         mCompositeDisposable.add(RetrofitManager.instance.apiStore.dns().o().subscribe({
             if (it.success) {
                 service.serverList = it.data
+                // 保存token
+                SpUtil.getSp(service).edit().putString(DJIM.SP_KEY_TOKEN, token).apply()
                 // 开启Mars服务
                 service.openMars(token)
             } else {

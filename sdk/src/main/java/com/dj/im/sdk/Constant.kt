@@ -59,10 +59,12 @@ internal object Constant {
     }
 
     object URL {
-        const val BASE_URL = "http://192.168.77.107:8081"
+        const val BASE_URL = "http://192.168.77.43:8081"
         const val DNS = "/dns/server"
         const val UPLOAD = "/upload"
         const val DOWNLOAD = "/download"
+        const val IM_MESSAGE = "/im/message"
+        const val GET_HISTORY_MESSAGE_LIST = "$IM_MESSAGE/historyMessageList"
     }
 
     /**
@@ -84,4 +86,9 @@ internal object Constant {
      * 消息内容（data）的最大长度
      */
     const val MESSAGE_DATA_MAX_LENGTH = 20000
+
+    /**
+     * 离线是读取历史消息的条数
+     */
+    const val OFFLINE_READ_HISTORY_MESSAGE_COUNT = 100
 }

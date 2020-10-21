@@ -15,8 +15,8 @@ internal object RxUtil {
      * 快捷的选择执行线程
      */
     fun <T> Observable<T>.o(): Observable<T> {
-        return subscribeOn(Schedulers.io())
-            .unsubscribeOn(Schedulers.io())
+        return subscribeOn(AndroidSchedulers.mainThread())
+            .unsubscribeOn(AndroidSchedulers.mainThread())
             .observeOn(AndroidSchedulers.mainThread())
     }
 }

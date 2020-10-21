@@ -8,10 +8,12 @@ import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.GroupConversation
 import com.dj.im.sdk.conversation.SingleConversation
 import com.dj.im.sdk.convert.conversation.ConversationConvertFactory
-import com.dj.im.sdk.entity.ImUser
+import com.dj.im.sdk.entity.*
 import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.task.GetUserInfoTask
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 
 /**
@@ -19,6 +21,9 @@ import com.dj.im.sdk.task.GetUserInfoTask
  * Describe: DJIM 入口类
  */
 object DJIM {
+
+    // 保存在sp中的token的key
+    const val SP_KEY_TOKEN = "token"
 
     private var initd = false
 
@@ -134,6 +139,11 @@ object DJIM {
         }
         return null
     }
+
+    /**
+     * 获取默认的线程池
+     */
+    internal fun getDefaultThreadPoolExecutor(): ExecutorService = Executors.newCachedThreadPool()
 
     /**
      * 获取当前进程的进程名

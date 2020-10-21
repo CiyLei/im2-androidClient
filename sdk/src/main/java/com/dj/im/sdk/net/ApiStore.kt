@@ -1,7 +1,8 @@
 package com.dj.im.sdk.net
 
 import com.dj.im.sdk.Constant
-import com.dj.im.sdk.entity.BaseResponse
+import com.dj.im.sdk.entity.*
+import com.dj.im.sdk.entity.HistoryMessage
 import com.dj.im.sdk.entity.ServerSituationEntity
 import io.reactivex.Observable
 import okhttp3.RequestBody
@@ -28,4 +29,10 @@ internal interface ApiStore {
      */
     @POST(Constant.URL.UPLOAD)
     fun upload(@Body requestBody: RequestBody?): Observable<BaseResponse<String>>
+
+    /**
+     * 上传文件
+     */
+    @POST(Constant.URL.GET_HISTORY_MESSAGE_LIST)
+    fun getHistoryMessageList(@Body requestBody: RBGetHistoryMessageList): Observable<BaseResponse<List<HistoryMessage>>>
 }

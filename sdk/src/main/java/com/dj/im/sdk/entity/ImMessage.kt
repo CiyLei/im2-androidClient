@@ -1,14 +1,12 @@
 package com.dj.im.sdk.entity;
 
-import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.Index
-import android.arch.persistence.room.PrimaryKey
+import android.arch.persistence.room.*
 import android.os.Parcel
 import android.os.Parcelable
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.service.ServiceManager
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Create by ChenLei on 2020/4/17
@@ -86,7 +84,13 @@ data class ImMessage(
      * 在数据库中表示这条消息是属于哪个用户缓存的
      */
     @ColumnInfo(name = "userId")
-    var userId: Long = 0L
+    var userId: Long = 0L,
+
+    /**
+     * 这条消息的未读人员列表（只有在获取历史消息的时候有）
+     */
+    @Ignore
+    internal val unReadUserId: ArrayList<Long> = ArrayList()
 ) : Parcelable {
     /**
      * 消息类型
@@ -96,18 +100,22 @@ data class ImMessage(
          * 文字类型
          */
         const val TEXT = 0
+
         /**
          * 图片类型
          */
         const val IMAGE = 1
+
         /**
          * 语音类型
          */
         const val VOICE = 3
+
         /**
          * 文件类型
          */
         const val FILE = 4
+
         /**
          * 大文本类型
          */
@@ -153,7 +161,8 @@ data class ImMessage(
         source.readString(),
         source.readLong(),
         source.readInt(),
-        source.readLong()
+        source.readLong(),
+        ArrayList<Long>().apply { source.readList(this, Long::class.java.classLoader) }
     )
 
     override fun describeContents() = 0
@@ -170,6 +179,7 @@ data class ImMessage(
         writeLong(createTime)
         writeInt(state)
         writeLong(userId)
+        writeList(unReadUserId)
     }
 
     companion object {
@@ -200,6 +210,7 @@ data class ImMessage(
         summary,
         createTime,
         state,
-        userId
+        userId,
+        unReadUserId
     )
 }

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.dj.im.sdk.DJIM
@@ -40,9 +41,15 @@ class ConversationActivity : BaseActivity() {
     private val mConversations = ArrayList<Conversation>()
     private val mAdapter = object :
         BaseQuickAdapter<Conversation, BaseViewHolder>(R.layout.item_conversation, mConversations) {
-
         override fun convert(helper: BaseViewHolder, item: Conversation?) {
             if (item is SingleConversation) {
+                if (item.getOtherSideUserInfo()?.avatarUrl?.isNotEmpty() == true) {
+                    Glide.with(this@ConversationActivity)
+                        .load(item.getOtherSideUserInfo()?.avatarUrl)
+                        .into(helper.getView(R.id.ivAvatar))
+                } else {
+                    helper.setImageResource(R.id.ivAvatar, R.mipmap.emoji_0x1f385)
+                }
                 val otherSideUserInfo = item.getOtherSideUserInfo()
                 if (otherSideUserInfo == null) {
                     helper.setText(R.id.tvUserName, "${item.toUserId}")

@@ -1,13 +1,24 @@
 package com.dj.im.sdk.conversation
 
+import android.os.Handler
+import android.os.Looper
+import com.dj.im.sdk.Constant
+import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.convert.send.SendMessageTaskFactory
 import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.convert.message.MessageConvertFactory
+import com.dj.im.sdk.entity.HistoryMessage
 import com.dj.im.sdk.entity.ImMessage
+import com.dj.im.sdk.entity.RBGetHistoryMessageList
+import com.dj.im.sdk.entity.UnReadMessage
 import com.dj.im.sdk.listener.ImListener
+import com.dj.im.sdk.net.RetrofitManager
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.task.HistoryMessageTask
 import com.dj.im.sdk.task.ReadConversationTask
+import com.dj.im.sdk.utils.RxUtil.o
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.observers.DisposableCompletableObserver
 import kotlin.random.Random
 
 /**
@@ -41,6 +52,12 @@ abstract class Conversation {
      * 最后一条消息
      */
     private var mLastMessage: Message? = null
+
+    /**
+     * 管理请求
+     */
+    private val mCompositeDisposable = CompositeDisposable()
+    private val mHandler = Handler(Looper.getMainLooper())
 
     /**
      * 会话处理消息后的回调
@@ -158,6 +175,7 @@ abstract class Conversation {
     fun onDestroy() {
         conversationListener = null
         mHistoryMessage.clear()
+        mCompositeDisposable.dispose()
     }
 
     /**
@@ -226,11 +244,75 @@ abstract class Conversation {
      * 先从网络中获取，如果获取失败再从数据库中获取
      */
     fun getHistoryMessage(messageId: Long) {
-        ServiceManager.instance.sendTask(
-            HistoryMessageTask(
-                getConversationKey(),
-                messageId
-            )
+        mCompositeDisposable.add(
+            RetrofitManager.instance.apiStore.getHistoryMessageList(
+                RBGetHistoryMessageList(
+                    getConversationKey(),
+                    messageId
+                )
+            ).o().subscribe({
+                if (it.success) {
+                    // 读取历史消息成功
+                    DJIM.getDefaultThreadPoolExecutor().submit {
+                        readHistorySuccess(it.data)
+                    }
+                } else {
+                    // 读取失败
+                    DJIM.getDefaultThreadPoolExecutor().submit {
+                        readHistoryFail(messageId)
+                    }
+                }
+            }, {
+                // 读取失败
+                DJIM.getDefaultThreadPoolExecutor().submit {
+                    readHistoryFail(messageId)
+                }
+            })
         )
+    }
+
+    /**
+     * 读取历史消息成功
+     */
+    private fun readHistorySuccess(messageList: List<HistoryMessage>) {
+        val userId = ServiceManager.instance.getUserInfo()?.id ?: return
+        messageList.forEach { msg ->
+            // 添加历史消息到本地数据库
+            ServiceManager.instance.getDb()?.addPushMessage(userId, msg.toMessage(userId))
+            // 保存未读信息
+            ServiceManager.instance.getDb()?.addUnReadMessage(
+                userId,
+                msg.unReadUserId.map { UnReadMessage(userId, msg.id, it) })
+        }
+        // 更新回调
+        notifyReadHistoryMessage(messageList.map { MessageConvertFactory.convert(it.toMessage(userId)) })
+    }
+
+    /**
+     * 读取历史消息失败
+     */
+    private fun readHistoryFail(messageId: Long) {
+        val userId = ServiceManager.instance.getUserInfo()?.id ?: return
+        // 网络读取历史记录失败则从本地数据库中读取
+        val messageList = ServiceManager.instance.getDb()
+            ?.getHistoryMessage(
+                userId,
+                getConversationKey(),
+                messageId,
+                Constant.OFFLINE_READ_HISTORY_MESSAGE_COUNT
+            ) ?: return
+        // 更新回调
+        notifyReadHistoryMessage(messageList.map { MessageConvertFactory.convert(it) })
+    }
+
+    /**
+     * 通知更新读取了历史消息
+     */
+    private fun notifyReadHistoryMessage(messageList: List<Message>) {
+        mHandler.post {
+            ServiceManager.instance.imListeners.forEach {
+                it.onReadHistoryMessage(getConversationKey(), messageList)
+            }
+        }
     }
 }
