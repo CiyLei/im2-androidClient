@@ -4,6 +4,7 @@ import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.task.GetUserInfoTask
+import com.dj.im.sdk.task.HttpGetUserInfoByIds
 import java.util.*
 
 /**
@@ -19,7 +20,7 @@ abstract class Message(val imMessage: ImMessage) {
         ServiceManager.instance.getUserInfo()?.id?.let {
             val user = ServiceManager.instance.getDb()?.getUser(it, imMessage.fromId)
             if (user == null) {
-                ServiceManager.instance.sendTask(GetUserInfoTask(imMessage.fromId))
+                HttpGetUserInfoByIds(listOf(imMessage.fromId)).start()
             }
             return user
         }
@@ -33,7 +34,7 @@ abstract class Message(val imMessage: ImMessage) {
         ServiceManager.instance.getUserInfo()?.id?.let {
             val user = ServiceManager.instance.getDb()?.getUser(it, imMessage.toId)
             if (user == null) {
-                ServiceManager.instance.sendTask(GetUserInfoTask(imMessage.toId))
+                HttpGetUserInfoByIds(listOf(imMessage.toId)).start()
             }
             return user
         }

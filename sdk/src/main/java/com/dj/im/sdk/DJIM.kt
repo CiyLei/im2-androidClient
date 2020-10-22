@@ -12,6 +12,7 @@ import com.dj.im.sdk.entity.*
 import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.task.GetUserInfoTask
+import com.dj.im.sdk.task.HttpGetUserInfoByIds
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -133,7 +134,7 @@ object DJIM {
             val result = ServiceManager.instance.getDb()?.getUser(it, userId)
             if (result == null) {
                 // 如果在本地无法找到用户的信息，那就从网络获取
-                ServiceManager.instance.sendTask(GetUserInfoTask(userId))
+                HttpGetUserInfoByIds(listOf(userId)).start()
             }
             return result
         }

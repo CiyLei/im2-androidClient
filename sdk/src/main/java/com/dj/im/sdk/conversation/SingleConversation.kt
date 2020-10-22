@@ -6,6 +6,7 @@ import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.entity.UnReadMessage
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.task.GetUserInfoTask
+import com.dj.im.sdk.task.HttpGetUserInfoByIds
 import com.dj.im.sdk.utils.EncryptUtil
 
 
@@ -64,7 +65,7 @@ class SingleConversation(val toUserId: Long) : Conversation() {
         ServiceManager.instance.getUserInfo()?.let {
             val user = ServiceManager.instance.getDb()?.getUser(it.id, toUserId)
             if (user == null) {
-                ServiceManager.instance.sendTask(GetUserInfoTask(toUserId))
+                mCompositeDisposable.add(HttpGetUserInfoByIds(listOf(toUserId)).start())
             }
             return user
         }

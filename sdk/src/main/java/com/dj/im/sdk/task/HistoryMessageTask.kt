@@ -14,7 +14,7 @@ import com.dj.im.sdk.utils.MessageConvertUtil
 
 /**
  * Create by ChenLei on 2020/4/20
- * Describe: 获取历史消息
+ * Describe: 获取历史消息（弃用）
  */
 internal class HistoryMessageTask(
     private val mConversationKey: String,

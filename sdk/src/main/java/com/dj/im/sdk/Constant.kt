@@ -64,7 +64,12 @@ internal object Constant {
         const val UPLOAD = "/upload"
         const val DOWNLOAD = "/download"
         const val IM_MESSAGE = "/im/message"
+        const val IM_GROUP = "/im/group"
+        const val IM_USER = "/im/user"
         const val GET_HISTORY_MESSAGE_LIST = "$IM_MESSAGE/historyMessageList"
+        const val GET_GROUP_INFO_BY_IDS = "$IM_GROUP/getGroupInfoByIds"
+        const val GET_USER_INFO_BY_IDS = "$IM_USER/getUserInfoByIds"
+        const val GET_USER_INFO_BY_CONVERSATION_KEY = "$IM_USER/getUserInfoByConversationKey"
     }
 
     /**

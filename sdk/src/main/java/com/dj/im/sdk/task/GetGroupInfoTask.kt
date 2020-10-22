@@ -12,7 +12,7 @@ import com.dj.im.sdk.utils.MessageConvertUtil
 
 /**
  * Create by ChenLei on 2020/4/27
- * Describe: 获取群信息任务
+ * Describe: 获取群信息任务（弃用）
  */
 class GetGroupInfoTask(private val mGroupId: Long) : ITask.Stub() {
 

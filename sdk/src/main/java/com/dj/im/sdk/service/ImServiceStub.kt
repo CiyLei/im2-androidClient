@@ -17,7 +17,7 @@ import io.reactivex.disposables.CompositeDisposable
 internal class ImServiceStub(private val service: ImService) : IImService.Stub() {
 
     // 管理订阅
-    private var mCompositeDisposable = CompositeDisposable()
+    var compositeDisposable = CompositeDisposable()
 
     /**
      * 自动登录（检测是否有token缓存）
@@ -42,9 +42,9 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
      * @param token 登录Token
      */
     override fun connect(token: String) {
-        mCompositeDisposable.dispose()
-        mCompositeDisposable = CompositeDisposable()
-        mCompositeDisposable.add(RetrofitManager.instance.apiStore.dns().o().subscribe({
+        compositeDisposable.dispose()
+        compositeDisposable = CompositeDisposable()
+        compositeDisposable.add(RetrofitManager.instance.apiStore.dns().o().subscribe({
             if (it.success) {
                 service.serverList = it.data
                 // 保存token
@@ -70,7 +70,7 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
         service.closeMars()
         service.clearToken()
         service.marsListener = null
-        mCompositeDisposable.clear()
+        compositeDisposable.clear()
     }
 
     /**

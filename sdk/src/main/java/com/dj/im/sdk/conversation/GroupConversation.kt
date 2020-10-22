@@ -7,6 +7,7 @@ import com.dj.im.sdk.entity.ImGroup
 import com.dj.im.sdk.entity.UnReadMessage
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.task.GetGroupInfoTask
+import com.dj.im.sdk.task.HttpGetGroupInfoTask
 import com.dj.im.sdk.utils.EncryptUtil
 
 /**
@@ -49,7 +50,7 @@ class GroupConversation(val groupId: Long) : Conversation() {
         ServiceManager.instance.getUserInfo()?.let {
             val groupInfo = ServiceManager.instance.getDb()?.getGroupInfo(it.id, groupId)
             if (groupInfo == null) {
-                ServiceManager.instance.sendTask(GetGroupInfoTask(groupId))
+                mCompositeDisposable.add(HttpGetGroupInfoTask(listOf(groupId)).start())
             }
             return groupInfo
         }

@@ -6,9 +6,9 @@ import java.util.*
 
 /**
  * Create by ChenLei on 2020/10/21
- * Describe: 历史记录的消息对象
+ * Describe: http的消息对象
  */
-internal data class HistoryMessage(
+internal data class HttpImMessage(
     val id: Long,
     val conversationKey: String,
     val conversationType: Int,

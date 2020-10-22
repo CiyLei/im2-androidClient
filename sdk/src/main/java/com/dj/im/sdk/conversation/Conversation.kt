@@ -7,18 +7,17 @@ import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.convert.send.SendMessageTaskFactory
 import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.convert.message.MessageConvertFactory
-import com.dj.im.sdk.entity.HistoryMessage
+import com.dj.im.sdk.entity.HttpImMessage
 import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.entity.RBGetHistoryMessageList
 import com.dj.im.sdk.entity.UnReadMessage
 import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.net.RetrofitManager
 import com.dj.im.sdk.service.ServiceManager
-import com.dj.im.sdk.task.HistoryMessageTask
+import com.dj.im.sdk.task.HttpGetHistoryMessageListTask
 import com.dj.im.sdk.task.ReadConversationTask
 import com.dj.im.sdk.utils.RxUtil.o
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.observers.DisposableCompletableObserver
 import kotlin.random.Random
 
 /**
@@ -56,7 +55,7 @@ abstract class Conversation {
     /**
      * 管理请求
      */
-    private val mCompositeDisposable = CompositeDisposable()
+    protected val mCompositeDisposable = CompositeDisposable()
     private val mHandler = Handler(Looper.getMainLooper())
 
     /**
@@ -245,36 +244,25 @@ abstract class Conversation {
      */
     fun getHistoryMessage(messageId: Long) {
         mCompositeDisposable.add(
-            RetrofitManager.instance.apiStore.getHistoryMessageList(
-                RBGetHistoryMessageList(
-                    getConversationKey(),
-                    messageId
-                )
-            ).o().subscribe({
-                if (it.success) {
+            HttpGetHistoryMessageListTask(getConversationKey(), messageId)
+                .success {
                     // 读取历史消息成功
                     DJIM.getDefaultThreadPoolExecutor().submit {
-                        readHistorySuccess(it.data)
+                        readHistorySuccess(it)
                     }
-                } else {
+                }.failure { _, _ ->
                     // 读取失败
                     DJIM.getDefaultThreadPoolExecutor().submit {
                         readHistoryFail(messageId)
                     }
-                }
-            }, {
-                // 读取失败
-                DJIM.getDefaultThreadPoolExecutor().submit {
-                    readHistoryFail(messageId)
-                }
-            })
+                }.start()
         )
     }
 
     /**
      * 读取历史消息成功
      */
-    private fun readHistorySuccess(messageList: List<HistoryMessage>) {
+    private fun readHistorySuccess(messageList: List<HttpImMessage>) {
         val userId = ServiceManager.instance.getUserInfo()?.id ?: return
         messageList.forEach { msg ->
             // 添加历史消息到本地数据库

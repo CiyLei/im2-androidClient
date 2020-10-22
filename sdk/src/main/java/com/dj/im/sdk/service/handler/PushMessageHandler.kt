@@ -8,6 +8,8 @@ import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.entity.UnReadMessage
 import com.dj.im.sdk.task.GetGroupInfoTask
 import com.dj.im.sdk.task.GetUserInfoTask
+import com.dj.im.sdk.task.HttpGetGroupInfoTask
+import com.dj.im.sdk.task.HttpGetUserInfoByIds
 import com.dj.im.sdk.utils.MessageConvertUtil
 
 
@@ -34,12 +36,12 @@ internal class PushMessageHandler(private val mService: ImService) : IPushHandle
         // 如果本地是否有消息发送方的用户信息，如果没有的话，就获取
         val fromUser = mService.dbDao.getUser(mService.userInfo!!.id, message.fromId)
         if (fromUser == null) {
-            mService.imServiceStub.sendTask(GetUserInfoTask(message.fromId))
+            mService.imServiceStub.compositeDisposable.add(HttpGetUserInfoByIds(listOf(message.fromId)).start())
         }
         if (message.conversationType == ImConversation.Type.GROUP) {
             // 如果是群聊的话，看看有没有群信息，没有的话就获取
             if (mService.dbDao.getGroupInfo(mService.userInfo!!.id, message.toId) == null) {
-                mService.imServiceStub.sendTask(GetGroupInfoTask(message.toId))
+                mService.imServiceStub.compositeDisposable.add(HttpGetGroupInfoTask(listOf(message.toId)).start())
             }
         }
         // 添加会话

@@ -11,7 +11,7 @@ import com.dj.im.sdk.utils.MessageConvertUtil
 
 /**
  * Create by ChenLei on 2020/4/26
- * Describe: 获取用户信息任务
+ * Describe: 获取用户信息任务（弃用）
  */
 class GetUserInfoTask(private val mUserId: Long) : ITask.Stub() {
 
