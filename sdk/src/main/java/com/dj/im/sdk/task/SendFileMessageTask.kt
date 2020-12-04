@@ -19,6 +19,7 @@ import okhttp3.MultipartBody
 open class SendFileMessageTask : SendTextMessageTask() {
 
     private lateinit var mFileMessage: FileMessage
+
     // 临时保存的本地文件路径
     private var mTmpLocalPath = ""
 
@@ -82,7 +83,11 @@ open class SendFileMessageTask : SendTextMessageTask() {
      * 通知更新进度
      */
     private fun notifyChangeState() {
-        notifyChangeState(mFileMessage.imMessage.id, mFileMessage.imMessage.state)
+        notifyChangeState(
+            mFileMessage.imMessage.conversationKey,
+            mFileMessage.imMessage.id,
+            mFileMessage.imMessage.state
+        )
     }
 
     override fun onTaskEnd(errType: Int, errCode: Int) {

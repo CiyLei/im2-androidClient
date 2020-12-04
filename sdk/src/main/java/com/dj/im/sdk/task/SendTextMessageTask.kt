@@ -44,6 +44,8 @@ open class SendTextMessageTask : AbsSendMessageTask() {
             getMessage().imMessage.createTime = result.createTime
             // 还是发送中的状态，等kafka的回调
             getMessage().imMessage.state = ImMessage.State.LOADING
+            // 发生成功了，清空临时未读列表
+            getMessage().imMessage.unReadUserId.clear()
         } else {
             // 发送失败
             getMessage().imMessage.state = ImMessage.State.FAIL
@@ -58,7 +60,11 @@ open class SendTextMessageTask : AbsSendMessageTask() {
         // 保存到数据库中
         getMessage().save()
         // 通知更新
-        notifyChangeState(getMessage().imMessage.id, getMessage().imMessage.state)
+        notifyChangeState(
+            getMessage().imMessage.conversationKey,
+            getMessage().imMessage.id,
+            getMessage().imMessage.state
+        )
     }
 
 }

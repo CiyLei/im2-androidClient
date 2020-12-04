@@ -39,11 +39,8 @@ class SingleConversation(val toUserId: Long) : Conversation() {
      */
     override fun addUnReadUser(message: Message) {
         ServiceManager.instance.getUserInfo()?.let {
-            ServiceManager.instance.getDb()?.addUnReadMessage(
-                it.id, arrayListOf(
-                    UnReadMessage(it.id, message.imMessage.id, toUserId)
-                )
-            )
+            message.imMessage.unReadUserId.clear()
+            message.imMessage.unReadUserId.add(toUserId)
         }
     }
 

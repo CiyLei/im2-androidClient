@@ -16,10 +16,7 @@ import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.entity.*
 import kotlinx.android.synthetic.main.activity_chat.*
 import java.io.File
-import java.text.DateFormat
-import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.properties.Delegates
 
 
 /**
@@ -50,18 +47,12 @@ class ChatActivity : BaseActivity() {
         }
 
         override fun onChaneMessageState(messageId: Long, state: Int) {
-            val index = mMessageList.map { it.imMessage.id }.indexOf(messageId)
+            val index = mMessageList.indexOfFirst { it.imMessage.id == messageId }
             mAdapter.notifyItemChanged(index)
         }
 
         override fun onConversationRead() {
             mAdapter.notifyDataSetChanged()
-        }
-
-        override fun onReadHistoryMessage(messageList: List<Message>) {
-            mMessageList.addAll(messageList)
-            mAdapter.notifyDataSetChanged()
-            srl.finishRefresh()
         }
 
         override fun onUserInfoChange(userId: Long) {
@@ -97,8 +88,17 @@ class ChatActivity : BaseActivity() {
         }
         // 设置会话的回调
         mConversation.conversationListener = mConversationListener
-        // 添加最新的消息列表
-        mMessageList.addAll(mConversation.getNewestMessages())
+        // 先加载本地的记录
+        mMessageList.addAll(mConversation.getLocalNewestMessages())
+        // 同时读取网络的记录
+        mConversation.getHistoryMessage(0) { success, list ->
+            if (success) {
+                // 读取成功，替代本地的消息列表
+                mMessageList.clear()
+                mMessageList.addAll(list)
+                mAdapter.notifyDataSetChanged()
+            }
+        }
         // 已读消息
         mConversation.read()
 
@@ -110,7 +110,11 @@ class ChatActivity : BaseActivity() {
         rvMessageList.adapter = mAdapter
         srl.setOnRefreshListener {
             // 刷新获取历史消息
-            mConversation.getHistoryMessage(mMessageList.last().imMessage.id)
+            mConversation.getHistoryMessage(mMessageList.last().imMessage.id) { success, list ->
+                mMessageList.addAll(list)
+                mAdapter.notifyDataSetChanged()
+                srl.finishRefresh()
+            }
         }
 
         chat_input.setMenuClickListener(object : OnMenuClickListener {

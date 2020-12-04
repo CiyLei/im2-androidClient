@@ -9,14 +9,11 @@ import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.convert.message.MessageConvertFactory
 import com.dj.im.sdk.entity.HttpImMessage
 import com.dj.im.sdk.entity.ImMessage
-import com.dj.im.sdk.entity.RBGetHistoryMessageList
 import com.dj.im.sdk.entity.UnReadMessage
 import com.dj.im.sdk.listener.ImListener
-import com.dj.im.sdk.net.RetrofitManager
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.task.HttpGetHistoryMessageListTask
 import com.dj.im.sdk.task.ReadConversationTask
-import com.dj.im.sdk.utils.RxUtil.o
 import io.reactivex.disposables.CompositeDisposable
 import kotlin.random.Random
 
@@ -38,19 +35,13 @@ abstract class Conversation {
         fun onPushMessage(message: Message)
         fun onChaneMessageState(messageId: Long, state: Int)
         fun onConversationRead()
-        fun onReadHistoryMessage(messageList: List<Message>)
         fun onUserInfoChange(userId: Long)
     }
 
     /**
      * 保存所有消息，以防在同步消息的时候重复
      */
-    private val mHistoryMessage = HashSet<Message>()
-
-    /**
-     * 最后一条消息
-     */
-    private var mLastMessage: Message? = null
+    private val mHistoryMessage = ArrayList<Message>()
 
     /**
      * 管理请求
@@ -79,15 +70,16 @@ abstract class Conversation {
             addMessage(message)
         }
 
-        override fun onChangeMessageSendState(messageId: Long, state: Int) {
+        override fun onChangeMessageSendState(
+            conversationKey: String,
+            messageId: Long,
+            state: Int
+        ) {
             // 判断更新状态的消息是不是当前会话的
-            val index = mHistoryMessage.map { it.imMessage.id }.indexOf(messageId)
-            if (index >= 0) {
-                // 更改消息的发送状态
-                for (message in mHistoryMessage) {
-                    if (message.imMessage.id == messageId) {
-                        message.imMessage.state = state
-                    }
+            if (conversationKey == getConversationKey()) {
+                val index = mHistoryMessage.indexOfFirst { it.imMessage.id == messageId }
+                if (index >= 0) {
+                    mHistoryMessage[index].imMessage.state = state
                 }
                 conversationListener?.onChaneMessageState(messageId, state)
             }
@@ -100,16 +92,8 @@ abstract class Conversation {
             }
         }
 
-        override fun onReadHistoryMessage(conversationKey: String, messageList: List<Message>) {
-            if (conversationKey == getConversationKey()) {
-                conversationListener?.onReadHistoryMessage(messageList.map { it })
-            }
-        }
-
         override fun onUserInfoChange(userId: Long) {
-            if (mHistoryMessage.indexOfFirst { it.imMessage.fromId == userId } != -1) {
-                conversationListener?.onUserInfoChange(userId)
-            }
+            conversationListener?.onUserInfoChange(userId)
         }
     }
 
@@ -128,7 +112,10 @@ abstract class Conversation {
         // 在发送任务的工厂中找到真正的发送任务类
         val sendMessage = SendMessageTaskFactory.sendMessageTask(message)
         if (sendMessage != null) {
+            // 虽然这时候id是随机虚假的，这个未读的列表关联的是假的id，但是这条消息并不会保存
+            // 之后发生成功了，才会保存消息，那时会在保存一次未读列表，那时会正确的关联
             addUnReadUser(sendMessage)
+            // 只保存到内存中
             addMessage(sendMessage)
             return true
         }
@@ -143,9 +130,7 @@ abstract class Conversation {
         if (message.imMessage.conversationKey == getConversationKey()) {
             synchronized(mHistoryMessage) {
                 // 没有重复消息
-                if (!mHistoryMessage.map {
-                        it.imMessage.id
-                    }.contains(message.imMessage.id)) {
+                if (!mHistoryMessage.map { it.imMessage.id }.contains(message.imMessage.id)) {
                     mHistoryMessage.add(message)
                     conversationListener?.onPushMessage(message)
                 }
@@ -178,9 +163,9 @@ abstract class Conversation {
     }
 
     /**
-     * 获取最新的20条消息
+     * 获取本地最新的20条消息
      */
-    fun getNewestMessages(): List<Message> {
+    fun getLocalNewestMessages(): List<Message> {
         val result = ArrayList<Message>()
         ServiceManager.instance.getUserInfo()?.id?.let {
             ServiceManager.instance.getDb()?.getNewestMessages(
@@ -191,12 +176,6 @@ abstract class Conversation {
                 result.add(MessageConvertFactory.convert(msg))
             }
         }
-        mHistoryMessage.addAll(result)
-        // 如果未读数量大于0，说明可能本地消息列表不同步，则从网络中读取记录
-        val lastMessage = result.lastOrNull()
-        if (unReadCount > 0 && lastMessage != null) {
-            getHistoryMessage(lastMessage.imMessage.id)
-        }
         return result
     }
 
@@ -204,16 +183,14 @@ abstract class Conversation {
      * 返回最后一条消息
      */
     fun lastMessage(): Message? {
-        if (mLastMessage == null) {
-            ServiceManager.instance.getUserInfo()?.id?.let {
-                val lastMessage =
-                    ServiceManager.instance.getDb()?.getLastMessage(it, getConversationKey())
-                if (lastMessage != null) {
-                    mLastMessage = MessageConvertFactory.convert(lastMessage)
-                }
+        var lastMessage: Message? = null
+        ServiceManager.instance.getUserInfo()?.id?.let {
+            val msg = ServiceManager.instance.getDb()?.getLastMessage(it, getConversationKey())
+            if (msg != null) {
+                lastMessage = MessageConvertFactory.convert(msg)
             }
         }
-        return mLastMessage
+        return lastMessage
     }
 
     /**
@@ -241,28 +218,30 @@ abstract class Conversation {
     /**
      * 获取指定消息之前的历史消息列表
      * 先从网络中获取，如果获取失败再从数据库中获取
+     * @param messageId 获取指定消息之前的历史记录（0：获取最新的消息记录）
+     * @param event 读取回调
      */
-    fun getHistoryMessage(messageId: Long) {
+    fun getHistoryMessage(messageId: Long = 0, event: ((Boolean, List<Message>) -> Unit)) {
         mCompositeDisposable.add(
             HttpGetHistoryMessageListTask(getConversationKey(), messageId)
                 .success {
                     // 读取历史消息成功
                     DJIM.getDefaultThreadPoolExecutor().submit {
-                        readHistorySuccess(it)
+                        // 将获取到的消息保存到本地
+                        writeHistoryMessage(it)
+                        notifyReadHistoryMessage(messageId, true, event)
                     }
                 }.failure { _, _ ->
                     // 读取失败
-                    DJIM.getDefaultThreadPoolExecutor().submit {
-                        readHistoryFail(messageId)
-                    }
+                    notifyReadHistoryMessage(messageId, false, event)
                 }.start()
         )
     }
 
     /**
-     * 读取历史消息成功
+     * 写入历史消息
      */
-    private fun readHistorySuccess(messageList: List<HttpImMessage>) {
+    private fun writeHistoryMessage(messageList: List<HttpImMessage>) {
         val userId = ServiceManager.instance.getUserInfo()?.id ?: return
         messageList.forEach { msg ->
             // 添加历史消息到本地数据库
@@ -272,35 +251,36 @@ abstract class Conversation {
                 userId,
                 msg.unReadUserId.map { UnReadMessage(userId, msg.id, it) })
         }
-        // 更新回调
-        notifyReadHistoryMessage(messageList.map { MessageConvertFactory.convert(it.toMessage(userId)) })
     }
 
     /**
-     * 读取历史消息失败
+     * 读取本地历史消息列表
      */
-    private fun readHistoryFail(messageId: Long) {
-        val userId = ServiceManager.instance.getUserInfo()?.id ?: return
+    fun getLocalHistoryMessage(messageId: Long): List<Message> {
+        val userId = ServiceManager.instance.getUserInfo()?.id ?: return emptyList()
         // 网络读取历史记录失败则从本地数据库中读取
-        val messageList = ServiceManager.instance.getDb()
-            ?.getHistoryMessage(
-                userId,
-                getConversationKey(),
-                messageId,
-                Constant.OFFLINE_READ_HISTORY_MESSAGE_COUNT
-            ) ?: return
-        // 更新回调
-        notifyReadHistoryMessage(messageList.map { MessageConvertFactory.convert(it) })
+        return ServiceManager.instance.getDb()?.getHistoryMessage(
+            userId,
+            getConversationKey(),
+            messageId,
+            Constant.OFFLINE_READ_HISTORY_MESSAGE_COUNT
+        )?.map { MessageConvertFactory.convert(it) } ?: return emptyList()
     }
 
     /**
      * 通知更新读取了历史消息
      */
-    private fun notifyReadHistoryMessage(messageList: List<Message>) {
+    private fun notifyReadHistoryMessage(
+        messageId: Long = 0L,
+        netSuccess: Boolean,
+        event: ((Boolean, List<Message>) -> Unit)
+    ) {
+        // 读取本地的历史消息
+        val messageList = if (messageId == 0L)
+            getLocalNewestMessages()
+        else getLocalHistoryMessage(messageId)
         mHandler.post {
-            ServiceManager.instance.imListeners.forEach {
-                it.onReadHistoryMessage(getConversationKey(), messageList)
-            }
+            event.invoke(netSuccess, messageList)
         }
     }
 }

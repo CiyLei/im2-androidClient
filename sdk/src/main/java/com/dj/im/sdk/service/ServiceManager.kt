@@ -49,9 +49,15 @@ internal class ServiceManager private constructor() : ServiceConnection {
         /**
          * 消息发送状态改变
          */
-        override fun onChangeMessageState(messageId: Long, state: Int) {
+        override fun onChangeMessageState(conversationKey: String, messageId: Long, state: Int) {
             mHandler.post {
-                imListeners.forEach { it.onChangeMessageSendState(messageId, state) }
+                imListeners.forEach {
+                    it.onChangeMessageSendState(
+                        conversationKey,
+                        messageId,
+                        state
+                    )
+                }
             }
         }
 

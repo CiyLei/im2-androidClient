@@ -36,11 +36,10 @@ class GroupConversation(val groupId: Long) : Conversation() {
         ServiceManager.instance.getUserInfo()?.let {
             // 获取群里所有用户（排除自己）
             val unReadUser = getGroupInfo()?.userIdList?.filter { l -> it.id != l } ?: emptyList()
-            ServiceManager.instance.getDb()?.addUnReadMessage(
-                it.id, unReadUser.map { m -> UnReadMessage(it.id, message.imMessage.id, m) }
-            )
+            // 添加到临时的消息未读列表中
+            message.imMessage.unReadUserId.clear()
+            message.imMessage.unReadUserId.addAll(unReadUser)
         }
-
     }
 
     /**

@@ -53,6 +53,7 @@ internal class PushMessageHandler(private val mService: ImService) : IPushHandle
         mService.marsListener?.onPushMessage(pushResponse.id)
         mService.marsListener?.onChangeConversions()
         mService.marsListener?.onChangeMessageState(
+            pushResponse.conversationKey,
             pushResponse.id,
             ImMessage.State.SUCCESS
         )

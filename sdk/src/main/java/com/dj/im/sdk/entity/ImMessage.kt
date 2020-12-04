@@ -87,7 +87,7 @@ data class ImMessage(
     var userId: Long = 0L,
 
     /**
-     * 这条消息的未读人员列表（只有在获取历史消息的时候有）
+     * 临时的未读消息列表
      */
     @Ignore
     internal val unReadUserId: ArrayList<Long> = ArrayList()

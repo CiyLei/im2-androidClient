@@ -21,10 +21,11 @@ open class ImListener {
 
     /**
      * 某条消息的发送状态发生了变化
+     * @param conversationKey 会话Key
      * @param messageId 消息id
      * @param state 消息状态
      */
-    open fun onChangeMessageSendState(messageId: Long, state: Int) {}
+    open fun onChangeMessageSendState(conversationKey: String, messageId: Long, state: Int) {}
 
     /**
      * 会话发生了变化
@@ -35,13 +36,6 @@ open class ImListener {
      * 会话已读监听
      */
     open fun onChangeConversationRead(conversationKey: String) {}
-
-    /**
-     * 成功读取历史消息
-     * @param conversationKey 读取的会话id
-     * @param messageList 读取的历史消息
-     */
-    open fun onReadHistoryMessage(conversationKey: String, messageList: List<Message>) {}
 
     /**
      * 离线监听

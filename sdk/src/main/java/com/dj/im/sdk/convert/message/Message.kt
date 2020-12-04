@@ -45,6 +45,9 @@ abstract class Message(val imMessage: ImMessage) {
      * 获取未读用户id
      */
     fun getUnReadUserIdList(): List<Long> {
+        // 如果临时的未读列表不为空，则返回临时的未读列表
+        // 因为这时messageId是随机的，所以并没有保存到数据库中，而是保存在内存中
+        if (imMessage.unReadUserId.isNotEmpty()) return imMessage.unReadUserId
         ServiceManager.instance.getUserInfo()?.id?.let {
             return ServiceManager.instance.getDb()?.getUnReadUserId(
                 it,

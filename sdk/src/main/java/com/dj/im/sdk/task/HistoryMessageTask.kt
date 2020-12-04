@@ -73,10 +73,10 @@ internal class HistoryMessageTask(
             // 在主线程中回调
             mHandler.post {
                 ServiceManager.instance.imListeners.forEach {
-                    it.onReadHistoryMessage(
-                        mConversationKey,
-                        historyMessage.map { m -> MessageConvertFactory.convert(m) }
-                    )
+//                    it.onReadHistoryMessage(
+//                        mConversationKey,
+//                        historyMessage.map { m -> MessageConvertFactory.convert(m) }
+//                    )
                 }
             }
         }

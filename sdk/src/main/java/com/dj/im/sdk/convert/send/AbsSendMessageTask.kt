@@ -35,11 +35,11 @@ abstract class AbsSendMessageTask() : ITask.Stub() {
     /**
      * 通知状态变化
      */
-    protected fun notifyChangeState(messageId: Long, state: Int) {
+    protected fun notifyChangeState(conversationKey: String, messageId: Long, state: Int) {
         // 在主线程中触发更改状态的回调
         mainHandler.post {
             ServiceManager.instance.imListeners.forEach {
-                it.onChangeMessageSendState(messageId, state)
+                it.onChangeMessageSendState(conversationKey, messageId, state)
             }
         }
     }
