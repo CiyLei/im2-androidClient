@@ -17,13 +17,9 @@ internal data class HttpImMessage(
     val type: Int,
     val data: String,
     val summary: String,
-    val createTime: String,
+    val createTime: Long,
     val unReadUserId: List<Long>
 ) : Serializable {
-
-    companion object {
-        const val DATE_TO_STRING_DETAIAL_PATTERN = "yyyy-MM-dd HH:mm:ss"
-    }
 
     /**
      * 转换为ImMessage对象
@@ -39,9 +35,7 @@ internal data class HttpImMessage(
             data,
             summary,
             userId = userId,
-            createTime = SimpleDateFormat(DATE_TO_STRING_DETAIAL_PATTERN, Locale.CHINA).parse(
-                createTime
-            ).time
+            createTime = createTime
         )
     }
 }

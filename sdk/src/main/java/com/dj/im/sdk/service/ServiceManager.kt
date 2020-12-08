@@ -37,6 +37,9 @@ internal class ServiceManager private constructor() : ServiceConnection {
     private lateinit var mDeviceCode: String
     private var mHandler = Handler(Looper.getMainLooper())
 
+    // 待执行任务
+    private val mPendingTask = ArrayList<Runnable>()
+
     // 连接情况回调
     internal var imListeners = ArrayList<ImListener>()
 
@@ -130,16 +133,36 @@ internal class ServiceManager private constructor() : ServiceConnection {
      */
     fun login(token: String) {
         checkStartService()
-        mImService?.setOnMarsListener(mMarsListener)
-        mImService?.connect(token)
+        // 如果服务还没初始化好，加入到待执行任务中
+        synchronized(mPendingTask) {
+            if (mImService == null) {
+                mPendingTask.add(Runnable {
+                    mImService?.setOnMarsListener(mMarsListener)
+                    mImService?.connect(token)
+                })
+            } else {
+                mImService?.setOnMarsListener(mMarsListener)
+                mImService?.connect(token)
+            }
+        }
     }
 
     /**
      * 退出登录
      */
     fun logout() {
-        mImService?.setOnMarsListener(null)
-        mImService?.disconnect()
+        // 如果服务还没初始化好，加入到待执行任务中
+        synchronized(mPendingTask) {
+            if (mImService == null) {
+                mPendingTask.add(Runnable {
+                    mImService?.setOnMarsListener(null)
+                    mImService?.disconnect()
+                })
+            } else {
+                mImService?.setOnMarsListener(null)
+                mImService?.disconnect()
+            }
+        }
     }
 
     /**
@@ -151,7 +174,16 @@ internal class ServiceManager private constructor() : ServiceConnection {
      * 发送消息
      */
     fun sendTask(task: ITask) {
-        mImService?.sendTask(task)
+        // 如果服务还没初始化好，加入到待执行任务中
+        synchronized(mPendingTask) {
+            if (mImService == null) {
+                mPendingTask.add(Runnable {
+                    mImService?.sendTask(task)
+                })
+            } else {
+                mImService?.sendTask(task)
+            }
+        }
     }
 
     fun getDb(): IDBDao? {
@@ -189,6 +221,11 @@ internal class ServiceManager private constructor() : ServiceConnection {
         mImService = IImService.Stub.asInterface(service)
         mImService?.setOnMarsListener(mMarsListener)
         mImService?.autoConnect()
+        // 执行之前待执行的任务
+        synchronized(mPendingTask) {
+            mPendingTask.forEach { it.run() }
+            mPendingTask.clear()
+        }
     }
 
     /**
