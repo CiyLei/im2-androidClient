@@ -15,11 +15,9 @@ open class SendTextMessageTask : AbsSendMessageTask() {
 
     private lateinit var mMessage: Message
 
-    override fun sendMessage(message: Message): Message? {
+    override fun matchTask(message: Message): AbsSendMessageTask? {
         this.mMessage = message
-        // 开始发送
-        startSend()
-        return message
+        return this
     }
 
     override fun getMessage(): Message = mMessage

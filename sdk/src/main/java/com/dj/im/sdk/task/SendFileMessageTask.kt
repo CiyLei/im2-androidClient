@@ -1,6 +1,7 @@
 package com.dj.im.sdk.task
 
 import com.dj.im.sdk.convert.message.Message
+import com.dj.im.sdk.convert.send.AbsSendMessageTask
 import com.dj.im.sdk.entity.FileMessage
 import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.net.RetrofitManager
@@ -9,6 +10,7 @@ import okhttp3.MediaType
 import okhttp3.RequestBody
 import java.io.File
 import com.dj.im.sdk.utils.RxUtil.o
+import io.reactivex.disposables.CompositeDisposable
 import okhttp3.MultipartBody
 
 
@@ -23,23 +25,19 @@ open class SendFileMessageTask : SendTextMessageTask() {
     // 临时保存的本地文件路径
     private var mTmpLocalPath = ""
 
-    override fun sendMessage(message: Message): Message? {
+    override fun matchTask(message: Message): AbsSendMessageTask? {
         // 校验是不是发送文件消息
         if (message is FileMessage) {
             mFileMessage = message
-            // 开始上传
-            startUpload()
-            return message
+            return this
         }
         return null
     }
 
     override fun getMessage(): Message = mFileMessage
 
-    /**
-     * 开始上传文件
-     */
-    private fun startUpload() {
+    override fun startSend() {
+        // 先开始上传文件
         val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
         val rb: RequestBody =
             RequestBody.create(
@@ -64,7 +62,7 @@ open class SendFileMessageTask : SendTextMessageTask() {
                 // 更新data数据
                 mFileMessage.updateData()
                 // 开始发送消息
-                startSend()
+                super.startSend()
             } else {
                 // 上传失败
                 mFileMessage.imMessage.state = ImMessage.State.FAIL
@@ -77,6 +75,13 @@ open class SendFileMessageTask : SendTextMessageTask() {
             notifyChangeState()
             mFileMessage.save()
         })
+    }
+
+    /**
+     * 开始上传文件
+     */
+    private fun startUpload() {
+
     }
 
     /**

@@ -6,6 +6,7 @@ import com.dj.im.sdk.ITask
 import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.service.ServiceManager
+import io.reactivex.disposables.CompositeDisposable
 
 /**
  * Create by ChenLei on 2020/4/20
@@ -16,19 +17,16 @@ abstract class AbsSendMessageTask() : ITask.Stub() {
     val mainHandler = Handler(Looper.getMainLooper())
 
     /**
-     * 发送消息
-     *
-     * @param message 需要发送的消息
-     * @return 真正发送的消息，null为不是我要发送的
+     * 匹配发送的任务
      */
-    abstract fun sendMessage(message: Message): Message?
+    abstract fun matchTask(message: Message): AbsSendMessageTask?
 
     abstract fun getMessage(): Message
 
     /**
      * 开发发送
      */
-    protected fun startSend() {
+    open fun startSend() {
         ServiceManager.instance.sendTask(this)
     }
 

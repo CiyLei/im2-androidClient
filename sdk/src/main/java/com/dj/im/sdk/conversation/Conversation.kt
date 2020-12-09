@@ -110,13 +110,15 @@ abstract class Conversation {
         message.imMessage.id = Random.nextLong()
         message.imMessage.state = ImMessage.State.LOADING
         // 在发送任务的工厂中找到真正的发送任务类
-        val sendMessage = SendMessageTaskFactory.sendMessageTask(message)
-        if (sendMessage != null) {
+        val sendMessageTask = SendMessageTaskFactory.matchMessageTask(message)
+        if (sendMessageTask != null) {
+            // 开始发送
+            sendMessageTask.startSend()
             // 虽然这时候id是随机虚假的，这个未读的列表关联的是假的id，但是这条消息并不会保存
             // 之后发生成功了，才会保存消息，那时会在保存一次未读列表，那时会正确的关联
-            addUnReadUser(sendMessage)
+            addUnReadUser(sendMessageTask.getMessage())
             // 只保存到内存中
-            addMessage(sendMessage)
+            addMessage(sendMessageTask.getMessage())
             return true
         }
         return false

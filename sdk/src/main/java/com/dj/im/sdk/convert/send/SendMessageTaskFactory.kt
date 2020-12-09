@@ -16,15 +16,15 @@ object SendMessageTaskFactory {
         SendFileMessageTask::class.java
     )
 
-    fun sendMessageTask(message: Message): Message? {
+    fun matchMessageTask(message: Message): AbsSendMessageTask? {
         sendMessageTasks.forEach {
             // 寻找发送此消息的任务
-            val sendMessage = it.newInstance().sendMessage(message)
+            val sendMessage = it.newInstance().matchTask(message)
             if (sendMessage != null) {
                 return sendMessage
             }
         }
         // 保底发送文字消息
-        return SendTextMessageTask().sendMessage(message)
+        return SendTextMessageTask().matchTask(message)
     }
 }
