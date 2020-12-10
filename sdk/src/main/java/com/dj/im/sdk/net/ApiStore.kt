@@ -2,8 +2,6 @@ package com.dj.im.sdk.net
 
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.entity.*
-import com.dj.im.sdk.entity.HttpImMessage
-import com.dj.im.sdk.entity.ServerSituationEntity
 import io.reactivex.Observable
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -46,6 +44,12 @@ internal interface ApiStore {
      */
     @POST(Constant.URL.GET_USER_INFO_BY_IDS)
     fun getUserInfoByIds(@Body requestBody: RBGetUserInfoByIds): Observable<BaseResponse<List<HttpImUser>>>
+
+    /**
+     * 根据id列表获取用户信息
+     */
+    @POST(Constant.URL.GET_USER_INFO_BY_NAMES)
+    fun getUserInfoByNames(@Body requestBody: RBGetUserInfoByNames): Observable<BaseResponse<List<HttpImUser>>>
 
     /**
      * 根据会话key获取会话中的用户列表

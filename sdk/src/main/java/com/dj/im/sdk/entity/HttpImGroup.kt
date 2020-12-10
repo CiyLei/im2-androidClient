@@ -10,8 +10,9 @@ data class HttpImGroup(
     val id: Long,
     val name: String,
     val avatarUrl: String,
-    val userIdList: List<Long>
+    val userNameList: List<String>
 ) : Serializable {
 
-    fun toImGroup(userId: Long): ImGroup = ImGroup(id, name, avatarUrl, userIdList, userId)
+    fun toImGroup(belongAppId: String, belongUserName: String): ImGroup =
+        ImGroup(belongAppId, belongUserName, id, name, avatarUrl, userNameList)
 }

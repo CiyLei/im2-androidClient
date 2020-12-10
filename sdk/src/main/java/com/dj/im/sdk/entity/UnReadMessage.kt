@@ -9,13 +9,22 @@ import android.os.Parcelable
  * Create by ChenLei on 2020/4/26
  * Describe: 未读消息实体类
  */
-@Entity(tableName = "UnReadMessage", primaryKeys = ["userId", "messageId", "unReadUserId"])
+@Entity(
+    tableName = "UnReadMessage",
+    primaryKeys = ["belongAppId", "belongUserName", "messageId", "unReadUserName"]
+)
 data class UnReadMessage(
+    /**
+     * 在数据库中表示这条消息是属于哪个应用缓存的
+     */
+    @ColumnInfo(name = "belongAppId")
+    var belongAppId: String,
+
     /**
      * 在数据库中表示这条消息是属于哪个用户缓存的
      */
-    @ColumnInfo(name = "userId")
-    var userId: Long,
+    @ColumnInfo(name = "belongUserName")
+    var belongUserName: String,
     /**
      * 未读消息的id
      */
@@ -24,21 +33,23 @@ data class UnReadMessage(
     /**
      * 未读用户的id
      */
-    @ColumnInfo(name = "unReadUserId")
-    var unReadUserId: Long
+    @ColumnInfo(name = "unReadUserName")
+    var unReadUserName: String
 ) : Parcelable {
     constructor(source: Parcel) : this(
+        source.readString(),
+        source.readString(),
         source.readLong(),
-        source.readLong(),
-        source.readLong()
+        source.readString()
     )
 
     override fun describeContents() = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
-        writeLong(userId)
+        writeString(belongAppId)
+        writeString(belongUserName)
         writeLong(messageId)
-        writeLong(unReadUserId)
+        writeString(unReadUserName)
     }
 
     companion object {

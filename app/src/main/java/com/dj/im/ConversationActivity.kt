@@ -24,14 +24,24 @@ import kotlinx.android.synthetic.main.activity_conversation.*
 class ConversationActivity : BaseActivity() {
 
     companion object {
-        val user1 = ImUser(697027057683677184L, "q903736665", "", "")
-        val user2 = ImUser(697032868820094976L, "q903736668", "", "")
-        val user3 = ImUser(697417018887741440L, "q903736669", "", "")
+        val user1 = ImUser("", "", 697027057683677184L, "q903736665", "", "")
+        val user2 = ImUser("", "", 697032868820094976L, "q903736668", "", "")
+        val user3 = ImUser("", "", 697417018887741440L, "q903736669", "", "")
+        val user4 = ImUser("", "", 62277648346255360L, "q9037366633", "", "")
+        val user5 = ImUser("", "", 697417018887741440L, "q903736669", "", "")
         val group1 = ImGroup(
+            "", "",
             21302854346080256L,
             "三国演义",
             "",
-            listOf(697027057683677184L, 697032868820094976L, 697417018887741440L)
+            listOf("q903736665", "q903736668", "q903736669")
+        )
+        val group2 = ImGroup(
+            "", "",
+            62281167189053440L,
+            "两国演义",
+            "",
+            listOf("q903736668", "q903736669")
         )
     }
 
@@ -52,7 +62,7 @@ class ConversationActivity : BaseActivity() {
                 }
                 val otherSideUserInfo = item.getOtherSideUserInfo()
                 if (otherSideUserInfo == null) {
-                    helper.setText(R.id.tvUserName, "${item.toUserId}")
+                    helper.setText(R.id.tvUserName, item.toUserName)
                 } else {
                     helper.setText(
                         R.id.tvUserName,
@@ -61,7 +71,7 @@ class ConversationActivity : BaseActivity() {
                 }
                 helper.setText(R.id.tvUnreadCount, item.unReadCount.toString())
                 val lastMessage = item.lastMessage()
-                if (lastMessage?.getUnReadUserIdList()?.size == 0 || lastMessage?.imMessage?.fromId != DJIM.getUserInfo()?.id) {
+                if (lastMessage?.getUnReadUserIdList()?.size == 0 || lastMessage?.imMessage?.fromUserName != DJIM.getUserInfo()?.userName) {
                     helper.setText(
                         R.id.tvMessage,
                         item.lastMessage()?.imMessage?.getSummaryDesc()
@@ -84,7 +94,7 @@ class ConversationActivity : BaseActivity() {
                 }
                 helper.setText(R.id.tvUnreadCount, item.unReadCount.toString())
                 val lastMessage = item.lastMessage()
-                if (lastMessage?.getUnReadUserIdList()?.size == 0 || lastMessage?.imMessage?.fromId != DJIM.getUserInfo()?.id) {
+                if (lastMessage?.getUnReadUserIdList()?.size == 0 || lastMessage?.imMessage?.fromUserName != DJIM.getUserInfo()?.userName) {
                     helper.setText(
                         R.id.tvMessage,
                         item.lastMessage()?.imMessage?.getSummaryDesc()
@@ -92,8 +102,10 @@ class ConversationActivity : BaseActivity() {
                 } else {
                     helper.setText(
                         R.id.tvMessage,
-                        "[${lastMessage?.getUnReadUserIdList()?.size
-                            ?: 0}人未读]${item.lastMessage()?.imMessage?.getSummaryDesc()}"
+                        "[${
+                            lastMessage?.getUnReadUserIdList()?.size
+                                ?: 0
+                        }人未读]${item.lastMessage()?.imMessage?.getSummaryDesc()}"
                     )
                 }
             }
@@ -126,7 +138,7 @@ class ConversationActivity : BaseActivity() {
             val conversation = mConversations[position]
             if (conversation is SingleConversation) {
                 startActivity(Intent(this, ChatActivity::class.java).apply {
-                    putExtra("userId", conversation.toUserId)
+                    putExtra("userName", conversation.toUserName)
                 })
             } else if (conversation is GroupConversation) {
                 startActivity(Intent(this, ChatActivity::class.java).apply {
@@ -164,25 +176,43 @@ class ConversationActivity : BaseActivity() {
         when (item?.itemId) {
             R.id.c1 -> {
                 startActivity(Intent(this, ChatActivity::class.java).apply {
-                    putExtra("userId", user1.id)
+                    putExtra("userName", user1.userName)
                 })
                 return true
             }
             R.id.c2 -> {
                 startActivity(Intent(this, ChatActivity::class.java).apply {
-                    putExtra("userId", user2.id)
+                    putExtra("userName", user2.userName)
                 })
                 return true
             }
             R.id.c3 -> {
                 startActivity(Intent(this, ChatActivity::class.java).apply {
-                    putExtra("userId", user3.id)
+                    putExtra("userName", user3.userName)
+                })
+                return true
+            }
+            R.id.c4 -> {
+                startActivity(Intent(this, ChatActivity::class.java).apply {
+                    putExtra("userName", user4.userName)
+                })
+                return true
+            }
+            R.id.c5 -> {
+                startActivity(Intent(this, ChatActivity::class.java).apply {
+                    putExtra("userName", user5.userName)
                 })
                 return true
             }
             R.id.g1 -> {
                 startActivity(Intent(this, ChatActivity::class.java).apply {
                     putExtra("groupId", group1.id)
+                })
+                return true
+            }
+            R.id.g2 -> {
+                startActivity(Intent(this, ChatActivity::class.java).apply {
+                    putExtra("groupId", group2.id)
                 })
                 return true
             }

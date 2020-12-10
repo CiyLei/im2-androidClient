@@ -32,7 +32,7 @@ internal class ServiceManager private constructor() : ServiceConnection {
     }
 
     lateinit var application: Application
-    private lateinit var mAppId: String
+    internal lateinit var mAppId: String
     private lateinit var mAppSecret: String
     private lateinit var mDeviceCode: String
     private var mHandler = Handler(Looper.getMainLooper())
@@ -86,7 +86,8 @@ internal class ServiceManager private constructor() : ServiceConnection {
          * 消息推送监听
          */
         override fun onPushMessage(messageId: Long) {
-            val message = getDb()?.getMessageForId(getUserInfo()?.id!!, messageId)
+            val userName = getUserInfo()?.userName ?: return
+            val message = getDb()?.getMessageForId(mAppId, userName, messageId)
             if (message != null) {
                 val convert = MessageConvertFactory.convert(message)
                 mHandler.post {

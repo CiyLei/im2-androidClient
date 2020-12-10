@@ -10,6 +10,15 @@
         android:id="@+id/c3"
         android:title="q903736669" />
     <item
+        android:id="@+id/c4"
+        android:title="q9037366633" />
+    <item
+        android:id="@+id/c5"
+        android:title="q903736669" />
+    <item
         android:id="@+id/g1"
         android:title="三国演义" />
+    <item
+        android:id="@+id/g2"
+        android:title="两国演义" />
 </menu>

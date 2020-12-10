@@ -14,7 +14,7 @@ import com.dj.im.sdk.entity.*
     entities = [ImUser::class, ImMessage::class, ImConversation::class, UnReadMessage::class, ImGroup::class, UserGroupEntity::class],
     version = 1
 )
-abstract class ImRoomDatabase : RoomDatabase() {
+internal abstract class ImRoomDatabase : RoomDatabase() {
 
     companion object {
         // 单例获取
@@ -35,5 +35,10 @@ abstract class ImRoomDatabase : RoomDatabase() {
         }
     }
 
-    abstract fun imRoomDao(): ImRoomDao
+    abstract fun imUserDao(): ImUserRoomDao
+    abstract fun imGroupDao(): ImGroupRoomDao
+    abstract fun imConversationDao(): ImConversationRoomDao
+    abstract fun imMessageDao(): ImMessageRoomDao
+    abstract fun imUnReadRoomDao(): ImUnReadRoomDao
+    abstract fun imUserGroupRoomDao(): ImUserGroupRoomDao
 }

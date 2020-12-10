@@ -13,10 +13,12 @@ import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.GroupConversation
 import com.dj.im.sdk.conversation.SingleConversation
 import com.dj.im.sdk.convert.message.Message
-import com.dj.im.sdk.entity.*
+import com.dj.im.sdk.entity.FileMessage
+import com.dj.im.sdk.entity.ImageMessage
+import com.dj.im.sdk.entity.TextMessage
+import com.dj.im.sdk.entity.VoiceMessage
 import kotlinx.android.synthetic.main.activity_chat.*
 import java.io.File
-import kotlin.collections.ArrayList
 
 
 /**
@@ -65,15 +67,15 @@ class ChatActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
-        val userId = intent.getLongExtra("userId", 0L)
+        val userName = intent.getStringExtra("userName")
         val groupId = intent.getLongExtra("groupId", 0L)
         isSingle = groupId == 0L
         // 获取会话对象
         if (isSingle) {
-            mConversation = DJIM.getSingleConversation(userId)
+            mConversation = DJIM.getSingleConversation(userName)
             val user = (mConversation as SingleConversation).getOtherSideUserInfo()
             title = if (user == null) {
-                "$userId"
+                userName
             } else {
                 "${user.alias}(${user.userName})"
             }

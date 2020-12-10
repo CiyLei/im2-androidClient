@@ -6,7 +6,6 @@ import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.proto.PrGroup
 import com.dj.im.sdk.proto.PrPushMessage
 import com.dj.im.sdk.proto.PrUser
-import java.util.*
 
 /**
  * Create by ChenLei on 2020/4/20
@@ -14,13 +13,19 @@ import java.util.*
  */
 object MessageConvertUtil {
 
-    fun prPushMessage2ImMessage(prMessage: PrPushMessage.PushMessageResponse): ImMessage {
+    fun prPushMessage2ImMessage(
+        belongAppId: String,
+        belongUserName: String,
+        prMessage: PrPushMessage.PushMessageResponse
+    ): ImMessage {
         return ImMessage(
+            belongAppId,
+            belongUserName,
             prMessage.id,
             prMessage.conversationKey,
             prMessage.conversationType,
-            prMessage.fromId,
-            prMessage.toId,
+            prMessage.fromUserName,
+            prMessage.toUserName,
             prMessage.type,
             prMessage.data,
             prMessage.summary,
@@ -29,16 +34,34 @@ object MessageConvertUtil {
         )
     }
 
-    fun prUser2ImUser(prUser: PrUser.UserResponse): ImUser {
-        return ImUser(prUser.userId, prUser.userName, prUser.alias, prUser.avatarUrl, prUser.extra)
+    fun prUser2ImUser(
+        belongAppId: String,
+        belongUserName: String,
+        prUser: PrUser.UserResponse
+    ): ImUser {
+        return ImUser(
+            belongAppId,
+            belongUserName,
+            prUser.userId,
+            prUser.userName,
+            prUser.alias,
+            prUser.avatarUrl,
+            prUser.extra
+        )
     }
 
-    fun prUser2ImGroup(prUser: PrGroup.GroupResponse): ImGroup {
+    fun prUser2ImGroup(
+        belongAppId: String,
+        belongUserName: String,
+        prUser: PrGroup.GroupResponse
+    ): ImGroup {
         return ImGroup(
+            belongAppId,
+            belongUserName,
             prUser.groupId,
             prUser.name,
             prUser.avatarUrl,
-            prUser.userIdListList
+            prUser.userNameListList
         )
     }
 }

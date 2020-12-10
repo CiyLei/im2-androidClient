@@ -5,6 +5,6 @@ option java_outer_classname = "PrPushReadConversation";
 message PushReadConversationResponse {
     // 会话key
     string conversationKey = 1;
-    // 已读用户id
-    int64 readUserId = 2;
+    // 已读用户名
+    string readUserName = 2;
 }

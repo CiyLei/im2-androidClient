@@ -17,5 +17,6 @@ data class HttpImUser(
     val extra: String
 ) : Serializable {
 
-    fun toImUser(userId: Long): ImUser = ImUser(id, userName, alias, avatarUrl, extra, userId)
+    fun toImUser(belongAppId: String, belongUserName: String): ImUser =
+        ImUser(belongAppId, belongUserName, id, userName, alias, avatarUrl, extra)
 }

@@ -59,7 +59,7 @@ internal object Constant {
     }
 
     object URL {
-        const val BASE_URL = "http://192.168.77.43:8081"
+        const val BASE_URL = "http://192.168.2.116:8081"
         const val DNS = "/dns/server"
         const val UPLOAD = "/upload"
         const val DOWNLOAD = "/download"
@@ -69,6 +69,7 @@ internal object Constant {
         const val GET_HISTORY_MESSAGE_LIST = "$IM_MESSAGE/historyMessageList"
         const val GET_GROUP_INFO_BY_IDS = "$IM_GROUP/getGroupInfoByIds"
         const val GET_USER_INFO_BY_IDS = "$IM_USER/getUserInfoByIds"
+        const val GET_USER_INFO_BY_NAMES = "$IM_USER/getUserInfoByNames"
         const val GET_USER_INFO_BY_CONVERSATION_KEY = "$IM_USER/getUserInfoByConversationKey"
     }
 

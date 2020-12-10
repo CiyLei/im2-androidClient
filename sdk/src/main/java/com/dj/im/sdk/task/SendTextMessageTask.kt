@@ -1,8 +1,8 @@
 package com.dj.im.sdk.task
 
 import com.dj.im.sdk.Constant
-import com.dj.im.sdk.convert.send.AbsSendMessageTask
 import com.dj.im.sdk.convert.message.Message
+import com.dj.im.sdk.convert.send.AbsSendMessageTask
 import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.proto.PrSendMessage
@@ -27,8 +27,8 @@ open class SendTextMessageTask : AbsSendMessageTask() {
     override fun onReq2Buf(): ByteArray = PrSendMessage.SendMessageRequest.newBuilder()
         .setConversationKey(getMessage().imMessage.conversationKey)
         .setConversationType(getMessage().imMessage.conversationType)
-        .setFromId(getMessage().imMessage.fromId)
-        .setToId(getMessage().imMessage.toId)
+        .setFromUserName(getMessage().imMessage.fromUserName)
+        .setToUserName(getMessage().imMessage.toUserName)
         .setType(getMessage().imMessage.type)
         .setData(getMessage().imMessage.data)
         .setSummary(getMessage().imMessage.summary)
@@ -43,7 +43,7 @@ open class SendTextMessageTask : AbsSendMessageTask() {
             // 还是发送中的状态，等kafka的回调
             getMessage().imMessage.state = ImMessage.State.LOADING
             // 发生成功了，清空临时未读列表
-            getMessage().imMessage.unReadUserId.clear()
+            getMessage().imMessage.unReadUserName.clear()
         } else {
             // 发送失败
             getMessage().imMessage.state = ImMessage.State.FAIL

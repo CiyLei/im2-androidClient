@@ -2,6 +2,7 @@ package com.dj.im.sdk.entity
 
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.convert.message.Message
+import com.dj.im.sdk.service.ServiceManager
 import com.google.gson.Gson
 import java.io.File
 import java.io.Serializable
@@ -22,6 +23,8 @@ open class FileMessage : Message {
 
     constructor(file: File) : super(
         ImMessage(
+            ServiceManager.instance.mAppId,
+            ServiceManager.instance.getUserInfo()?.userName ?: "",
             data = Gson().toJson(FileEntity(file.absolutePath, file.name)),
             type = ImMessage.Type.FILE,
             summary = "[文件]"

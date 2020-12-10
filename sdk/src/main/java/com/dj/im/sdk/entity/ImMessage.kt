@@ -1,6 +1,9 @@
 package com.dj.im.sdk.entity;
 
-import android.arch.persistence.room.*
+import android.arch.persistence.room.ColumnInfo
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
+import android.arch.persistence.room.Index
 import android.os.Parcel
 import android.os.Parcelable
 import com.dj.im.sdk.Constant
@@ -14,10 +17,21 @@ import kotlin.collections.ArrayList
  */
 @Entity(
     tableName = "Message",
-    primaryKeys = ["userId", "id"],
+    primaryKeys = ["belongAppId", "belongUserName", "id"],
     indices = [Index("conversationKey")]
 )
 data class ImMessage(
+    /**
+     * 在数据库中表示这条消息是属于哪个应用缓存的
+     */
+    @ColumnInfo(name = "belongAppId")
+    var belongAppId: String,
+
+    /**
+     * 在数据库中表示这条消息是属于哪个用户缓存的
+     */
+    @ColumnInfo(name = "belongUserName")
+    var belongUserName: String,
 
     /**
      * 消息id
@@ -40,14 +54,14 @@ data class ImMessage(
     /**
      * 发送方用户id
      */
-    @ColumnInfo(name = "fromId")
-    var fromId: Long = 0L,
+    @ColumnInfo(name = "fromUserName")
+    var fromUserName: String = "",
 
     /**
-     * 接收方用户id（群聊为空）
+     * 接收方用户id（群聊为群聊id）
      */
-    @ColumnInfo(name = "toId")
-    var toId: Long = 0L,
+    @ColumnInfo(name = "toUserName")
+    var toUserName: String = "",
 
     /**
      * 消息类别（0:文字，1:图片，2:视频，3:语音，1000+:定为自定义消息体）
@@ -81,16 +95,10 @@ data class ImMessage(
     var state: Int = State.SUCCESS,
 
     /**
-     * 在数据库中表示这条消息是属于哪个用户缓存的
-     */
-    @ColumnInfo(name = "userId")
-    var userId: Long = 0L,
-
-    /**
      * 临时的未读消息列表
      */
     @Ignore
-    internal val unReadUserId: ArrayList<Long> = ArrayList()
+    internal val unReadUserName: ArrayList<String> = ArrayList()
 ) : Parcelable {
     /**
      * 消息类型
@@ -150,36 +158,40 @@ data class ImMessage(
     else
         summary
 
+    constructor() : this("", "")
+
     constructor(source: Parcel) : this(
-        source.readLong(),
-        source.readString(),
-        source.readInt(),
-        source.readLong(),
-        source.readLong(),
-        source.readInt(),
         source.readString(),
         source.readString(),
         source.readLong(),
+        source.readString(),
         source.readInt(),
+        source.readString(),
+        source.readString(),
+        source.readInt(),
+        source.readString(),
+        source.readString(),
         source.readLong(),
-        ArrayList<Long>().apply { source.readList(this, Long::class.java.classLoader) }
+        source.readInt(),
+        ArrayList<String>().apply { source.readList(this, String::class.java.classLoader) }
     )
 
     override fun describeContents() = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeString(belongAppId)
+        writeString(belongUserName)
         writeLong(id)
         writeString(conversationKey)
         writeInt(conversationType)
-        writeLong(fromId)
-        writeLong(toId)
+        writeString(fromUserName)
+        writeString(toUserName)
         writeInt(type)
         writeString(data)
         writeString(summary)
         writeLong(createTime)
         writeInt(state)
-        writeLong(userId)
-        writeList(unReadUserId)
+        writeList(unReadUserName)
     }
 
     companion object {
@@ -194,23 +206,26 @@ data class ImMessage(
      * 保存到数据库中
      */
     internal fun save() {
+        val appId = ServiceManager.instance.mAppId
+        val userName = ServiceManager.instance.getUserInfo()?.userName ?: return
         ServiceManager.instance.getUserInfo()?.id?.let {
-            ServiceManager.instance.getDb()?.addPushMessage(it, this)
+            ServiceManager.instance.getDb()?.addPushMessage(appId, userName, this)
         }
     }
 
     fun clone(): ImMessage = ImMessage(
+        belongAppId,
+        belongUserName,
         id,
         conversationKey,
         conversationType,
-        fromId,
-        toId,
+        fromUserName,
+        toUserName,
         type,
         data,
         summary,
         createTime,
         state,
-        userId,
-        unReadUserId
+        unReadUserName
     )
 }

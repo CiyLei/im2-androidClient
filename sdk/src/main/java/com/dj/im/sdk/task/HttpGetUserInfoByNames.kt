@@ -3,7 +3,7 @@ package com.dj.im.sdk.task
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.entity.BaseResponse
 import com.dj.im.sdk.entity.HttpImUser
-import com.dj.im.sdk.entity.RBGetUserInfoByIds
+import com.dj.im.sdk.entity.RBGetUserInfoByNames
 import com.dj.im.sdk.net.RetrofitManager
 import com.dj.im.sdk.service.ServiceManager
 import io.reactivex.Observable
@@ -12,10 +12,11 @@ import io.reactivex.Observable
  * Create by ChenLei on 2020/10/22
  * Describe: 根据id列表获取用户信息任务
  */
-open class HttpGetUserInfoByIds(private val mUserIds: List<Long>) : HttpTask<List<HttpImUser>>() {
+open class HttpGetUserInfoByNames(private val mUserNames: List<String>) :
+    HttpTask<List<HttpImUser>>() {
 
     override fun httpTask(): Observable<BaseResponse<List<HttpImUser>>> {
-        return RetrofitManager.instance.apiStore.getUserInfoByIds(RBGetUserInfoByIds(mUserIds))
+        return RetrofitManager.instance.apiStore.getUserInfoByNames(RBGetUserInfoByNames(mUserNames))
     }
 
     override fun handleSuccess(data: List<HttpImUser>) {
@@ -23,10 +24,12 @@ open class HttpGetUserInfoByIds(private val mUserIds: List<Long>) : HttpTask<Lis
         val loginUserName = ServiceManager.instance.getUserInfo()?.userName ?: return
         DJIM.getDefaultThreadPoolExecutor().submit {
             data.forEach { user ->
-                ServiceManager.instance.getDb()?.addUser(
-                    ServiceManager.instance.mAppId,
-                    loginUserName, user.toImUser(ServiceManager.instance.mAppId, loginUserName)
-                )
+                ServiceManager.instance.getDb()
+                    ?.addUser(
+                        ServiceManager.instance.mAppId,
+                        loginUserName,
+                        user.toImUser(ServiceManager.instance.mAppId, loginUserName)
+                    )
             }
             mHandler.post {
                 data.forEach { user ->

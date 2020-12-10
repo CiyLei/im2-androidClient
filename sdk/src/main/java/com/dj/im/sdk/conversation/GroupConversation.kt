@@ -1,12 +1,9 @@
 package com.dj.im.sdk.conversation
 
 import com.dj.im.sdk.Constant
-import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.entity.ImGroup
-import com.dj.im.sdk.entity.UnReadMessage
 import com.dj.im.sdk.service.ServiceManager
-import com.dj.im.sdk.task.GetGroupInfoTask
 import com.dj.im.sdk.task.HttpGetGroupInfoTask
 import com.dj.im.sdk.utils.EncryptUtil
 
@@ -19,8 +16,8 @@ class GroupConversation(val groupId: Long) : Conversation() {
     override fun sendMessage(message: Message): Boolean {
         message.imMessage.conversationKey = getConversationKey()
         message.imMessage.conversationType = Constant.ConversationType.GROUP
-        message.imMessage.fromId = getFromUserId()
-        message.imMessage.toId = groupId
+        message.imMessage.fromUserName = getFromUserName()
+        message.imMessage.toUserName = groupId.toString()
         return super.sendMessage(message)
     }
 
@@ -35,10 +32,11 @@ class GroupConversation(val groupId: Long) : Conversation() {
     override fun addUnReadUser(message: Message) {
         ServiceManager.instance.getUserInfo()?.let {
             // 获取群里所有用户（排除自己）
-            val unReadUser = getGroupInfo()?.userIdList?.filter { l -> it.id != l } ?: emptyList()
+            val unReadUser =
+                getGroupInfo()?.userNameList?.filter { l -> it.userName != l } ?: emptyList()
             // 添加到临时的消息未读列表中
-            message.imMessage.unReadUserId.clear()
-            message.imMessage.unReadUserId.addAll(unReadUser)
+            message.imMessage.unReadUserName.clear()
+            message.imMessage.unReadUserName.addAll(unReadUser)
         }
     }
 
@@ -47,7 +45,8 @@ class GroupConversation(val groupId: Long) : Conversation() {
      */
     fun getGroupInfo(): ImGroup? {
         ServiceManager.instance.getUserInfo()?.let {
-            val groupInfo = ServiceManager.instance.getDb()?.getGroupInfo(it.id, groupId)
+            val groupInfo = ServiceManager.instance.getDb()
+                ?.getGroupInfo(ServiceManager.instance.mAppId, it.userName, groupId)
             if (groupInfo == null) {
                 mCompositeDisposable.add(HttpGetGroupInfoTask(listOf(groupId)).start())
             }

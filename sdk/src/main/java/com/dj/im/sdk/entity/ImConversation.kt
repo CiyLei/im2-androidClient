@@ -9,8 +9,19 @@ import android.os.Parcelable
  * Create by ChenLei on 2020/4/20
  * Describe: 会话
  */
-@Entity(tableName = "Conversation", primaryKeys = ["userId", "key"])
+@Entity(tableName = "Conversation", primaryKeys = ["belongAppId", "belongUserName", "key"])
 data class ImConversation(
+    /**
+     * 在数据库中表示这条消息是属于哪个应用缓存的
+     */
+    @ColumnInfo(name = "belongAppId")
+    var belongAppId: String,
+
+    /**
+     * 在数据库中表示这条消息是属于哪个用户缓存的
+     */
+    @ColumnInfo(name = "belongUserName")
+    var belongUserName: String,
     /**
      * 会话id
      */
@@ -27,16 +38,10 @@ data class ImConversation(
     @ColumnInfo(name = "unReadCount")
     var unReadCount: Int,
     /**
-     * 关联id，单聊的话为对方用户id，群聊的话，为群id
+     * 关联id，单聊的话为对方用户名称，群聊的话，为群id
      */
     @ColumnInfo(name = "associatedId")
-    var associatedId: Long,
-
-    /**
-     * 在数据库中表示这条消息是属于哪个用户缓存的
-     */
-    @ColumnInfo(name = "userId")
-    var userId: Long = 0L
+    var associatedId: String
 ) : Parcelable {
     /**
      * 会话类型
@@ -55,20 +60,22 @@ data class ImConversation(
 
     constructor(source: Parcel) : this(
         source.readString(),
+        source.readString(),
+        source.readString(),
         source.readInt(),
         source.readInt(),
-        source.readLong(),
-        source.readLong()
+        source.readString()
     )
 
     override fun describeContents() = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeString(belongAppId)
+        writeString(belongUserName)
         writeString(key)
         writeInt(type)
         writeInt(unReadCount)
-        writeLong(associatedId)
-        writeLong(userId)
+        writeString(associatedId)
     }
 
     companion object {

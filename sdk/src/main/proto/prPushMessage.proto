@@ -5,14 +5,14 @@ option java_outer_classname = "PrPushMessage";
 message PushMessageResponse {
     // 消息id
     int64 id = 1;
-    // 会话key（单聊:MD5(低位用户id + 高位用户id)，群聊:MD5(群Id)）
+    // 会话key（单聊:MD5(应用id_低位userName_高位userName)，群聊:MD5(群Id)）
     string conversationKey = 2;
     // 会话类型（0:单聊、1:群聊）
     int32 conversationType = 3;
-    // 消息来源用户id
-    int64 fromId = 4;
-    // 消息接收用户id（群聊为群聊id）
-    int64 toId = 5;
+    // 消息来源用户名
+    string fromUserName = 4;
+    // 消息接收用户名（群聊为群聊id）
+    string toUserName = 5;
     // 消息类别（0:文字，1:图片，2:视频，3:语音，1000+:定为自定义消息体）
     int32 type = 6;
     // 消息内容（如果类型复杂，可以是json，但最好提取出摘要放入summary字段以便搜索）
@@ -22,5 +22,5 @@ message PushMessageResponse {
     // 消息创建的时间戳
     int64 createTime = 9;
     // 未读用户id列表
-    repeated int64 unReadUserIdList = 10;
+    repeated string unReadUserNameList = 10;
 }

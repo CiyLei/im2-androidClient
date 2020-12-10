@@ -1,5 +1,6 @@
 package com.dj.im.sdk.entity
 
+import com.dj.im.sdk.service.ServiceManager
 import com.google.gson.Gson
 import java.io.File
 import kotlin.properties.Delegates
@@ -14,6 +15,8 @@ open class VoiceMessage : FileMessage {
 
     constructor(file: File, duration: Int) : super(
         ImMessage(
+            ServiceManager.instance.mAppId,
+            ServiceManager.instance.getUserInfo()?.userName ?: "",
             data = Gson().toJson(
                 FileEntity(
                     file.absolutePath,
@@ -36,6 +39,7 @@ open class VoiceMessage : FileMessage {
     companion object {
 
         const val KEY_DURATION = "duration"
+
         /**
          * 生成额外的属性
          * 这里是语音的秒数

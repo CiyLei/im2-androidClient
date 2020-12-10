@@ -10,8 +10,19 @@ import android.os.Parcelable
  * Create by ChenLei on 2020/4/27
  * Describe: 群信息
  */
-@Entity(tableName = "Group", primaryKeys = ["userId", "id"])
+@Entity(tableName = "Group", primaryKeys = ["belongAppId", "belongUserName", "id"])
 data class ImGroup(
+    /**
+     * 在数据库中表示这条消息是属于哪个应用缓存的
+     */
+    @ColumnInfo(name = "belongAppId")
+    var belongAppId: String,
+
+    /**
+     * 在数据库中表示这条消息是属于哪个用户缓存的
+     */
+    @ColumnInfo(name = "belongUserName")
+    var belongUserName: String,
     /**
      * 群id
      */
@@ -31,32 +42,29 @@ data class ImGroup(
      * 群用户列表
      */
     @Ignore
-    var userIdList: List<Long>,
-
-    /**
-     * 在数据库中表示这条消息是属于哪个用户缓存的
-     */
-    @ColumnInfo(name = "userId")
-    var userId: Long = 0L
+    var userNameList: List<String>
 ) : Parcelable {
-    constructor() : this(0L, "", "", ArrayList<Long>())
+
+    constructor() : this("", "", 0L, "", "", emptyList())
 
     constructor(source: Parcel) : this(
+        source.readString(),
+        source.readString(),
         source.readLong(),
         source.readString(),
         source.readString(),
-        ArrayList<Long>().apply { source.readList(this, Long::class.java.classLoader) },
-        source.readLong()
+        ArrayList<String>().apply { source.readList(this, String::class.java.classLoader) }
     )
 
     override fun describeContents() = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeString(belongAppId)
+        writeString(belongUserName)
         writeLong(id)
         writeString(name)
         writeString(avatarUrl)
-        writeList(userIdList)
-        writeLong(userId)
+        writeList(userNameList)
     }
 
     companion object {

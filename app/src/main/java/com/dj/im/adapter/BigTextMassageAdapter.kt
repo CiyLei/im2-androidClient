@@ -5,7 +5,6 @@ import com.chad.library.adapter.base.BaseViewHolder
 import com.chad.library.adapter.base.provider.BaseItemProvider
 import com.dj.im.ChatActivity
 import com.dj.im.R
-import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.entity.BigTextMessage
 import com.dj.im.sdk.entity.ImMessage
 
@@ -21,17 +20,17 @@ class BigTextMassageAdapter : BaseItemProvider<BigTextMessage, BaseViewHolder>()
 
     override fun convert(helper: BaseViewHolder, data: BigTextMessage?, position: Int) {
         val fromUser = data?.getFromUser()
-        val isSelf = data?.imMessage?.fromId == DJIM.getUserInfo()?.id
+        val isSelf = data?.isSelfSend() ?: false
         helper.setGone(R.id.clSelf, isSelf)
         helper.setGone(R.id.clOther, !isSelf)
         if (isSelf) {
             // 如果是自己发送的话
             if (fromUser == null) {
-                helper.setText(R.id.rvSelfUserName, "${data?.imMessage?.fromId}")
+                helper.setText(R.id.rvSelfUserName, "${data?.imMessage?.fromUserName}")
             } else {
                 helper.setText(
                     R.id.rvSelfUserName,
-                    "${data.getFromUser()?.alias}(${data?.getFromUser()?.userName})"
+                    "${data.getFromUser()?.alias}(${data.getFromUser()?.userName})"
                 )
             }
             helper.setText(R.id.tvSelfData, "假装我是大文本，描述:${data?.imMessage?.summary}")
@@ -48,7 +47,8 @@ class BigTextMassageAdapter : BaseItemProvider<BigTextMessage, BaseViewHolder>()
                 helper.setText(
                     R.id.tvSelfIsRead,
                     if (data?.getUnReadUserIdList()?.size == 0) "全部已读" else "未读[${
-                    data?.getUnReadUserIdList()?.joinToString(",")}]"
+                        data?.getUnReadUserIdList()?.joinToString(",")
+                    }]"
                 )
             }
             helper.setTextColor(
@@ -58,7 +58,7 @@ class BigTextMassageAdapter : BaseItemProvider<BigTextMessage, BaseViewHolder>()
         } else {
             // 不是自己发送的
             if (fromUser == null) {
-                helper.setText(R.id.rvOtherUserName, "${data?.imMessage?.fromId}")
+                helper.setText(R.id.rvOtherUserName, "${data?.imMessage?.fromUserName}")
             } else {
                 helper.setText(
                     R.id.rvOtherUserName,

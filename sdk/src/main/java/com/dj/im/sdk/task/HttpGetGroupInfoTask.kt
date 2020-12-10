@@ -1,7 +1,5 @@
 package com.dj.im.sdk.task
 
-import android.os.Handler
-import android.os.Looper
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.entity.BaseResponse
 import com.dj.im.sdk.entity.HttpImGroup
@@ -22,11 +20,15 @@ open class HttpGetGroupInfoTask(private val mGroupIds: List<Long>) : HttpTask<Li
 
     override fun handleSuccess(data: List<HttpImGroup>) {
         super.handleSuccess(data)
-        val userId = ServiceManager.instance.getUserInfo()?.id ?: return
+        val loginUserName = ServiceManager.instance.getUserInfo()?.userName ?: return
         DJIM.getDefaultThreadPoolExecutor().submit {
             data.forEach { group ->
                 // 把群信息添加到本地数据库
-                ServiceManager.instance.getDb()?.addGroup(userId, group.toImGroup(userId))
+                ServiceManager.instance.getDb()?.addGroup(
+                    ServiceManager.instance.mAppId,
+                    loginUserName,
+                    group.toImGroup(ServiceManager.instance.mAppId, loginUserName)
+                )
             }
             mHandler.post {
                 data.forEach { group ->

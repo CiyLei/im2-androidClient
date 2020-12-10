@@ -4,9 +4,9 @@ import android.os.Handler
 import android.os.Looper
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.DJIM
-import com.dj.im.sdk.convert.send.SendMessageTaskFactory
 import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.convert.message.MessageConvertFactory
+import com.dj.im.sdk.convert.send.SendMessageTaskFactory
 import com.dj.im.sdk.entity.HttpImMessage
 import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.entity.UnReadMessage
@@ -153,7 +153,7 @@ abstract class Conversation {
     /**
      * 获取当前用户id
      */
-    protected fun getFromUserId(): Long = ServiceManager.instance.getUserInfo()?.id ?: 0
+    protected fun getFromUserName(): String = ServiceManager.instance.getUserInfo()?.userName ?: ""
 
     /**
      * 在对应的生命周期中调用
@@ -169,14 +169,11 @@ abstract class Conversation {
      */
     fun getLocalNewestMessages(): List<Message> {
         val result = ArrayList<Message>()
-        ServiceManager.instance.getUserInfo()?.id?.let {
-            ServiceManager.instance.getDb()?.getNewestMessages(
-                it,
-                getConversationKey(),
-                pageSize
-            )?.forEach { msg ->
-                result.add(MessageConvertFactory.convert(msg))
-            }
+        val userName = ServiceManager.instance.getUserInfo()?.userName ?: return result
+        ServiceManager.instance.getDb()?.getNewestMessages(
+            ServiceManager.instance.mAppId, userName, getConversationKey(), pageSize
+        )?.forEach { msg ->
+            result.add(MessageConvertFactory.convert(msg))
         }
         return result
     }
@@ -186,11 +183,11 @@ abstract class Conversation {
      */
     fun lastMessage(): Message? {
         var lastMessage: Message? = null
-        ServiceManager.instance.getUserInfo()?.id?.let {
-            val msg = ServiceManager.instance.getDb()?.getLastMessage(it, getConversationKey())
-            if (msg != null) {
-                lastMessage = MessageConvertFactory.convert(msg)
-            }
+        val userName = ServiceManager.instance.getUserInfo()?.userName ?: return null
+        val msg = ServiceManager.instance.getDb()
+            ?.getLastMessage(ServiceManager.instance.mAppId, userName, getConversationKey())
+        if (msg != null) {
+            lastMessage = MessageConvertFactory.convert(msg)
         }
         return lastMessage
     }
@@ -201,12 +198,10 @@ abstract class Conversation {
     fun read() {
         unReadCount = 0
         // 更新数据库中的会话未读数量
-        ServiceManager.instance.getUserInfo()?.id?.let {
-            ServiceManager.instance.getDb()?.clearConversationUnReadCount(
-                it,
-                getConversationKey()
-            )
-        }
+        val userName = ServiceManager.instance.getUserInfo()?.userName ?: return
+        ServiceManager.instance.getDb()?.clearConversationUnReadCount(
+            ServiceManager.instance.mAppId, userName, getConversationKey()
+        )
         // 通知会话更新
         ServiceManager.instance.imListeners.forEach { it.onChangeConversions() }
         // 发送会话已读消息
@@ -244,14 +239,26 @@ abstract class Conversation {
      * 写入历史消息
      */
     private fun writeHistoryMessage(messageList: List<HttpImMessage>) {
-        val userId = ServiceManager.instance.getUserInfo()?.id ?: return
+        val userName = ServiceManager.instance.getUserInfo()?.userName ?: return
         messageList.forEach { msg ->
             // 添加历史消息到本地数据库
-            ServiceManager.instance.getDb()?.addPushMessage(userId, msg.toMessage(userId))
+            ServiceManager.instance.getDb()?.addPushMessage(
+                ServiceManager.instance.mAppId,
+                userName,
+                msg.toMessage(ServiceManager.instance.mAppId, userName)
+            )
             // 保存未读信息
             ServiceManager.instance.getDb()?.addUnReadMessage(
-                userId,
-                msg.unReadUserId.map { UnReadMessage(userId, msg.id, it) })
+                ServiceManager.instance.mAppId,
+                userName,
+                msg.unReadUserName.map {
+                    UnReadMessage(
+                        ServiceManager.instance.mAppId,
+                        userName,
+                        msg.id,
+                        it
+                    )
+                })
         }
     }
 
@@ -259,10 +266,11 @@ abstract class Conversation {
      * 读取本地历史消息列表
      */
     fun getLocalHistoryMessage(messageId: Long): List<Message> {
-        val userId = ServiceManager.instance.getUserInfo()?.id ?: return emptyList()
+        val userName = ServiceManager.instance.getUserInfo()?.userName ?: return emptyList()
         // 网络读取历史记录失败则从本地数据库中读取
         return ServiceManager.instance.getDb()?.getHistoryMessage(
-            userId,
+            ServiceManager.instance.mAppId,
+            userName,
             getConversationKey(),
             messageId,
             Constant.OFFLINE_READ_HISTORY_MESSAGE_COUNT

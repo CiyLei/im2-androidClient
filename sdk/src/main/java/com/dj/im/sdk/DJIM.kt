@@ -8,11 +8,10 @@ import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.GroupConversation
 import com.dj.im.sdk.conversation.SingleConversation
 import com.dj.im.sdk.convert.conversation.ConversationConvertFactory
-import com.dj.im.sdk.entity.*
+import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
-import com.dj.im.sdk.task.GetUserInfoTask
-import com.dj.im.sdk.task.HttpGetUserInfoByIds
+import com.dj.im.sdk.task.HttpGetUserInfoByNames
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -92,10 +91,10 @@ object DJIM {
     /**
      * 返回单聊的会话
      */
-    fun getSingleConversation(toUserId: Long): SingleConversation {
+    fun getSingleConversation(toUserName: String): SingleConversation {
         assertionInit()
-        return (getAllConversations().find { it is SingleConversation && it.toUserId == toUserId } as? SingleConversation)
-            ?: SingleConversation(toUserId)
+        return (getAllConversations().find { it is SingleConversation && it.toUserName == toUserName } as? SingleConversation)
+            ?: SingleConversation(toUserName)
     }
 
     /**
@@ -112,33 +111,31 @@ object DJIM {
      */
     fun getAllConversations(): List<Conversation> {
         assertionInit()
-        ServiceManager.instance.getUserInfo()?.id?.let {
-            val conversations = ServiceManager.instance.getDb()?.getConversations(it)
-            val result = ArrayList<Conversation>()
-            conversations?.forEach { c ->
-                val convert = ConversationConvertFactory.convert(c)
-                if (convert != null) {
-                    result.add(convert)
-                }
+        val userName = ServiceManager.instance.getUserInfo()?.userName ?: return emptyList()
+        val conversations = ServiceManager.instance.getDb()
+            ?.getConversations(ServiceManager.instance.mAppId, userName)
+        val result = ArrayList<Conversation>()
+        conversations?.forEach { c ->
+            val convert = ConversationConvertFactory.convert(c)
+            if (convert != null) {
+                result.add(convert)
             }
-            return result
         }
-        return emptyList()
+        return result
     }
 
     /**
      * 获取用户信息
      */
-    fun getUserInfo(userId: Long): ImUser? {
-        ServiceManager.instance.getUserInfo()?.id?.let {
-            val result = ServiceManager.instance.getDb()?.getUser(it, userId)
-            if (result == null) {
-                // 如果在本地无法找到用户的信息，那就从网络获取
-                HttpGetUserInfoByIds(listOf(userId)).start()
-            }
-            return result
+    fun getUserInfo(userName: String): ImUser? {
+        val loginUserName = ServiceManager.instance.getUserInfo()?.userName ?: return null
+        val result = ServiceManager.instance.getDb()
+            ?.getUser(ServiceManager.instance.mAppId, loginUserName, userName)
+        if (result == null) {
+            // 如果在本地无法找到用户的信息，那就从网络获取
+            HttpGetUserInfoByNames(listOf(userName)).start()
         }
-        return null
+        return result
     }
 
     /**

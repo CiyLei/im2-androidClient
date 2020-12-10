@@ -16,7 +16,7 @@ class GroupConversationConvert : IConversationConvert {
         if (conversation.type == Constant.ConversationType.GROUP) {
             val currentUserId = ServiceManager.instance.getUserInfo()?.id
             if (currentUserId != null) {
-                val result = GroupConversation(conversation.associatedId)
+                val result = GroupConversation(conversation.associatedId.toLong())
                 result.unReadCount = conversation.unReadCount
                 return result
             }

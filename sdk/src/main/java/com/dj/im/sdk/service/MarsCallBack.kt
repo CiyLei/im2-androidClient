@@ -3,7 +3,6 @@ package com.dj.im.sdk.service
 import android.util.Log
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.ResultEnum
-import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.proto.PrAuth
 import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.utils.EncryptUtil
@@ -61,9 +60,11 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
         if (responseData != null) {
             Log.d(
                 "MarsCallBack",
-                "【推送解密成功,cmdid:$cmdid,秘钥:${Arrays.toString(mCipherKey)},解密前:${Arrays.toString(data)},解密后:${Arrays.toString(
-                    responseData
-                )}】"
+                "【推送解密成功,cmdid:$cmdid,秘钥:${Arrays.toString(mCipherKey)},解密前:${Arrays.toString(data)},解密后:${
+                    Arrays.toString(
+                        responseData
+                    )
+                }】"
             )
             val response = PrResponseMessage.Response.parseFrom(responseData)
             mService.pushHandler[cmdid]?.onHandle(response)
@@ -202,9 +203,13 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
         if (response.success) {
             val authResponse = PrAuth.AuthResponse.parseFrom(response.data)
             val userResponse = authResponse.userInfo
-            mService.userInfo = MessageConvertUtil.prUser2ImUser(userResponse)
+            mService.userInfo = MessageConvertUtil.prUser2ImUser(
+                mService.appId,
+                userResponse.userName,
+                userResponse
+            )
             // 保存自己的用户消息
-            mService.dbDao.addUser(userResponse.userId, mService.userInfo!!)
+            mService.dbDao.addUser(mService.appId, userResponse.userName, mService.userInfo!!)
             // 回调连接
             mService.marsListener?.onConnect(ResultEnum.Success.code, ResultEnum.Success.message)
             // 保存token
@@ -240,9 +245,11 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
                 reqBuffer?.write(symmetricEncrypt)
                 Log.d(
                     "MarsCallBack",
-                    "【发送消息成功,秘钥:${Arrays.toString(mCipherKey)},加密后的内容:${Arrays.toString(
-                        symmetricEncrypt
-                    )}】"
+                    "【发送消息成功,秘钥:${Arrays.toString(mCipherKey)},加密后的内容:${
+                        Arrays.toString(
+                            symmetricEncrypt
+                        )
+                    }】"
                 )
                 return true
             } catch (e: Exception) {

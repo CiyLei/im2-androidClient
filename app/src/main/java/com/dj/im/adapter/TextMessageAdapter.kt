@@ -5,7 +5,6 @@ import com.chad.library.adapter.base.BaseViewHolder
 import com.chad.library.adapter.base.provider.BaseItemProvider
 import com.dj.im.ChatActivity
 import com.dj.im.R
-import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.entity.TextMessage
 
@@ -22,13 +21,13 @@ class TextMessageAdapter : BaseItemProvider<TextMessage, BaseViewHolder>() {
 
     override fun convert(helper: BaseViewHolder, data: TextMessage?, position: Int) {
         val fromUser = data?.getFromUser()
-        val isSelf = data?.imMessage?.fromId == DJIM.getUserInfo()?.id
+        val isSelf = data?.isSelfSend() ?: false
         helper.setGone(R.id.clSelf, isSelf)
         helper.setGone(R.id.clOther, !isSelf)
         if (isSelf) {
             // 如果是自己发送的话
             if (fromUser == null) {
-                helper.setText(R.id.rvSelfUserName, "${data?.imMessage?.fromId}")
+                helper.setText(R.id.rvSelfUserName, "${data?.imMessage?.fromUserName}")
             } else {
                 helper.setText(
                     R.id.rvSelfUserName,
@@ -59,7 +58,7 @@ class TextMessageAdapter : BaseItemProvider<TextMessage, BaseViewHolder>() {
         } else {
             // 不是自己发送的
             if (fromUser == null) {
-                helper.setText(R.id.rvOtherUserName, "${data?.imMessage?.fromId}")
+                helper.setText(R.id.rvOtherUserName, "${data?.imMessage?.fromUserName}")
             } else {
                 helper.setText(
                     R.id.rvOtherUserName,
