@@ -25,6 +25,9 @@ object DJIM {
     // 保存在sp中的token的key
     const val SP_KEY_TOKEN = "token"
 
+    // 友盟自定义通知栏id
+    const val UMENG_IM_BUILDER_ID = 3941
+
     private var initd = false
 
     /**
@@ -35,8 +38,11 @@ object DJIM {
      * @param appSecret App秘钥
      */
     fun init(application: Application, appId: String, appSecret: String, deviceCode: String) {
-        initd = true
-        ServiceManager.instance.init(application, appId, appSecret, deviceCode)
+        // 只在主进程中初始化
+        if (application.packageName == getCurProcessName(application)) {
+            initd = true
+            ServiceManager.instance.init(application, appId, appSecret, deviceCode)
+        }
     }
 
     /**

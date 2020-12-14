@@ -12,6 +12,7 @@ import com.dj.im.sdk.utils.SpUtil
 import com.tencent.mars.app.AppLogic
 import com.tencent.mars.sdt.SdtLogic
 import com.tencent.mars.stn.StnLogic
+import com.umeng.message.PushAgent
 import java.io.ByteArrayOutputStream
 import java.util.*
 
@@ -35,6 +36,9 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
             DEVICE_NAME,
             DEVICE_TYPE
         )
+
+        // 友盟推送类型
+        val UMENG_PUSH_TYPE = "IM"
     }
 
     // 通话秘钥
@@ -214,6 +218,12 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
             mService.marsListener?.onConnect(ResultEnum.Success.code, ResultEnum.Success.message)
             // 保存token
             SpUtil.getSp(mService).edit().putString(ImService.SP_KEY_TOKEN, mToken).apply()
+            // 注册友盟别名（应用id_用户名）
+            val pushAlias = "${mService.appId}_${mService.userInfo?.userName}"
+            PushAgent.getInstance(mService)
+                .addAlias(pushAlias, UMENG_PUSH_TYPE) { b, s ->
+                    Log.d("MarsCallBack", "【友盟推送别名注册：别名:$pushAlias, 是否成功$b, 内容$s】")
+                }
         } else {
             mService.marsListener?.onConnect(response.code, response.msg)
             mService.clearToken()

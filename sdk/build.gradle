@@ -66,4 +66,5 @@ dependencies {
     implementation 'com.google.protobuf:protobuf-java:3.11.4'
     implementation 'android.arch.persistence.room:runtime:1.1.1'
     kapt 'android.arch.persistence.room:compiler:1.1.1'
+    compileOnly 'com.umeng.umsdk:push:6.2.0'
 }

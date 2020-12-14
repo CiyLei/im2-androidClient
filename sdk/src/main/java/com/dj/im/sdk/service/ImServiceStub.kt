@@ -7,6 +7,7 @@ import com.dj.im.sdk.utils.RxUtil.o
 import com.dj.im.sdk.utils.SpUtil
 import com.tencent.mars.BaseEvent
 import com.tencent.mars.stn.StnLogic
+import com.umeng.message.PushAgent
 import io.reactivex.disposables.CompositeDisposable
 
 
@@ -66,6 +67,11 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
      * 退出登录
      */
     override fun disconnect() {
+        // 取消注册友盟别名（应用id_用户名）
+        val pushAlias = "${service.appId}_${service.userInfo?.userName}"
+        PushAgent.getInstance(service)
+            .deleteAlias(pushAlias, MarsCallBack.UMENG_PUSH_TYPE) { b, s ->
+            }
         // 关闭Mars服务
         service.closeMars()
         service.clearToken()
