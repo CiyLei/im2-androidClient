@@ -1,18 +1,18 @@
 package com.dj.im.sdk.service
 
+import android.app.ActivityManager
 import android.app.Application
 import android.app.Service
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.Process
 import android.util.Log
-import com.dj.im.sdk.IDBDao
-import com.dj.im.sdk.IImService
-import com.dj.im.sdk.IMarsListener
-import com.dj.im.sdk.ITask
+import com.dj.im.sdk.*
 import com.dj.im.sdk.convert.message.MessageConvertFactory
 import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.listener.ImListener
@@ -123,7 +123,6 @@ internal class ServiceManager private constructor() : ServiceConnection {
         mAppId = appId
         mAppSecret = appSecret
         mDeviceCode = deviceCode
-//        mConversationDao = ConversationDao(application)
         checkStartService()
     }
 
@@ -139,11 +138,11 @@ internal class ServiceManager private constructor() : ServiceConnection {
             if (mImService == null) {
                 mPendingTask.add(Runnable {
                     mImService?.setOnMarsListener(mMarsListener)
-                    mImService?.connect(token)
+                    mImService?.login(token)
                 })
             } else {
                 mImService?.setOnMarsListener(mMarsListener)
-                mImService?.connect(token)
+                mImService?.login(token)
             }
         }
     }
@@ -157,11 +156,11 @@ internal class ServiceManager private constructor() : ServiceConnection {
             if (mImService == null) {
                 mPendingTask.add(Runnable {
                     mImService?.setOnMarsListener(null)
-                    mImService?.disconnect()
+                    mImService?.logout()
                 })
             } else {
                 mImService?.setOnMarsListener(null)
-                mImService?.disconnect()
+                mImService?.logout()
             }
         }
     }
@@ -221,7 +220,9 @@ internal class ServiceManager private constructor() : ServiceConnection {
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         mImService = IImService.Stub.asInterface(service)
         mImService?.setOnMarsListener(mMarsListener)
-        mImService?.autoConnect()
+        if (DJIM.isAutoLogin) {
+            mImService?.autoConnect()
+        }
         // 执行之前待执行的任务
         synchronized(mPendingTask) {
             mPendingTask.forEach { it.run() }
@@ -235,5 +236,19 @@ internal class ServiceManager private constructor() : ServiceConnection {
     override fun onServiceDisconnected(name: ComponentName?) {
         mImService?.setOnMarsListener(null)
         mImService = null
+    }
+
+    /**
+     * 获取当前进程的进程名
+     */
+    private fun getCurProcessName(application: Application): String? {
+        val pid = Process.myPid()
+        val mActivityManager = application.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (runningAppProcess in mActivityManager.runningAppProcesses) {
+            if (runningAppProcess.pid == pid) {
+                return runningAppProcess.processName
+            }
+        }
+        return null
     }
 }

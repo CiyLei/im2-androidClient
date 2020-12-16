@@ -28,6 +28,10 @@ object DJIM {
     // 友盟自定义通知栏id
     const val UMENG_IM_BUILDER_ID = 3941
 
+    // 是否自动登录
+    var isAutoLogin = false
+
+    // 是否初始化过
     private var initd = false
 
     /**

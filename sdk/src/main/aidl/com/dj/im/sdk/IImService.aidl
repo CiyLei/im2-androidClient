@@ -10,8 +10,8 @@ import com.dj.im.sdk.entity.ImUser;
 interface IImService {
 
     void autoConnect();
-    void connect(String token);
-    void disconnect();
+    void login(String token);
+    void logout();
     void onForeground(boolean foreground);
     ImUser getUserInfo();
     IDBDao getDbDao();

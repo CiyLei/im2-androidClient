@@ -56,4 +56,10 @@ internal interface ApiStore {
      */
     @POST(Constant.URL.GET_USER_INFO_BY_CONVERSATION_KEY)
     fun getUserInfoByConversationKey(@Body requestBody: RBGetUserInfoByConversationKey): Observable<BaseResponse<List<HttpImUser>>>
+
+    /**
+     * 根据id列表获取用户信息
+     */
+    @GET(Constant.URL.LOGOUT)
+    fun logout(): Observable<BaseResponse<Any>>
 }

@@ -10,14 +10,9 @@ import com.dj.im.sdk.IMarsListener
 import com.dj.im.sdk.ITask
 import com.dj.im.sdk.ResultEnum
 import com.dj.im.sdk.db.ImDbDao
-import com.dj.im.sdk.entity.ServerSituationEntity
 import com.dj.im.sdk.entity.ImUser
+import com.dj.im.sdk.entity.ServerSituationEntity
 import com.dj.im.sdk.service.handler.*
-import com.dj.im.sdk.service.handler.IPushHandler
-import com.dj.im.sdk.service.handler.OfflineHandler
-import com.dj.im.sdk.service.handler.PushConversationHandler
-import com.dj.im.sdk.service.handler.PushMessageHandler
-import com.dj.im.sdk.service.handler.PushReadConversationHandler
 import com.dj.im.sdk.utils.SpUtil
 import com.tencent.mars.BaseEvent
 import com.tencent.mars.Mars
@@ -80,6 +75,7 @@ internal class ImService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        ServiceManager.instance.application = application
         pushHandler[Constant.CMD.PUSH_MESSAGE] = PushMessageHandler(this)
         pushHandler[Constant.CMD.PUSH_CONVERSATION] = PushConversationHandler(this)
         pushHandler[Constant.CMD.PUSH_READ_CONVERSATION] = PushReadConversationHandler(this)
@@ -98,6 +94,7 @@ internal class ImService : Service() {
         appId = intent!!.getStringExtra("appId")
         appSecret = intent.getStringExtra("appSecret")
         deviceCode = intent.getStringExtra("deviceCode")
+        ServiceManager.instance.mAppId = appId
         return super.onStartCommand(intent, flags, startId)
     }
 

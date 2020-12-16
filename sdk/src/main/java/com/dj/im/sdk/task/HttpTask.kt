@@ -14,6 +14,7 @@ import io.reactivex.disposables.Disposable
 abstract class HttpTask<T> {
 
     protected val mHandler = Handler(Looper.getMainLooper())
+
     /**
      * 成功的回调
      */
@@ -23,6 +24,11 @@ abstract class HttpTask<T> {
      * 失败的回调
      */
     private var mFailure: ((String?, Throwable?) -> Unit)? = null
+
+    /**
+     * 失败的回调
+     */
+    private var mComplete: (() -> Unit)? = null
 
     /**
      * 返回http任务
@@ -41,8 +47,10 @@ abstract class HttpTask<T> {
                 handleFailure(it.msg, null)
                 mFailure?.invoke(it.msg, null)
             }
+            mComplete?.invoke()
         }, {
             mFailure?.invoke(null, it)
+            mComplete?.invoke()
         })
     }
 
@@ -73,6 +81,14 @@ abstract class HttpTask<T> {
      */
     fun failure(event: ((String?, Throwable?) -> Unit)): HttpTask<T> {
         mFailure = event
+        return this
+    }
+
+    /**
+     * 完成事件
+     */
+    fun complete(event: (() -> Unit)): HttpTask<T> {
+        mComplete = event
         return this
     }
 }

@@ -3,6 +3,27 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.protobuf'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'maven'
+
+uploadArchives {
+    //仓库基于maven
+    repositories.mavenDeployer {
+        //配置上传的url
+        repository(url: "http://172.17.0.75:8081/repository/maven-releases/") {
+        }
+
+        snapshotRepository(url: "http://172.17.0.75:8081/repository/maven-snapshots/") {
+        }
+        pom.project {
+            version "0.0.1-SNAPSHOT"
+            artifactId "im"
+            groupId "com.dj.android"
+            packaging "aar"
+            description "DJ IM SDK"
+        }
+
+    }
+}
 
 android {
     compileSdkVersion 28
@@ -66,5 +87,4 @@ dependencies {
     implementation 'com.google.protobuf:protobuf-java:3.11.4'
     implementation 'android.arch.persistence.room:runtime:1.1.1'
     kapt 'android.arch.persistence.room:compiler:1.1.1'
-    compileOnly 'com.umeng.umsdk:push:6.2.0'
 }

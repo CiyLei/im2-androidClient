@@ -22,6 +22,14 @@ class ImMessageHandler(val context: Context) : UmengMessageHandler() {
         private const val CHANNEL_NAME = "im_channel_name"
     }
 
+    override fun dealWithNotificationMessage(p0: Context?, p1: UMessage?) {
+        // 如果消息是在前台收到过的话，就不显示通知了
+        if (MyApp.frontMessage.contains(p1?.extra?.get("messageId"))) {
+            return
+        }
+        super.dealWithNotificationMessage(p0, p1)
+    }
+
     override fun getNotification(p0: Context?, p1: UMessage?): Notification {
         // 代表友盟im自定义推送
         if (p1?.builder_id == DJIM.UMENG_IM_BUILDER_ID) {
