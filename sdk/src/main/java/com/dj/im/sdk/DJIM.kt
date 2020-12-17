@@ -8,9 +8,11 @@ import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.GroupConversation
 import com.dj.im.sdk.conversation.SingleConversation
 import com.dj.im.sdk.convert.conversation.ConversationConvertFactory
+import com.dj.im.sdk.entity.ImGroup
 import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
+import com.dj.im.sdk.task.HttpGetGroupInfoTask
 import com.dj.im.sdk.task.HttpGetUserInfoByNames
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -33,6 +35,9 @@ object DJIM {
 
     // 是否初始化过
     private var initd = false
+
+    // 通知栏处理器
+    var notificationHandle: ((Long, String, String) -> Unit)? = null
 
     /**
      * 初始化SDK
@@ -146,6 +151,21 @@ object DJIM {
             HttpGetUserInfoByNames(listOf(userName)).start()
         }
         return result
+    }
+
+    /**
+     * 获取群信息
+     */
+    fun getGroupInfo(groupId: Long): ImGroup? {
+        ServiceManager.instance.getUserInfo()?.let {
+            val groupInfo = ServiceManager.instance.getDb()
+                ?.getGroupInfo(ServiceManager.instance.mAppId, it.userName, groupId)
+            if (groupInfo == null) {
+                HttpGetGroupInfoTask(listOf(groupId)).start()
+            }
+            return groupInfo
+        }
+        return null
     }
 
     /**

@@ -124,6 +124,7 @@ internal class ServiceManager private constructor() : ServiceConnection {
         mAppSecret = appSecret
         mDeviceCode = deviceCode
         checkStartService()
+        NotificationManager(application)
     }
 
     /**
@@ -243,7 +244,8 @@ internal class ServiceManager private constructor() : ServiceConnection {
      */
     private fun getCurProcessName(application: Application): String? {
         val pid = Process.myPid()
-        val mActivityManager = application.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val mActivityManager =
+            application.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (runningAppProcess in mActivityManager.runningAppProcesses) {
             if (runningAppProcess.pid == pid) {
                 return runningAppProcess.processName
