@@ -48,6 +48,10 @@
         <activity android:name=".TestActivity" />
         <activity android:name=".ChatActivity" />
 
+        <meta-data
+            android:name="com.huawei.hms.client.appid"
+            android:value="appid=103506973" />
+
         <service
             android:name="com.taobao.accs.ChannelService"
             android:exported="true"

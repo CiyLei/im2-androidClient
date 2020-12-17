@@ -68,4 +68,8 @@ dependencies {
     // 小米推送
     implementation 'com.umeng.umsdk:xiaomi-push:3.7.0'
     implementation 'com.umeng.umsdk:xiaomi-umengaccs:1.1.4'
+    // 华为推送
+    implementation 'com.umeng.umsdk:huawei-basetb:2.6.3.306'
+    implementation 'com.umeng.umsdk:huawei-pushtb:2.6.3.306'
+    implementation 'com.umeng.umsdk:huawei-umengaccs:1.2.4'
 }

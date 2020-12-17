@@ -17,6 +17,7 @@ import com.dj.im.sdk.listener.ImListener
 import com.umeng.commonsdk.UMConfigure
 import com.umeng.message.IUmengRegisterCallback
 import com.umeng.message.PushAgent
+import org.android.agoo.huawei.HuaWeiRegister
 import org.android.agoo.xiaomi.MiPushRegistar
 
 
@@ -64,6 +65,8 @@ class MyApp : MultiDexApplication(), Application.ActivityLifecycleCallbacks {
 
         // 小米厂商推送集成
         MiPushRegistar.register(this, "2882303761518896440", "5131889688440")
+        // 华为厂商推送集成
+        HuaWeiRegister.register(this)
 
         UMConfigure.init(
             this,
@@ -75,7 +78,7 @@ class MyApp : MultiDexApplication(), Application.ActivityLifecycleCallbacks {
 //        MessageSharedPrefs.getInstance(this).displayNotificationNumber = Int.MAX_VALUE
         PushAgent.getInstance(this).apply {
             displayNotificationNumber = 10
-            setNotificaitonOnForeground(false);
+            setNotificaitonOnForeground(false)
             messageHandler = ImMessageHandler(this@MyApp)
             register(object : IUmengRegisterCallback {
                 override fun onSuccess(p0: String?) {
