@@ -1,5 +1,6 @@
 package com.dj.im.sdk.service
 
+import android.app.Activity
 import android.app.ActivityManager
 import android.app.Application
 import android.app.Service
@@ -7,10 +8,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.os.Handler
-import android.os.IBinder
-import android.os.Looper
-import android.os.Process
+import android.os.*
 import android.util.Log
 import com.dj.im.sdk.*
 import com.dj.im.sdk.convert.message.MessageConvertFactory
@@ -119,7 +117,32 @@ internal class ServiceManager private constructor() : ServiceConnection {
      * 初始化
      */
     fun init(application: Application, appKey: String, appSecret: String, deviceCode: String) {
-        this.application = application
+        this.application = application.also {
+            it.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
+                override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
+                }
+
+                override fun onActivityStarted(activity: Activity?) {
+                }
+
+                override fun onActivityResumed(activity: Activity?) {
+                    onForeground(true)
+                }
+
+                override fun onActivityPaused(activity: Activity?) {
+                    onForeground(false)
+                }
+
+                override fun onActivityStopped(activity: Activity?) {
+                }
+
+                override fun onActivitySaveInstanceState(activity: Activity?, outState: Bundle?) {
+                }
+
+                override fun onActivityDestroyed(activity: Activity?) {
+                }
+            })
+        }
         mAppKey = appKey
         mAppSecret = appSecret
         mDeviceCode = deviceCode

@@ -71,15 +71,6 @@ object DJIM {
     }
 
     /**
-     * 设置是否在前台
-     */
-    fun onForeground(foreground: Boolean) {
-        if (initd) {
-            ServiceManager.instance.onForeground(foreground)
-        }
-    }
-
-    /**
      * 获取用户信息
      */
     fun getUserInfo(): ImUser? {
