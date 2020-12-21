@@ -55,21 +55,11 @@ object DJIM {
     }
 
     /**
-     * 断言是否初始化
-     */
-    private fun assertionInit() {
-        if (initd)
-            return
-        throw ExceptionInInitializerError("DJIM SDK 未初始化")
-    }
-
-    /**
      * 登录
      *
      * @param token 登录Token
      */
     fun login(token: String) {
-        assertionInit()
         ServiceManager.instance.login(token)
     }
 
@@ -77,7 +67,6 @@ object DJIM {
      * 退出登录
      */
     fun logout() {
-        assertionInit()
         ServiceManager.instance.logout()
     }
 
@@ -94,7 +83,6 @@ object DJIM {
      * 获取用户信息
      */
     fun getUserInfo(): ImUser? {
-        assertionInit()
         return ServiceManager.instance.getUserInfo()
     }
 
@@ -107,7 +95,6 @@ object DJIM {
      * 返回单聊的会话
      */
     fun getSingleConversation(toUserName: String): SingleConversation {
-        assertionInit()
         return (getAllConversations().find { it is SingleConversation && it.toUserName == toUserName } as? SingleConversation)
             ?: SingleConversation(toUserName)
     }
@@ -116,7 +103,6 @@ object DJIM {
      * 返回群聊的会话
      */
     fun getGroupConversation(groupId: Long): GroupConversation {
-        assertionInit()
         return (getAllConversations().find { it is GroupConversation && it.groupId == groupId } as? GroupConversation)
             ?: GroupConversation(groupId)
     }
@@ -125,7 +111,6 @@ object DJIM {
      * 获取所有的会话
      */
     fun getAllConversations(): List<Conversation> {
-        assertionInit()
         val userName = ServiceManager.instance.getUserInfo()?.userName ?: return emptyList()
         val conversations = ServiceManager.instance.getDb()
             ?.getConversations(ServiceManager.instance.mAppKey, userName)
