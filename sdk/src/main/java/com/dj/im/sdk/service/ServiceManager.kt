@@ -32,7 +32,7 @@ internal class ServiceManager private constructor() : ServiceConnection {
     }
 
     lateinit var application: Application
-    internal lateinit var mAppId: String
+    internal lateinit var mAppKey: String
     private lateinit var mAppSecret: String
     private lateinit var mDeviceCode: String
     private var mHandler = Handler(Looper.getMainLooper())
@@ -87,7 +87,7 @@ internal class ServiceManager private constructor() : ServiceConnection {
          */
         override fun onPushMessage(messageId: Long) {
             val userName = getUserInfo()?.userName ?: return
-            val message = getDb()?.getMessageForId(mAppId, userName, messageId)
+            val message = getDb()?.getMessageForId(mAppKey, userName, messageId)
             if (message != null) {
                 val convert = MessageConvertFactory.convert(message)
                 mHandler.post {
@@ -118,9 +118,9 @@ internal class ServiceManager private constructor() : ServiceConnection {
     /**
      * 初始化
      */
-    fun init(application: Application, appId: String, appSecret: String, deviceCode: String) {
+    fun init(application: Application, appKey: String, appSecret: String, deviceCode: String) {
         this.application = application
-        mAppId = appId
+        mAppKey = appKey
         mAppSecret = appSecret
         mDeviceCode = deviceCode
         checkStartService()
@@ -203,9 +203,9 @@ internal class ServiceManager private constructor() : ServiceConnection {
      * 检查开启服务
      */
     private fun checkStartService() {
-        if (mImService == null && ::mAppId.isInitialized && ::mAppSecret.isInitialized && ::mDeviceCode.isInitialized) {
+        if (mImService == null && ::mAppKey.isInitialized && ::mAppSecret.isInitialized && ::mDeviceCode.isInitialized) {
             val imIntent = Intent(application, ImService::class.java)
-            imIntent.putExtra("appId", mAppId)
+            imIntent.putExtra("appKey", mAppKey)
             imIntent.putExtra("appSecret", mAppSecret)
             imIntent.putExtra("deviceCode", mDeviceCode)
             application.startService(imIntent)

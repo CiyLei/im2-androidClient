@@ -48,7 +48,7 @@ class SingleConversation(val toUserName: String) : Conversation() {
      * @return 会话id
      */
     private fun generateConversationId(user1Name: String, user2Name: String): String {
-        val appId = ServiceManager.instance.mAppId
+        val appId = ServiceManager.instance.mAppKey
         return if (user1Name < user2Name) {
             EncryptUtil.MD5("${appId}_${user1Name}_$user2Name")
         } else EncryptUtil.MD5("${appId}_${user2Name}_$user1Name")
@@ -60,7 +60,7 @@ class SingleConversation(val toUserName: String) : Conversation() {
     fun getOtherSideUserInfo(): ImUser? {
         val userName = ServiceManager.instance.getUserInfo()?.userName ?: return null
         val user = ServiceManager.instance.getDb()
-            ?.getUser(ServiceManager.instance.mAppId, userName, toUserName)
+            ?.getUser(ServiceManager.instance.mAppKey, userName, toUserName)
         if (user == null) {
             mCompositeDisposable.add(HttpGetUserInfoByNames(listOf(toUserName)).start())
         }

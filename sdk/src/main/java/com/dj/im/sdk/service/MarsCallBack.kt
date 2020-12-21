@@ -183,7 +183,7 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
         // 加密token
         val token = EncryptUtil.symmetricEncrypt(mCipherKey, mToken.toByteArray())
         // 发送验证
-        val request = PrAuth.AuthRequest.newBuilder().setAppId(mService.appId)
+        val request = PrAuth.AuthRequest.newBuilder().setAppKey(mService.appKey)
             .setAppMobileSecret(HexUtil.hex2String(appMobileSecret))
             .setToken(HexUtil.hex2String(token)).setDevice(0)
             .setDeviceCode(mService.deviceCode)
@@ -207,12 +207,12 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
             val authResponse = PrAuth.AuthResponse.parseFrom(response.data)
             val userResponse = authResponse.userInfo
             mService.userInfo = MessageConvertUtil.prUser2ImUser(
-                mService.appId,
+                mService.appKey,
                 userResponse.userName,
                 userResponse
             )
             // 保存自己的用户消息
-            mService.dbDao.addUser(mService.appId, userResponse.userName, mService.userInfo!!)
+            mService.dbDao.addUser(mService.appKey, userResponse.userName, mService.userInfo!!)
             // 回调连接
             mService.marsListener?.onConnect(ResultEnum.Success.code, ResultEnum.Success.message)
             // 保存token

@@ -30,7 +30,7 @@ internal class NotificationManager(val mContext: Context) {
         // 首先获取发送者信息
         val userName = ServiceManager.instance.getUserInfo()?.userName ?: return
         val fromUser = ServiceManager.instance.getDb()
-            ?.getUser(ServiceManager.instance.mAppId, userName, message.imMessage.fromUserName)
+            ?.getUser(ServiceManager.instance.mAppKey, userName, message.imMessage.fromUserName)
         if (fromUser != null) {
             getOtherSideInfo(fromUser.alias, message)
         } else {
@@ -51,7 +51,7 @@ internal class NotificationManager(val mContext: Context) {
         } else if (message.imMessage.conversationType == ImConversation.Type.GROUP) {
             val groupId = message.imMessage.toUserName.toLong()
             val groupInfo = ServiceManager.instance.getDb()
-                ?.getGroupInfo(ServiceManager.instance.mAppId, userName, groupId)
+                ?.getGroupInfo(ServiceManager.instance.mAppKey, userName, groupId)
             if (groupInfo != null) {
                 notification(
                     message.imMessage.id,

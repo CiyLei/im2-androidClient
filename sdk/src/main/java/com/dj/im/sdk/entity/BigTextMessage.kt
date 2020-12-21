@@ -16,7 +16,7 @@ class BigTextMessage : FileMessage {
      */
     constructor(prefix: String, file: File) : super(
         ImMessage(
-            ServiceManager.instance.mAppId,
+            ServiceManager.instance.mAppKey,
             ServiceManager.instance.getUserInfo()?.userName ?: "",
             data = Gson().toJson(FileEntity(file.absolutePath, file.name)),
             type = ImMessage.Type.BIG_TEXT,

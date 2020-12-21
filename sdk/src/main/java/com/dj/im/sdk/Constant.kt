@@ -92,7 +92,7 @@ internal object Constant {
     /**
      * 消息内容（data）的最大长度
      */
-    const val MESSAGE_DATA_MAX_LENGTH = 20000
+    const val MESSAGE_DATA_MAX_LENGTH = 15000
 
     /**
      * 离线是读取历史消息的条数

@@ -23,7 +23,7 @@ internal class PushReadConversationHandler(private val mService: ImService) : IP
         if (isSelf) {
             // 如果是自己已读，则清空会话的未读数量
             mService.dbDao.clearConversationUnReadCount(
-                mService.appId,
+                mService.appKey,
                 userInfo.userName,
                 readResponse.conversationKey
             )
@@ -31,7 +31,7 @@ internal class PushReadConversationHandler(private val mService: ImService) : IP
         } else {
             // 如果是会话对方已读，则设置会话中的消息全部已读
             mService.dbDao.readConversationMessage(
-                mService.appId,
+                mService.appKey,
                 userInfo.userName,
                 readResponse.conversationKey,
                 readResponse.readUserName

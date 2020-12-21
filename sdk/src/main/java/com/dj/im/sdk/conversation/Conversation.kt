@@ -171,7 +171,7 @@ abstract class Conversation {
         val result = ArrayList<Message>()
         val userName = ServiceManager.instance.getUserInfo()?.userName ?: return result
         ServiceManager.instance.getDb()?.getNewestMessages(
-            ServiceManager.instance.mAppId, userName, getConversationKey(), pageSize
+            ServiceManager.instance.mAppKey, userName, getConversationKey(), pageSize
         )?.forEach { msg ->
             result.add(MessageConvertFactory.convert(msg))
         }
@@ -185,7 +185,7 @@ abstract class Conversation {
         var lastMessage: Message? = null
         val userName = ServiceManager.instance.getUserInfo()?.userName ?: return null
         val msg = ServiceManager.instance.getDb()
-            ?.getLastMessage(ServiceManager.instance.mAppId, userName, getConversationKey())
+            ?.getLastMessage(ServiceManager.instance.mAppKey, userName, getConversationKey())
         if (msg != null) {
             lastMessage = MessageConvertFactory.convert(msg)
         }
@@ -200,7 +200,7 @@ abstract class Conversation {
         // 更新数据库中的会话未读数量
         val userName = ServiceManager.instance.getUserInfo()?.userName ?: return
         ServiceManager.instance.getDb()?.clearConversationUnReadCount(
-            ServiceManager.instance.mAppId, userName, getConversationKey()
+            ServiceManager.instance.mAppKey, userName, getConversationKey()
         )
         // 通知会话更新
         ServiceManager.instance.imListeners.forEach { it.onChangeConversions() }
@@ -243,17 +243,17 @@ abstract class Conversation {
         messageList.forEach { msg ->
             // 添加历史消息到本地数据库
             ServiceManager.instance.getDb()?.addPushMessage(
-                ServiceManager.instance.mAppId,
+                ServiceManager.instance.mAppKey,
                 userName,
-                msg.toMessage(ServiceManager.instance.mAppId, userName)
+                msg.toMessage(ServiceManager.instance.mAppKey, userName)
             )
             // 保存未读信息
             ServiceManager.instance.getDb()?.addUnReadMessage(
-                ServiceManager.instance.mAppId,
+                ServiceManager.instance.mAppKey,
                 userName,
                 msg.unReadUserName.map {
                     UnReadMessage(
-                        ServiceManager.instance.mAppId,
+                        ServiceManager.instance.mAppKey,
                         userName,
                         msg.id,
                         it
@@ -269,7 +269,7 @@ abstract class Conversation {
         val userName = ServiceManager.instance.getUserInfo()?.userName ?: return emptyList()
         // 网络读取历史记录失败则从本地数据库中读取
         return ServiceManager.instance.getDb()?.getHistoryMessage(
-            ServiceManager.instance.mAppId,
+            ServiceManager.instance.mAppKey,
             userName,
             getConversationKey(),
             messageId,

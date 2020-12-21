@@ -43,14 +43,14 @@ object DJIM {
      * 初始化SDK
      *
      * @param context 上下文
-     * @param appId AppId
+     * @param appKey AppId
      * @param appSecret App秘钥
      */
-    fun init(application: Application, appId: String, appSecret: String, deviceCode: String) {
+    fun init(application: Application, appKey: String, appSecret: String, deviceCode: String) {
         // 只在主进程中初始化
         if (application.packageName == getCurProcessName(application)) {
             initd = true
-            ServiceManager.instance.init(application, appId, appSecret, deviceCode)
+            ServiceManager.instance.init(application, appKey, appSecret, deviceCode)
         }
     }
 
@@ -128,7 +128,7 @@ object DJIM {
         assertionInit()
         val userName = ServiceManager.instance.getUserInfo()?.userName ?: return emptyList()
         val conversations = ServiceManager.instance.getDb()
-            ?.getConversations(ServiceManager.instance.mAppId, userName)
+            ?.getConversations(ServiceManager.instance.mAppKey, userName)
         val result = ArrayList<Conversation>()
         conversations?.forEach { c ->
             val convert = ConversationConvertFactory.convert(c)
@@ -145,7 +145,7 @@ object DJIM {
     fun getUserInfo(userName: String): ImUser? {
         val loginUserName = ServiceManager.instance.getUserInfo()?.userName ?: return null
         val result = ServiceManager.instance.getDb()
-            ?.getUser(ServiceManager.instance.mAppId, loginUserName, userName)
+            ?.getUser(ServiceManager.instance.mAppKey, loginUserName, userName)
         if (result == null) {
             // 如果在本地无法找到用户的信息，那就从网络获取
             HttpGetUserInfoByNames(listOf(userName)).start()
@@ -159,7 +159,7 @@ object DJIM {
     fun getGroupInfo(groupId: Long): ImGroup? {
         ServiceManager.instance.getUserInfo()?.let {
             val groupInfo = ServiceManager.instance.getDb()
-                ?.getGroupInfo(ServiceManager.instance.mAppId, it.userName, groupId)
+                ?.getGroupInfo(ServiceManager.instance.mAppKey, it.userName, groupId)
             if (groupInfo == null) {
                 HttpGetGroupInfoTask(listOf(groupId)).start()
             }

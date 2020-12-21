@@ -206,7 +206,7 @@ data class ImMessage(
      * 保存到数据库中
      */
     internal fun save() {
-        val appId = ServiceManager.instance.mAppId
+        val appId = ServiceManager.instance.mAppKey
         val userName = ServiceManager.instance.getUserInfo()?.userName ?: return
         ServiceManager.instance.getUserInfo()?.id?.let {
             ServiceManager.instance.getDb()?.addPushMessage(appId, userName, this)

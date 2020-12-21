@@ -46,7 +46,7 @@ internal class ImService : Service() {
     var userInfo: ImUser? = null
 
     // app应用id
-    lateinit var appId: String
+    lateinit var appKey: String
 
     // app秘钥
     lateinit var appSecret: String
@@ -91,10 +91,10 @@ internal class ImService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        appId = intent!!.getStringExtra("appId")
+        appKey = intent!!.getStringExtra("appKey")
         appSecret = intent.getStringExtra("appSecret")
         deviceCode = intent.getStringExtra("deviceCode")
-        ServiceManager.instance.mAppId = appId
+        ServiceManager.instance.mAppKey = appKey
         return super.onStartCommand(intent, flags, startId)
     }
 

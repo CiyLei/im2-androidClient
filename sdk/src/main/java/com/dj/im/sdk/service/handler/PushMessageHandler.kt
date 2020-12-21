@@ -24,29 +24,29 @@ internal class PushMessageHandler(private val mService: ImService) : IPushHandle
         // 保存未读信息
         val unReadUserNameList = pushResponse.unReadUserNameListList
         val message = MessageConvertUtil.prPushMessage2ImMessage(
-            mService.appId,
+            mService.appKey,
             userInfo.userName,
             pushResponse
         )
         mService.dbDao.addUnReadMessage(
-            mService.appId,
+            mService.appKey,
             userInfo.userName,
             ArrayList(unReadUserNameList.map {
-                UnReadMessage(mService.appId, userInfo.userName, message.id, it)
+                UnReadMessage(mService.appKey, userInfo.userName, message.id, it)
             })
         )
         // 保存消息
-        mService.dbDao.addPushMessage(mService.appId, userInfo.userName, message)
+        mService.dbDao.addPushMessage(mService.appKey, userInfo.userName, message)
         // 如果本地是否有消息发送方的用户信息，如果没有的话，就获取
         val fromUser =
-            mService.dbDao.getUser(mService.appId, userInfo.userName, message.fromUserName)
+            mService.dbDao.getUser(mService.appKey, userInfo.userName, message.fromUserName)
         if (fromUser == null) {
             mService.imServiceStub.compositeDisposable.add(HttpGetUserInfoByNames(listOf(message.fromUserName)).start())
         }
         if (message.conversationType == ImConversation.Type.GROUP) {
             // 如果是群聊的话，看看有没有群信息，没有的话就获取
             if (mService.dbDao.getGroupInfo(
-                    mService.appId,
+                    mService.appKey,
                     userInfo.userName,
                     message.toUserName.toLong()
                 ) == null
@@ -55,7 +55,7 @@ internal class PushMessageHandler(private val mService: ImService) : IPushHandle
             }
         }
         // 添加会话
-        mService.dbDao.addConversationForPushMessage(mService.appId, userInfo.userName, message)
+        mService.dbDao.addConversationForPushMessage(mService.appKey, userInfo.userName, message)
         // 通知更新
         mService.marsListener?.onPushMessage(pushResponse.id)
         mService.marsListener?.onChangeConversions()

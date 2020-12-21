@@ -15,7 +15,7 @@ open class VoiceMessage : FileMessage {
 
     constructor(file: File, duration: Int) : super(
         ImMessage(
-            ServiceManager.instance.mAppId,
+            ServiceManager.instance.mAppKey,
             ServiceManager.instance.getUserInfo()?.userName ?: "",
             data = Gson().toJson(
                 FileEntity(

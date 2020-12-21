@@ -4,7 +4,7 @@ option java_outer_classname = "PrAuth";
 import "prUser.proto";
 
 message AuthRequest {
-    string appId = 1;
+    string appKey = 1;
     // 应用秘钥
     string appMobileSecret = 2;
     // 登录token

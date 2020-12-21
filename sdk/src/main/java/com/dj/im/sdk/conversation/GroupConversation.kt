@@ -46,7 +46,7 @@ class GroupConversation(val groupId: Long) : Conversation() {
     fun getGroupInfo(): ImGroup? {
         ServiceManager.instance.getUserInfo()?.let {
             val groupInfo = ServiceManager.instance.getDb()
-                ?.getGroupInfo(ServiceManager.instance.mAppId, it.userName, groupId)
+                ?.getGroupInfo(ServiceManager.instance.mAppKey, it.userName, groupId)
             if (groupInfo == null) {
                 mCompositeDisposable.add(HttpGetGroupInfoTask(listOf(groupId)).start())
             }

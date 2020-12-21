@@ -11,7 +11,7 @@ open class TextMessage : Message {
 
     constructor(data: String) : super(
         ImMessage(
-            ServiceManager.instance.mAppId,
+            ServiceManager.instance.mAppKey,
             ServiceManager.instance.getUserInfo()?.userName ?: "",
             data = data
         )

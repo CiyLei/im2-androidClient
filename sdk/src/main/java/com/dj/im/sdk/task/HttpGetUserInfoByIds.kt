@@ -24,8 +24,8 @@ open class HttpGetUserInfoByIds(private val mUserIds: List<Long>) : HttpTask<Lis
         DJIM.getDefaultThreadPoolExecutor().submit {
             data.forEach { user ->
                 ServiceManager.instance.getDb()?.addUser(
-                    ServiceManager.instance.mAppId,
-                    loginUserName, user.toImUser(ServiceManager.instance.mAppId, loginUserName)
+                    ServiceManager.instance.mAppKey,
+                    loginUserName, user.toImUser(ServiceManager.instance.mAppKey, loginUserName)
                 )
             }
             mHandler.post {

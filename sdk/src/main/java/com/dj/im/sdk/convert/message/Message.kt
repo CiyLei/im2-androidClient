@@ -25,7 +25,7 @@ abstract class Message(val imMessage: ImMessage) {
     fun getFromUser(): ImUser? {
         val userName = ServiceManager.instance.getUserInfo()?.userName ?: return null
         val user = ServiceManager.instance.getDb()
-            ?.getUser(ServiceManager.instance.mAppId, userName, imMessage.fromUserName)
+            ?.getUser(ServiceManager.instance.mAppKey, userName, imMessage.fromUserName)
         if (user == null) {
             HttpGetUserInfoByNames(listOf(imMessage.fromUserName)).start()
         }
@@ -38,7 +38,7 @@ abstract class Message(val imMessage: ImMessage) {
     fun getToUser(): ImUser? {
         val userName = ServiceManager.instance.getUserInfo()?.userName ?: return null
         val user = ServiceManager.instance.getDb()
-            ?.getUser(ServiceManager.instance.mAppId, userName, imMessage.toUserName)
+            ?.getUser(ServiceManager.instance.mAppKey, userName, imMessage.toUserName)
         if (user == null) {
             HttpGetUserInfoByNames(listOf(imMessage.fromUserName)).start()
         }
@@ -54,7 +54,7 @@ abstract class Message(val imMessage: ImMessage) {
         if (imMessage.unReadUserName.isNotEmpty()) return imMessage.unReadUserName
         val userName = ServiceManager.instance.getUserInfo()?.userName ?: return emptyList()
         return ServiceManager.instance.getDb()?.getUnReadUserId(
-            ServiceManager.instance.mAppId, userName, imMessage.id
+            ServiceManager.instance.mAppKey, userName, imMessage.id
         )?.map { m -> m.unReadUserName } ?: emptyList()
     }
 

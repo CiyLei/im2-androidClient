@@ -25,9 +25,9 @@ open class HttpGetGroupInfoTask(private val mGroupIds: List<Long>) : HttpTask<Li
             data.forEach { group ->
                 // 把群信息添加到本地数据库
                 ServiceManager.instance.getDb()?.addGroup(
-                    ServiceManager.instance.mAppId,
+                    ServiceManager.instance.mAppKey,
                     loginUserName,
-                    group.toImGroup(ServiceManager.instance.mAppId, loginUserName)
+                    group.toImGroup(ServiceManager.instance.mAppKey, loginUserName)
                 )
             }
             mHandler.post {

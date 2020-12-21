@@ -26,9 +26,9 @@ open class HttpGetUserInfoByNames(private val mUserNames: List<String>) :
             data.forEach { user ->
                 ServiceManager.instance.getDb()
                     ?.addUser(
-                        ServiceManager.instance.mAppId,
+                        ServiceManager.instance.mAppKey,
                         loginUserName,
-                        user.toImUser(ServiceManager.instance.mAppId, loginUserName)
+                        user.toImUser(ServiceManager.instance.mAppKey, loginUserName)
                     )
             }
             mHandler.post {
