@@ -43,22 +43,25 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
      * @param token 登录Token
      */
     override fun login(token: String) {
+        // 保存token
+        SpUtil.getSp(service).edit().putString(DJIM.SP_KEY_TOKEN, token).apply()
+        compositeDisposable.dispose()
         compositeDisposable = CompositeDisposable()
         compositeDisposable.add(RetrofitManager.instance.apiStore.dns().o().subscribe({
             if (it.success) {
                 service.serverList = it.data
-                // 保存token
-                SpUtil.getSp(service).edit().putString(DJIM.SP_KEY_TOKEN, token).apply()
                 // 开启Mars服务
                 service.openMars(token)
             } else {
                 service.marsListener?.onConnect(it.code.toInt(), it.msg)
+                service.clearToken()
             }
         }, {
             service.marsListener?.onConnect(
                 ResultEnum.Error_Request.code,
                 ResultEnum.Error_Request.message
             )
+            service.clearToken()
         }))
     }
 
@@ -103,5 +106,14 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
         marsTask.retryCount = 0
         service.tasks[marsTask.taskID] = task
         StnLogic.startTask(marsTask)
+    }
+
+    /**
+     * 设置设备唯一识别码
+     */
+    override fun setDeviceCode(deviceCode: String?) {
+        service.deviceCode = deviceCode ?: ""
+        // 重新设置设备码后重新连接
+        autoConnect()
     }
 }

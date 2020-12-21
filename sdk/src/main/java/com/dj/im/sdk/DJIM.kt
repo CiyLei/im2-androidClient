@@ -44,13 +44,12 @@ object DJIM {
      *
      * @param context 上下文
      * @param appKey AppId
-     * @param appSecret App秘钥
      */
-    fun init(application: Application, appKey: String, appSecret: String, deviceCode: String) {
+    fun init(application: Application, appKey: String, appSecret: String) {
         // 只在主进程中初始化
         if (application.packageName == getCurProcessName(application)) {
             initd = true
-            ServiceManager.instance.init(application, appKey, appSecret, deviceCode)
+            ServiceManager.instance.init(application, appKey, appSecret)
         }
     }
 
@@ -96,6 +95,13 @@ object DJIM {
     fun getGroupConversation(groupId: Long): GroupConversation {
         return (getAllConversations().find { it is GroupConversation && it.groupId == groupId } as? GroupConversation)
             ?: GroupConversation(groupId)
+    }
+
+    /**
+     * 设置设备唯一识别码
+     */
+    fun setDeviceCode(deviceCode: String) {
+        ServiceManager.instance.setDeviceCode(deviceCode)
     }
 
     /**

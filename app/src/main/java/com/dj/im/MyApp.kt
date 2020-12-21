@@ -59,9 +59,14 @@ class MyApp : MultiDexApplication(), Application.ActivityLifecycleCallbacks {
             }
         })
         // 设置自动登录
-        DJIM.isAutoLogin = true
+//        DJIM.isAutoLogin = true
         // 通知栏
         DJIM.notificationHandle = { id, title, text -> notification(id, title, text) }
+        DJIM.init(
+            this,
+            "e97f8917-272a-4ea2-a411-b66a33644368",
+            "1fda7a5e-beb6-4ea8-9cee-918c71b0a8e5"
+        )
 
         // 小米厂商推送集成
         MiPushRegistar.register(this, "2882303761518896440", "5131889688440")
@@ -83,24 +88,18 @@ class MyApp : MultiDexApplication(), Application.ActivityLifecycleCallbacks {
             register(object : IUmengRegisterCallback {
                 override fun onSuccess(p0: String?) {
                     Log.d("MyApp", "注册友盟成功，设备唯一识别码:$p0")
-                    imInit(p0 ?: "")
+                    Thread {
+                        Thread.sleep(5000)
+                        Log.d("MyApp", "重新设置设备码")
+                        DJIM.setDeviceCode(p0 ?: "")
+                    }.start()
                 }
 
                 override fun onFailure(p0: String?, p1: String?) {
                     Log.d("MyApp", "注册友盟失败，$p0，$p1")
-                    imInit("")
                 }
             })
         }
-    }
-
-    private fun imInit(deviceCode: String) {
-        DJIM.init(
-            this,
-            "e97f8917-272a-4ea2-a411-b66a33644368",
-            "1fda7a5e-beb6-4ea8-9cee-918c71b0a8e5",
-            deviceCode
-        )
     }
 
     private fun notification(id: Long, title: String, text: String) {

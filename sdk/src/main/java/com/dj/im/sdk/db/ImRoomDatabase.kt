@@ -27,7 +27,7 @@ internal abstract class ImRoomDatabase : RoomDatabase() {
                         mInstance = Room.databaseBuilder(
                             context.applicationContext,
                             ImRoomDatabase::class.java, "im_database"
-                        ).build()
+                        ).allowMainThreadQueries().build()
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package com.dj.im
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -8,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.dj.im.sdk.DJIM
+import com.dj.im.sdk.ResultEnum
 import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.GroupConversation
 import com.dj.im.sdk.conversation.SingleConversation
@@ -127,11 +129,28 @@ class ConversationActivity : BaseActivity() {
         override fun onGroupInfoChange(groupId: Long) {
             mAdapter.notifyDataSetChanged()
         }
+
+        override fun onLogin(code: Int, message: String) {
+            if (code != ResultEnum.Success.code) {
+                startActivity(Intent(this@ConversationActivity, MainActivity::class.java))
+                finish()
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_conversation)
+        var token = intent.getStringExtra("token")
+        if (token == null || token.isBlank()) {
+            token = getSharedPreferences("djim", Activity.MODE_PRIVATE).getString("token", "")
+        }
+        if (token == null || token.isBlank()) {
+            startActivity(Intent(this@ConversationActivity, MainActivity::class.java))
+            finish()
+        } else {
+            DJIM.login(token)
+        }
 
         DJIM.getImListeners().add(mConversationListener)
         mAdapter.setOnItemClickListener { _, _, position ->

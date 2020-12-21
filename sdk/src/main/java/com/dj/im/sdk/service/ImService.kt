@@ -14,6 +14,7 @@ import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.entity.ServerSituationEntity
 import com.dj.im.sdk.service.handler.*
 import com.dj.im.sdk.utils.SpUtil
+import com.google.gson.Gson
 import com.tencent.mars.BaseEvent
 import com.tencent.mars.Mars
 import com.tencent.mars.app.AppLogic
@@ -37,6 +38,9 @@ internal class ImService : Service() {
 
         // token在sp中的key
         const val SP_KEY_TOKEN = "token"
+
+        // 最后一次登录的用户信息Key
+        const val SP_KEY_LAST_LOGIN_USER = "lastLoginUser"
     }
 
     // 推荐连接的服务器信息
@@ -52,13 +56,13 @@ internal class ImService : Service() {
     lateinit var appSecret: String
 
     // 设备码
-    lateinit var deviceCode: String
+    var deviceCode: String = ""
 
     // 回调列表
     var marsListener: IMarsListener? = null
 
     // 发送任务列表
-    val tasks: ConcurrentHashMap<Int, ITask> = ConcurrentHashMap();
+    val tasks: ConcurrentHashMap<Int, ITask> = ConcurrentHashMap()
 
     // 数据库Dao
     lateinit var dbDao: ImDbDao
@@ -67,6 +71,8 @@ internal class ImService : Service() {
     val pushHandler = HashMap<Int, IPushHandler>()
 
     lateinit var imServiceStub: ImServiceStub
+
+    private val mGson = Gson()
 
     override fun onBind(intent: Intent?): IBinder? {
         imServiceStub = ImServiceStub(this)
@@ -93,7 +99,6 @@ internal class ImService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         appKey = intent!!.getStringExtra("appKey")
         appSecret = intent.getStringExtra("appSecret")
-        deviceCode = intent.getStringExtra("deviceCode")
         ServiceManager.instance.mAppKey = appKey
         return super.onStartCommand(intent, flags, startId)
     }
@@ -143,6 +148,16 @@ internal class ImService : Service() {
      */
     fun clearToken() {
         SpUtil.getSp(this).edit().remove(SP_KEY_TOKEN).apply()
+        SpUtil.getSp(this).edit().remove(SP_KEY_LAST_LOGIN_USER).apply()
+    }
+
+    /**
+     * 保存最后一次登录的用户信息
+     */
+    fun saveLastLoginUser() {
+        userInfo?.let {
+            SpUtil.getSp(this).edit().putString(SP_KEY_LAST_LOGIN_USER, mGson.toJson(it)).apply()
+        }
     }
 
 }

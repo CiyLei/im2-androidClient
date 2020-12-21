@@ -3,42 +3,20 @@ package com.dj.im
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.widget.Toast
-import com.dj.im.sdk.DJIM
-import com.dj.im.sdk.ResultEnum
-import com.dj.im.sdk.listener.ImListener
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-
-    private val loginListener = object : ImListener() {
-        override fun onLogin(code: Int, message: String) {
-            if (code == ResultEnum.Success.code) {
-                Toast.makeText(
-                    this@MainActivity,
-                    "登录用户：${DJIM.getUserInfo()?.userName}",
-                    Toast.LENGTH_SHORT
-                ).show()
-                startActivity(Intent(this@MainActivity, ConversationActivity::class.java))
-                finish()
-            }
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        DJIM.getImListeners().add(loginListener)
-        btnLogin.setOnClickListener { login() }
+        btnLogin.setOnClickListener {
+            startActivity(Intent(this@MainActivity, ConversationActivity::class.java).apply {
+                putExtra("token", etToken.text.toString())
+            })
+            finish()
+        }
     }
 
-    private fun login() {
-        DJIM.login(etToken.text.toString())
-    }
-
-    override fun onDestroy() {
-        DJIM.getImListeners().remove(loginListener)
-        super.onDestroy()
-    }
 }

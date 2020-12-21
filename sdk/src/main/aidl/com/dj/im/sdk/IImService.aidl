@@ -17,4 +17,5 @@ interface IImService {
     IDBDao getDbDao();
     void setOnMarsListener(IMarsListener listener);
     void sendTask(ITask task);
+    void setDeviceCode(String deviceCode);
 }

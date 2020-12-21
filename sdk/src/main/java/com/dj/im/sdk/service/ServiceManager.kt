@@ -12,8 +12,11 @@ import android.os.*
 import android.util.Log
 import com.dj.im.sdk.*
 import com.dj.im.sdk.convert.message.MessageConvertFactory
+import com.dj.im.sdk.db.ImDbDao
 import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.listener.ImListener
+import com.dj.im.sdk.utils.SpUtil
+import com.google.gson.Gson
 
 
 /**
@@ -32,7 +35,6 @@ internal class ServiceManager private constructor() : ServiceConnection {
     lateinit var application: Application
     internal lateinit var mAppKey: String
     private lateinit var mAppSecret: String
-    private lateinit var mDeviceCode: String
     private var mHandler = Handler(Looper.getMainLooper())
 
     // 待执行任务
@@ -43,6 +45,11 @@ internal class ServiceManager private constructor() : ServiceConnection {
 
     // IM服务端
     private var mImService: IImService? = null
+
+    // 数据库Dao
+    lateinit var dbDao: ImDbDao
+
+    private val mGson = Gson()
 
     // 监听Mars的回调
     private val mMarsListener = object : IMarsListener.Stub() {
@@ -116,7 +123,7 @@ internal class ServiceManager private constructor() : ServiceConnection {
     /**
      * 初始化
      */
-    fun init(application: Application, appKey: String, appSecret: String, deviceCode: String) {
+    fun init(application: Application, appKey: String, appSecret: String) {
         this.application = application.also {
             it.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
                 override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
@@ -145,9 +152,9 @@ internal class ServiceManager private constructor() : ServiceConnection {
         }
         mAppKey = appKey
         mAppSecret = appSecret
-        mDeviceCode = deviceCode
         checkStartService()
         NotificationManager(application)
+        dbDao = ImDbDao(application)
     }
 
     /**
@@ -192,7 +199,20 @@ internal class ServiceManager private constructor() : ServiceConnection {
     /**
      * 获取用户信息
      */
-    fun getUserInfo(): ImUser? = mImService?.userInfo
+    fun getUserInfo(): ImUser? {
+        // 如果im服务没有开启，从本地获取最后一次登录的用户信息
+        val result = mImService?.userInfo
+        if (result == null) {
+            try {
+                val userJson =
+                    SpUtil.getSp(application).getString(ImService.SP_KEY_LAST_LOGIN_USER, "")
+                return mGson.fromJson(userJson, ImUser::class.java)
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
+        }
+        return result
+    }
 
     /**
      * 发送消息
@@ -210,9 +230,23 @@ internal class ServiceManager private constructor() : ServiceConnection {
         }
     }
 
-    fun getDb(): IDBDao? {
-        return mImService?.dbDao
+    /**
+     * 设置设备唯一识别码
+     */
+    fun setDeviceCode(deviceCode: String) {
+        // 如果服务还没初始化好，加入到待执行任务中
+        synchronized(mPendingTask) {
+            if (mImService == null) {
+                mPendingTask.add(0, Runnable {
+                    mImService?.setDeviceCode(deviceCode)
+                })
+            } else {
+                mImService?.setDeviceCode(deviceCode)
+            }
+        }
     }
+
+    fun getDb(): IDBDao? = dbDao
 
     /**
      * 设置是否在前台
@@ -226,11 +260,10 @@ internal class ServiceManager private constructor() : ServiceConnection {
      * 检查开启服务
      */
     private fun checkStartService() {
-        if (mImService == null && ::mAppKey.isInitialized && ::mAppSecret.isInitialized && ::mDeviceCode.isInitialized) {
+        if (mImService == null && ::mAppKey.isInitialized && ::mAppSecret.isInitialized) {
             val imIntent = Intent(application, ImService::class.java)
             imIntent.putExtra("appKey", mAppKey)
             imIntent.putExtra("appSecret", mAppSecret)
-            imIntent.putExtra("deviceCode", mDeviceCode)
             application.startService(imIntent)
             if (!application.bindService(imIntent, this, Service.BIND_AUTO_CREATE)) {
                 Log.e("ServiceManager", "【ImService 开启失败】")

@@ -211,6 +211,7 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
                 userResponse.userName,
                 userResponse
             )
+            mService.saveLastLoginUser()
             // 保存自己的用户消息
             mService.dbDao.addUser(mService.appKey, userResponse.userName, mService.userInfo!!)
             // 回调连接
