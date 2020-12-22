@@ -114,6 +114,8 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
     override fun setDeviceCode(deviceCode: String?) {
         service.deviceCode = deviceCode ?: ""
         // 重新设置设备码后重新连接
-        autoConnect()
+        if (service.deviceCode.isNotBlank()) {
+            autoConnect()
+        }
     }
 }
