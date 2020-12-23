@@ -5,10 +5,11 @@ package com.dj.im.sdk;
 
 interface IMarsListener {
 
-    void onConnect(int code, String message);
+    void onLogin(int code, String message);
     void onPushMessage(long messageId);
     void onChangeConversions();
     void onChangeMessageState(String conversationKey, long messageId, int state);
     void onChangeConversationRead(String conversationKey);
     void onOffline(int code, String message);
+    void onConnect(boolean isConnect);
 }

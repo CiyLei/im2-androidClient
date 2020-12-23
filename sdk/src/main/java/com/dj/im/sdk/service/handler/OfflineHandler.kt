@@ -11,8 +11,8 @@ internal class OfflineHandler(private val mService: ImService) : IPushHandler {
 
     override fun onHandle(response: PrResponseMessage.Response) {
         mService.marsListener?.onOffline(response.code, response.msg)
-        mService.closeMars()
         mService.clearToken()
+        mService.closeMars()
         mService.marsListener = null
         mService.userInfo = null
     }

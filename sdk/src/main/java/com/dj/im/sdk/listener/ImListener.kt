@@ -51,4 +51,9 @@ open class ImListener {
      * 群信息更改回调
      */
     open fun onGroupInfoChange(groupId: Long) {}
+
+    /**
+     * 连接发生变化
+     */
+    open fun onConnect(isConnect: Boolean) {}
 }

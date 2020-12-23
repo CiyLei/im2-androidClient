@@ -17,6 +17,7 @@ import com.dj.im.sdk.listener.ImListener
 import com.umeng.commonsdk.UMConfigure
 import com.umeng.message.IUmengRegisterCallback
 import com.umeng.message.PushAgent
+import com.xiaomi.mipush.sdk.MiPushClient
 import org.android.agoo.huawei.HuaWeiRegister
 import org.android.agoo.xiaomi.MiPushRegistar
 
@@ -159,6 +160,11 @@ class MyApp : MultiDexApplication(), Application.ActivityLifecycleCallbacks {
 
     override fun onActivityStarted(p0: Activity?) {
         mActivityCount++
+        // 清空通知
+        (getSystemService(NOTIFICATION_SERVICE) as? NotificationManager)?.cancelAll()
+        if (MiPushRegistar.checkDevice(this)) {
+            MiPushClient.clearNotification(this)
+        }
     }
 
     override fun onActivityResumed(p0: Activity?) {

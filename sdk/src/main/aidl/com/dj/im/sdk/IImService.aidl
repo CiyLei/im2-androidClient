@@ -18,4 +18,5 @@ interface IImService {
     void setOnMarsListener(IMarsListener listener);
     void sendTask(ITask task);
     void setDeviceCode(String deviceCode);
+    boolean isConnect();
 }

@@ -3,6 +3,7 @@ package com.dj.im
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.bumptech.glide.Glide
@@ -135,6 +136,11 @@ class ConversationActivity : BaseActivity() {
                 startActivity(Intent(this@ConversationActivity, MainActivity::class.java))
                 finish()
             }
+        }
+
+        override fun onConnect(isConnect: Boolean) {
+            Log.i("ConversationActivity", "isConnect:$isConnect")
+            title = "${DJIM.getUserInfo()?.alias}(${DJIM.getUserInfo()?.userName})"
         }
     }
 

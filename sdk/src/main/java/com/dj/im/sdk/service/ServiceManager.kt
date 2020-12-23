@@ -79,9 +79,18 @@ internal class ServiceManager private constructor() : ServiceConnection {
         }
 
         /**
+         * 连接发生变化
+         */
+        override fun onConnect(isConnect: Boolean) {
+            mHandler.post {
+                imListeners.forEach { it.onConnect(isConnect) }
+            }
+        }
+
+        /**
          * 服务连接监听
          */
-        override fun onConnect(code: Int, message: String) {
+        override fun onLogin(code: Int, message: String) {
             mHandler.post {
                 imListeners.forEach { it.onLogin(code, message) }
             }

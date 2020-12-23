@@ -70,6 +70,12 @@ internal class ImService : Service() {
     // 推送消息处理器
     val pushHandler = HashMap<Int, IPushHandler>()
 
+    // 处于登录验证
+    var isLoginVerification = false
+
+    // 是否连接中
+    var isConnected = false
+
     lateinit var imServiceStub: ImServiceStub
 
     private val mGson = Gson()
@@ -131,7 +137,7 @@ internal class ImService : Service() {
             StnLogic.makesureLongLinkConnected()
         } else {
             // 失败
-            marsListener?.onConnect(ResultEnum.Error_Empty.code, ResultEnum.Error_Empty.message)
+            marsListener?.onLogin(ResultEnum.Error_Empty.code, ResultEnum.Error_Empty.message)
         }
     }
 

@@ -95,6 +95,8 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
      * @param longlinkstatus    仅长连的状态
      */
     override fun reportConnectInfo(status: Int, longlinkstatus: Int) {
+        mService.isConnected = longlinkstatus == StnLogic.CONNECTED
+        mService.marsListener?.onConnect(mService.isConnected)
     }
 
     /**
@@ -214,12 +216,21 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
             mService.saveLastLoginUser()
             // 保存自己的用户消息
             mService.dbDao.addUser(mService.appKey, userResponse.userName, mService.userInfo!!)
-            // 回调连接
-            mService.marsListener?.onConnect(ResultEnum.Success.code, ResultEnum.Success.message)
+            // 登录回调(因为这个函数是每次断线重连都会触发，所以在登录验证下才触发)
+            if (mService.isLoginVerification) {
+                mService.isLoginVerification = false
+                mService.marsListener?.onLogin(
+                    ResultEnum.Success.code,
+                    ResultEnum.Success.message
+                )
+            }
             // 保存token
             SpUtil.getSp(mService).edit().putString(ImService.SP_KEY_TOKEN, mToken).apply()
         } else {
-            mService.marsListener?.onConnect(response.code, response.msg)
+            if (mService.isLoginVerification) {
+                mService.isLoginVerification = false
+                mService.marsListener?.onLogin(response.code, response.msg)
+            }
             mService.clearToken()
         }
         return response.success

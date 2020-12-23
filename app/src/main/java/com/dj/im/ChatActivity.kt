@@ -104,11 +104,7 @@ class ChatActivity : BaseActivity() {
         // 已读消息
         mConversation.read()
 
-        rvMessageList.layoutManager = LinearLayoutManager(this).apply {
-            stackFromEnd = true //列表再底部开始展示，反转后由上面开始展示
-            reverseLayout = true //列表翻转
-            scrollToPositionWithOffset(0, Int.MIN_VALUE)
-        }
+        rvMessageList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true)
         rvMessageList.adapter = mAdapter
         srl.setOnRefreshListener {
             // 刷新获取历史消息

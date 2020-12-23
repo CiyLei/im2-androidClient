@@ -43,6 +43,7 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
      * @param token 登录Token
      */
     override fun login(token: String) {
+        service.isLoginVerification = false
         // 保存token
         SpUtil.getSp(service).edit().putString(DJIM.SP_KEY_TOKEN, token).apply()
         compositeDisposable.dispose()
@@ -50,18 +51,21 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
         compositeDisposable.add(RetrofitManager.instance.apiStore.dns().o().subscribe({
             if (it.success) {
                 service.serverList = it.data
+                service.isLoginVerification = true
                 // 开启Mars服务
                 service.openMars(token)
             } else {
-                service.marsListener?.onConnect(it.code.toInt(), it.msg)
+                service.marsListener?.onLogin(it.code.toInt(), it.msg)
                 service.clearToken()
+                service.closeMars()
             }
         }, {
-            service.marsListener?.onConnect(
+            service.marsListener?.onLogin(
                 ResultEnum.Error_Request.code,
                 ResultEnum.Error_Request.message
             )
             service.clearToken()
+            service.closeMars()
         }))
     }
 
@@ -72,8 +76,8 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
         // 先访问接口，退出登录
         compositeDisposable.add(HttpLogoutTask().complete {
             // 关闭Mars服务
-            service.closeMars()
             service.clearToken()
+            service.closeMars()
             service.marsListener = null
             compositeDisposable.dispose()
         }.start())
@@ -118,4 +122,9 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
             autoConnect()
         }
     }
+
+    /**
+     * 是否处于连接状态
+     */
+    override fun isConnect(): Boolean = service.isConnected
 }
