@@ -116,6 +116,8 @@ class ConversationActivity : BaseActivity() {
 
     }
 
+    private var mToken: String = ""
+
     private val mConversationListener = object : ImListener() {
         override fun onChangeConversions() {
             mConversations.clear()
@@ -132,7 +134,9 @@ class ConversationActivity : BaseActivity() {
         }
 
         override fun onLogin(code: Int, message: String) {
-            if (code != ResultEnum.Success.code) {
+            if (code == ResultEnum.Success.code) {
+                getSharedPreferences("djim", Activity.MODE_PRIVATE).edit().putString("token", mToken).apply()
+            } else {
                 startActivity(Intent(this@ConversationActivity, MainActivity::class.java))
                 finish()
             }
@@ -147,15 +151,15 @@ class ConversationActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_conversation)
-        var token = intent.getStringExtra("token")
-        if (token == null || token.isBlank()) {
-            token = getSharedPreferences("djim", Activity.MODE_PRIVATE).getString("token", "")
+        mToken = intent.getStringExtra("token") ?: ""
+        if (mToken.isBlank()) {
+            mToken = getSharedPreferences("djim", Activity.MODE_PRIVATE).getString("token", "")
         }
-        if (token == null || token.isBlank()) {
+        if (mToken.isBlank()) {
             startActivity(Intent(this@ConversationActivity, MainActivity::class.java))
             finish()
         } else {
-            DJIM.login(token)
+            DJIM.login(mToken)
         }
 
         DJIM.getImListeners().add(mConversationListener)

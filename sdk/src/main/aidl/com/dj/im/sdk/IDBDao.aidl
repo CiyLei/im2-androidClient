@@ -24,4 +24,7 @@ interface IDBDao {
     void addUnReadMessage(String belongAppId, String belongUserName,in List<UnReadMessage> unReadMessageList);
     void addGroup(String belongAppId, String belongUserName, in ImGroup group);
     ImGroup getGroupInfo(String belongAppId, String belongUserName, long groupId);
+    String getConfigValue(String key);
+    void putConfigValue(String key, String value);
+    void deleteConfig(String key);
 }

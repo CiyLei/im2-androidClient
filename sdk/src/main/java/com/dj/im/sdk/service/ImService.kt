@@ -13,7 +13,6 @@ import com.dj.im.sdk.db.ImDbDao
 import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.entity.ServerSituationEntity
 import com.dj.im.sdk.service.handler.*
-import com.dj.im.sdk.utils.SpUtil
 import com.google.gson.Gson
 import com.tencent.mars.BaseEvent
 import com.tencent.mars.Mars
@@ -94,6 +93,7 @@ internal class ImService : Service() {
         pushHandler[Constant.CMD.OFFLINE] = OfflineHandler(this)
         Mars.loadDefaultMarsLibrary()
         dbDao = ImDbDao(this)
+        ServiceManager.instance.dbDao = dbDao
     }
 
     override fun onDestroy() {
@@ -153,8 +153,8 @@ internal class ImService : Service() {
      * 移除token
      */
     fun clearToken() {
-        SpUtil.getSp(this).edit().remove(SP_KEY_TOKEN).apply()
-        SpUtil.getSp(this).edit().remove(SP_KEY_LAST_LOGIN_USER).apply()
+        dbDao.deleteConfig(SP_KEY_TOKEN)
+        dbDao.deleteConfig(SP_KEY_LAST_LOGIN_USER)
     }
 
     /**
@@ -162,7 +162,7 @@ internal class ImService : Service() {
      */
     fun saveLastLoginUser() {
         userInfo?.let {
-            SpUtil.getSp(this).edit().putString(SP_KEY_LAST_LOGIN_USER, mGson.toJson(it)).apply()
+            dbDao.putConfigValue(SP_KEY_LAST_LOGIN_USER, mGson.toJson(it))
         }
     }
 

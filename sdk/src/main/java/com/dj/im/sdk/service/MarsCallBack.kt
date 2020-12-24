@@ -8,7 +8,6 @@ import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.utils.EncryptUtil
 import com.dj.im.sdk.utils.HexUtil
 import com.dj.im.sdk.utils.MessageConvertUtil
-import com.dj.im.sdk.utils.SpUtil
 import com.tencent.mars.app.AppLogic
 import com.tencent.mars.sdt.SdtLogic
 import com.tencent.mars.stn.StnLogic
@@ -225,7 +224,7 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
                 )
             }
             // 保存token
-            SpUtil.getSp(mService).edit().putString(ImService.SP_KEY_TOKEN, mToken).apply()
+            mService.dbDao.putConfigValue(ImService.SP_KEY_TOKEN, mToken)
         } else {
             if (mService.isLoginVerification) {
                 mService.isLoginVerification = false

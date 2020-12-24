@@ -18,6 +18,7 @@ internal class ImDbDao(context: Context) : IDBDao.Stub() {
     private val mImMessageDao = ImRoomDatabase.instance(context).imMessageDao()
     private val mImUnReadRoomDao = ImRoomDatabase.instance(context).imUnReadRoomDao()
     private val mImUserGroupRoomDao = ImRoomDatabase.instance(context).imUserGroupRoomDao()
+    private val mConfigRoomDao = ImRoomDatabase.instance(context).imConfigRoomDao()
 
     /**
      * 获取指定消息之前的消息列表（即读取历史消息）
@@ -338,5 +339,33 @@ internal class ImDbDao(context: Context) : IDBDao.Stub() {
             return it
         }
         return null
+    }
+
+    /**
+     * 获取配置的值
+     */
+    override fun getConfigValue(key: String?): String? {
+        return mConfigRoomDao.getValue(key ?: return null)?.value
+    }
+
+    /**
+     * 添加配置
+     */
+    override fun putConfigValue(key: String?, value: String?) {
+        key ?: return
+        value ?: return
+        val config = mConfigRoomDao.getValue(key)
+        if (config == null) {
+            mConfigRoomDao.insert(ConfigEntity(key, value))
+        } else {
+            mConfigRoomDao.update(ConfigEntity(key, value))
+        }
+    }
+
+    /**
+     * 删除配置
+     */
+    override fun deleteConfig(key: String?) {
+        mConfigRoomDao.delete(ConfigEntity(key ?: return, ""))
     }
 }

@@ -5,7 +5,6 @@ import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.net.RetrofitManager
 import com.dj.im.sdk.task.HttpLogoutTask
 import com.dj.im.sdk.utils.RxUtil.o
-import com.dj.im.sdk.utils.SpUtil
 import com.tencent.mars.BaseEvent
 import com.tencent.mars.stn.StnLogic
 import io.reactivex.disposables.CompositeDisposable
@@ -25,7 +24,7 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
      */
     override fun autoConnect() {
         // 如果存在token，马上连接
-        SpUtil.getSp(service).getString(ImService.SP_KEY_TOKEN, "")?.let {
+        service.dbDao.getConfigValue(ImService.SP_KEY_TOKEN)?.let {
             if (it.isNotBlank()) {
                 login(it)
             }
@@ -45,7 +44,7 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
     override fun login(token: String) {
         service.isLoginVerification = false
         // 保存token
-        SpUtil.getSp(service).edit().putString(DJIM.SP_KEY_TOKEN, token).apply()
+        service.dbDao.putConfigValue(DJIM.SP_KEY_TOKEN, token)
         compositeDisposable.dispose()
         compositeDisposable = CompositeDisposable()
         compositeDisposable.add(RetrofitManager.instance.apiStore.dns().o().subscribe({

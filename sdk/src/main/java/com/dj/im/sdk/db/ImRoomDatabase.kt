@@ -11,7 +11,7 @@ import com.dj.im.sdk.entity.*
  * Describe: im本地数据Room
  */
 @Database(
-    entities = [ImUser::class, ImMessage::class, ImConversation::class, UnReadMessage::class, ImGroup::class, UserGroupEntity::class],
+    entities = [ImUser::class, ImMessage::class, ImConversation::class, UnReadMessage::class, ImGroup::class, UserGroupEntity::class, ConfigEntity::class],
     version = 1
 )
 internal abstract class ImRoomDatabase : RoomDatabase() {
@@ -41,4 +41,5 @@ internal abstract class ImRoomDatabase : RoomDatabase() {
     abstract fun imMessageDao(): ImMessageRoomDao
     abstract fun imUnReadRoomDao(): ImUnReadRoomDao
     abstract fun imUserGroupRoomDao(): ImUserGroupRoomDao
+    abstract fun imConfigRoomDao(): ImConfigRoomDao
 }

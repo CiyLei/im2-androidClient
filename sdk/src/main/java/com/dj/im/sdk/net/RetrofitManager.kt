@@ -3,10 +3,7 @@ package com.dj.im.sdk.net
 import com.dj.im.sdk.Constant
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.service.ServiceManager
-import com.dj.im.sdk.utils.SpUtil
-import okhttp3.MediaType
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -21,7 +18,7 @@ internal class RetrofitManager private constructor() {
     private val mOkHttpClient: OkHttpClient = OkHttpClient.Builder().addInterceptor {
         // 添加token到cookie中
         val token = try {
-            SpUtil.getSp(ServiceManager.instance.application).getString(DJIM.SP_KEY_TOKEN, "")
+            ServiceManager.instance.dbDao.getConfigValue(DJIM.SP_KEY_TOKEN) ?: ""
         } catch (e: Throwable) {
             e.printStackTrace()
             ""

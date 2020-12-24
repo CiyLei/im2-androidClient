@@ -15,7 +15,6 @@ import com.dj.im.sdk.convert.message.MessageConvertFactory
 import com.dj.im.sdk.db.ImDbDao
 import com.dj.im.sdk.entity.ImUser
 import com.dj.im.sdk.listener.ImListener
-import com.dj.im.sdk.utils.SpUtil
 import com.google.gson.Gson
 
 
@@ -213,8 +212,7 @@ internal class ServiceManager private constructor() : ServiceConnection {
         val result = mImService?.userInfo
         if (result == null) {
             try {
-                val userJson =
-                    SpUtil.getSp(application).getString(ImService.SP_KEY_LAST_LOGIN_USER, "")
+                val userJson = dbDao.getConfigValue(ImService.SP_KEY_LAST_LOGIN_USER) ?: return null
                 return mGson.fromJson(userJson, ImUser::class.java)
             } catch (e: Throwable) {
                 e.printStackTrace()
