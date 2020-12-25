@@ -11,9 +11,9 @@ import kotlin.properties.Delegates
  */
 open class VoiceMessage : FileMessage {
 
-    var duration by Delegates.notNull<Int>()
+    var duration by Delegates.notNull<Float>()
 
-    constructor(file: File, duration: Int) : super(
+    constructor(file: File, duration: Float) : super(
         ImMessage(
             ServiceManager.instance.mAppKey,
             ServiceManager.instance.getUserInfo()?.userName ?: "",
@@ -33,7 +33,7 @@ open class VoiceMessage : FileMessage {
 
     constructor(imMessage: ImMessage) : super(imMessage) {
         // 从消息中获取秒数
-        duration = fileEntity.extra[KEY_DURATION]?.toInt() ?: 0
+        duration = fileEntity.extra[KEY_DURATION]?.toFloat() ?: 0f
     }
 
     companion object {
@@ -44,7 +44,7 @@ open class VoiceMessage : FileMessage {
          * 生成额外的属性
          * 这里是语音的秒数
          */
-        fun generateExtraMap(duration: Int) = hashMapOf(KEY_DURATION to "$duration")
+        fun generateExtraMap(duration: Float) = hashMapOf(KEY_DURATION to "$duration")
     }
 
 }
