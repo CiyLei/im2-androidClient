@@ -42,10 +42,12 @@
 
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/ivOtherData"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
+                android:adjustViewBounds="true"
                 android:background="@drawable/bg_chat_other"
+                android:maxHeight="500dp"
                 android:padding="8dp"
                 tools:src="@mipmap/emoji_0x1f50d" />
 
@@ -91,10 +93,12 @@
 
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/ivSelfData"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
+                android:adjustViewBounds="true"
                 android:background="@drawable/bg_chat_self"
+                android:maxHeight="500dp"
                 android:padding="8dp"
                 tools:src="@mipmap/emoji_0x1f50d" />
 
