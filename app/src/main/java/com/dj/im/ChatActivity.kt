@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import cn.jiguang.imui.chatinput.listener.OnMenuClickListener
 import cn.jiguang.imui.chatinput.listener.RecordVoiceListener
 import cn.jiguang.imui.chatinput.model.FileItem
@@ -36,14 +37,13 @@ class ChatActivity : BaseActivity() {
 
     // 消息列表
     private val mMessageList = ArrayList<Message>()
-    private val mAdapter = MessageAdapter(mMessageList)
+    private val mAdapter by lazy { MessageAdapter(mMessageList, rvMessageList) }
 
     // 监听会话的消息
     private val mConversationListener = object : Conversation.ConversationListener {
         override fun onPushMessage(message: Message) {
             mMessageList.add(0, message)
             mAdapter.notifyItemInserted(0)
-            rvMessageList.scrollToPosition(0)
             // 设置已读
             mConversation.read()
         }
@@ -104,13 +104,21 @@ class ChatActivity : BaseActivity() {
         // 已读消息
         mConversation.read()
 
-        rvMessageList.layoutManager =
-            LinearLayoutManager(this).apply {
-                reverseLayout = true
-                stackFromEnd = true
-                // 滚到底部
-                scrollToPositionWithOffset(0, 0)
+        rvMessageList.layoutManager = object : LinearLayoutManager(this) {
+            /**
+             * 设置预留空间比图片消息的最大高再高一点
+             * 这样加载图片的时候就一定会提前加载加载，不会突兀，增加用户体验
+             */
+            override fun getExtraLayoutSpace(state: RecyclerView.State?): Int {
+                return dip2px(500 * 1.2f)
             }
+        }.apply {
+            reverseLayout = true
+            stackFromEnd = true
+
+            // 滚到底部
+            scrollToPositionWithOffset(0, 0)
+        }
         rvMessageList.adapter = mAdapter
         srl.setOnRefreshListener {
             // 刷新获取历史消息
@@ -201,5 +209,10 @@ class ChatActivity : BaseActivity() {
                 mConversation.sendMessage(FileMessage(File(it)))
             }
         }
+    }
+
+    fun dip2px(dpValue: Float): Int {
+        val scale = resources.displayMetrics.density
+        return (dpValue * scale + 0.5f).toInt()
     }
 }
