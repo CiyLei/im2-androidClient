@@ -1,8 +1,8 @@
 package com.dj.im.sdk.entity
 
-import com.dj.im.sdk.Constant
 import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.service.ServiceManager
+import com.dj.im.sdk.utils.HttpUtil
 import com.google.gson.Gson
 import java.io.File
 import java.io.Serializable
@@ -60,7 +60,7 @@ open class FileMessage : Message {
     /**
      * 获取远程url
      */
-    fun getRemoteUrl(): String = Constant.URL.FILE_URL + fileEntity.url
+    fun getFileHttpUrl(): String = HttpUtil.toFileUrl(fileEntity.url)
 
 }
 

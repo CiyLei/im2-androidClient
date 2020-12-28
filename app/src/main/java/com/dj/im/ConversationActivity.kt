@@ -56,9 +56,9 @@ class ConversationActivity : BaseActivity() {
         BaseQuickAdapter<Conversation, BaseViewHolder>(R.layout.item_conversation, mConversations) {
         override fun convert(helper: BaseViewHolder, item: Conversation?) {
             if (item is SingleConversation) {
-                if (item.getOtherSideUserInfo()?.avatarUrl?.isNotEmpty() == true) {
+                if (item.getOtherSideUserInfo()?.getAvatarHttpUrl()?.isNotEmpty() == true) {
                     Glide.with(this@ConversationActivity)
-                        .load(item.getOtherSideUserInfo()?.avatarUrl)
+                        .load(item.getOtherSideUserInfo()?.getAvatarHttpUrl())
                         .into(helper.getView(R.id.ivAvatar))
                 } else {
                     helper.setImageResource(R.id.ivAvatar, R.mipmap.emoji_0x1f385)

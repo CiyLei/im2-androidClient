@@ -4,6 +4,7 @@ import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.os.Parcel
 import android.os.Parcelable
+import com.dj.im.sdk.utils.HttpUtil
 
 
 /**
@@ -71,6 +72,12 @@ data class ImUser(
         writeString(avatarUrl)
         writeString(extra)
     }
+
+    /**
+     * 获取头像
+     */
+    @JvmName("getAvatarUrl1")
+    fun getAvatarHttpUrl(): String = HttpUtil.toFileUrl(avatarUrl)
 
     companion object {
         @JvmField
