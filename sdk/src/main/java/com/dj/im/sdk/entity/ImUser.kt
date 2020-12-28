@@ -76,7 +76,6 @@ data class ImUser(
     /**
      * 获取头像
      */
-    @JvmName("getAvatarUrl1")
     fun getAvatarHttpUrl(): String = HttpUtil.toFileUrl(avatarUrl)
 
     companion object {
