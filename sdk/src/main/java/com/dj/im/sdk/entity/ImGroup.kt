@@ -5,6 +5,7 @@ import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Ignore
 import android.os.Parcel
 import android.os.Parcelable
+import com.dj.im.sdk.utils.HttpUtil
 
 /**
  * Create by ChenLei on 2020/4/27
@@ -66,6 +67,12 @@ data class ImGroup(
         writeString(avatarUrl)
         writeList(userNameList)
     }
+
+    /**
+     * 获取头像
+     */
+    @JvmName("getAvatarUrl1")
+    fun getAvatarHttpUrl(): String = HttpUtil.toFileUrl(avatarUrl)
 
     companion object {
         @JvmField
