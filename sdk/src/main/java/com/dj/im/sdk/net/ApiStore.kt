@@ -25,7 +25,7 @@ internal interface ApiStore {
      * 上传文件
      */
     @POST(Constant.URL.UPLOAD)
-    fun upload(@Body requestBody: RequestBody?): Observable<BaseResponse<String>>
+    fun upload(@Body requestBody: RequestBody?): Observable<BaseResponse<FileEntity>>
 
     /**
      * 获取历史消息列表

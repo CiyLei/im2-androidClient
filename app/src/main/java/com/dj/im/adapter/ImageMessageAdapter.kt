@@ -40,7 +40,7 @@ class ImageMessageAdapter : BaseItemProvider<ImageMessage, BaseViewHolder>() {
                 Glide.with(mContext).load(data.fileEntity.localPath).into(iv)
             } else {
                 Glide.with(mContext)
-                    .load(data?.getResUrl())
+                    .load(data?.getRemoteUrl())
                     .into(iv)
             }
             helper.setText(
@@ -77,7 +77,7 @@ class ImageMessageAdapter : BaseItemProvider<ImageMessage, BaseViewHolder>() {
             if (data?.fileEntity?.localPath?.isNotBlank() == true) {
                 Glide.with(mContext).load(data.fileEntity.localPath).into(iv)
             } else {
-                val url = data?.getResUrl()
+                val url = data?.getRemoteUrl()
                 Glide.with(mContext)
                     .load(url)
                     .into(iv)

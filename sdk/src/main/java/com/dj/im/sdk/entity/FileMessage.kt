@@ -1,6 +1,5 @@
 package com.dj.im.sdk.entity
 
-import com.dj.im.sdk.Constant
 import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.service.ServiceManager
 import com.google.gson.Gson
@@ -58,17 +57,17 @@ open class FileMessage : Message {
     }
 
     /**
-     * 获取资源url
+     * 获取远程url
      */
-    fun getResUrl(): String =
-        "${Constant.URL.BASE_URL}${Constant.URL.DOWNLOAD}/${fileEntity.netResId}"
+    fun getRemoteUrl(): String = fileEntity.url
+
 }
 
 data class FileEntity(
     /**
      * 本地文件路径
      */
-    var localPath: String = "",
+    var localPath: String? = null,
     /**
      * 文件名称
      */
@@ -76,7 +75,7 @@ data class FileEntity(
     /**
      * 网络资源id
      */
-    var netResId: String = "",
+    var url: String = "",
     /**
      * 额外的信息
      */

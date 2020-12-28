@@ -77,7 +77,7 @@ class VoiceMessageAdapter : BaseItemProvider<VoiceMessage, BaseViewHolder>() {
         if (data?.fileEntity?.localPath?.isNotBlank() == true) {
             voiceUrl = data.fileEntity.localPath
         } else {
-            voiceUrl = data?.getResUrl()
+            voiceUrl = data?.getRemoteUrl()
         }
         if (mMediaPlayer != null) {
             mMediaPlayer?.release()

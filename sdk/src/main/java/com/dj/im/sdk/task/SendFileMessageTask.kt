@@ -6,12 +6,11 @@ import com.dj.im.sdk.entity.FileMessage
 import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.net.RetrofitManager
 import com.dj.im.sdk.net.UpLoadRequestBody
+import com.dj.im.sdk.utils.RxUtil.o
 import okhttp3.MediaType
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
-import com.dj.im.sdk.utils.RxUtil.o
-import io.reactivex.disposables.CompositeDisposable
-import okhttp3.MultipartBody
 
 
 /**
@@ -23,7 +22,7 @@ open class SendFileMessageTask : SendTextMessageTask() {
     private lateinit var mFileMessage: FileMessage
 
     // 临时保存的本地文件路径
-    private var mTmpLocalPath = ""
+    private var mTmpLocalPath: String? = null
 
     override fun matchTask(message: Message): AbsSendMessageTask? {
         // 校验是不是发送文件消息
@@ -55,10 +54,10 @@ open class SendFileMessageTask : SendTextMessageTask() {
         val d = RetrofitManager.instance.apiStore.upload(request).o().subscribe({
             if (it.success) {
                 // 上传成功
-                mFileMessage.fileEntity.netResId = it.data
+                mFileMessage.fileEntity.url = it.data.url
                 // 本地的路径不需要发送给对方，先保存起来，在保存到数据库之前还原
                 mTmpLocalPath = mFileMessage.fileEntity.localPath
-                mFileMessage.fileEntity.localPath = ""
+                mFileMessage.fileEntity.localPath = null
                 // 更新data数据
                 mFileMessage.updateData()
                 // 开始发送消息
@@ -75,13 +74,6 @@ open class SendFileMessageTask : SendTextMessageTask() {
             notifyChangeState()
             mFileMessage.save()
         })
-    }
-
-    /**
-     * 开始上传文件
-     */
-    private fun startUpload() {
-
     }
 
     /**
