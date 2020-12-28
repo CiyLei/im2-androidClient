@@ -1,5 +1,6 @@
 package com.dj.im.sdk.entity
 
+import com.dj.im.sdk.Constant
 import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.service.ServiceManager
 import com.google.gson.Gson
@@ -59,7 +60,7 @@ open class FileMessage : Message {
     /**
      * 获取远程url
      */
-    fun getRemoteUrl(): String = fileEntity.url
+    fun getRemoteUrl(): String = Constant.URL.FILE_URL + fileEntity.url
 
 }
 
