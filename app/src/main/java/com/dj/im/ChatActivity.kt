@@ -147,13 +147,9 @@ class ChatActivity : BaseActivity() {
             }
 
             override fun onSendFiles(list: MutableList<FileItem>?) {
-                if (list?.isNotEmpty() == true) {
-                    when (list[0].type) {
-                        FileItem.Type.Image -> {
-                            // 发送图片消息
-                            mConversation.sendMessage(ImageMessage(File(list[0].filePath)))
-                        }
-                    }
+                list?.filter { it.type == FileItem.Type.Image }?.forEach {
+                    // 发送图片消息
+                    mConversation.sendMessage(ImageMessage(File(it.filePath)))
                 }
             }
         })
