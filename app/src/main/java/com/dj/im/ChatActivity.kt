@@ -8,7 +8,7 @@ import android.support.v7.widget.RecyclerView
 import cn.jiguang.imui.chatinput.listener.OnMenuClickListener
 import cn.jiguang.imui.chatinput.listener.RecordVoiceListener
 import cn.jiguang.imui.chatinput.model.FileItem
-import com.dj.im.adapter.MessageAdapter
+import com.dj.im.adapter.ChatAdapter
 import com.dj.im.sdk.DJIM
 import com.dj.im.sdk.conversation.Conversation
 import com.dj.im.sdk.conversation.GroupConversation
@@ -37,7 +37,7 @@ class ChatActivity : BaseActivity() {
 
     // 消息列表
     private val mMessageList = ArrayList<Message>()
-    private val mAdapter by lazy { MessageAdapter(mMessageList, rvMessageList) }
+    private val mAdapter by lazy { ChatAdapter(this, mMessageList, rvMessageList) }
 
     // 监听会话的消息
     private val mConversationListener = object : Conversation.ConversationListener {
@@ -200,7 +200,7 @@ class ChatActivity : BaseActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 12345 && resultCode == Activity.RESULT_OK && data != null) {
-            val path = FileUtils.getPath(this, data.data)?.let {
+            FileUtils.getPath(this, data.data)?.let {
                 // 发送文件消息
                 mConversation.sendMessage(FileMessage(File(it)))
             }
