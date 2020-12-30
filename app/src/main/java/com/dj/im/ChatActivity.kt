@@ -142,6 +142,7 @@ class ChatActivity : BaseActivity() {
                 if (input?.isNotBlank() == true) {
                     // 发送消息
                     mConversation.sendMessage(TextMessage(input.toString()))
+                    (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
                 }
                 return true
             }
@@ -150,6 +151,7 @@ class ChatActivity : BaseActivity() {
                 list?.filter { it.type == FileItem.Type.Image }?.forEach {
                     // 发送图片消息
                     mConversation.sendMessage(ImageMessage(File(it.filePath)))
+                    (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
                 }
             }
         })
@@ -159,6 +161,7 @@ class ChatActivity : BaseActivity() {
                 if (voiceFile != null) {
                     // 发送语音消息
                     mConversation.sendMessage(VoiceMessage(voiceFile, duration.toFloat()))
+                    (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
                 }
             }
 
@@ -203,6 +206,7 @@ class ChatActivity : BaseActivity() {
             FileUtils.getPath(this, data.data)?.let {
                 // 发送文件消息
                 mConversation.sendMessage(FileMessage(File(it)))
+                (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
             }
         }
     }
