@@ -111,14 +111,7 @@ object DJIM {
         val userName = ServiceManager.instance.getUserInfo()?.userName ?: return emptyList()
         val conversations = ServiceManager.instance.getDb()
             ?.getConversations(ServiceManager.instance.mAppKey, userName)
-        val result = ArrayList<Conversation>()
-        conversations?.forEach { c ->
-            val convert = ConversationConvertFactory.convert(c)
-            if (convert != null) {
-                result.add(convert)
-            }
-        }
-        return result
+        return conversations?.mapNotNull { ConversationConvertFactory.convert(it) } ?: emptyList()
     }
 
     /**
