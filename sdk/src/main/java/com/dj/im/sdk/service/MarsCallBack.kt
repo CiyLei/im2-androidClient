@@ -224,7 +224,7 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
                 )
             }
             // 保存token
-            mService.dbDao.putConfigValue(ImService.SP_KEY_TOKEN, mToken)
+            mService.dbDao.putConfigValue(Constant.Key.TOKEN, mToken)
         } else {
             if (mService.isLoginVerification) {
                 mService.isLoginVerification = false

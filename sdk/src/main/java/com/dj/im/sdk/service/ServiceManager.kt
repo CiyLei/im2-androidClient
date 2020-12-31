@@ -212,7 +212,7 @@ internal class ServiceManager private constructor() : ServiceConnection {
         val result = mImService?.userInfo
         if (result == null) {
             try {
-                val userJson = dbDao.getConfigValue(ImService.SP_KEY_LAST_LOGIN_USER) ?: return null
+                val userJson = dbDao.getConfigValue(Constant.Key.LAST_LOGIN_USER) ?: return null
                 return mGson.fromJson(userJson, ImUser::class.java)
             } catch (e: Throwable) {
                 e.printStackTrace()

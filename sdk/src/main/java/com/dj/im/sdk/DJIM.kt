@@ -24,9 +24,6 @@ import java.util.concurrent.Executors
  */
 object DJIM {
 
-    // 保存在sp中的token的key
-    const val SP_KEY_TOKEN = "token"
-
     // 友盟自定义通知栏id
     const val UMENG_IM_BUILDER_ID = 3941
 

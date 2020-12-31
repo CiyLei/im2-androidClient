@@ -24,7 +24,7 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
      */
     override fun autoConnect() {
         // 如果存在token，马上连接
-        service.dbDao.getConfigValue(ImService.SP_KEY_TOKEN)?.let {
+        service.dbDao.getConfigValue(Constant.Key.TOKEN)?.let {
             if (it.isNotBlank()) {
                 login(it)
             }
@@ -44,7 +44,7 @@ internal class ImServiceStub(private val service: ImService) : IImService.Stub()
     override fun login(token: String) {
         service.isLoginVerification = false
         // 保存token
-        service.dbDao.putConfigValue(DJIM.SP_KEY_TOKEN, token)
+        service.dbDao.putConfigValue(Constant.Key.TOKEN, token)
         compositeDisposable.dispose()
         compositeDisposable = CompositeDisposable()
         compositeDisposable.add(RetrofitManager.instance.apiStore.dns().o().subscribe({

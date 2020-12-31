@@ -34,12 +34,6 @@ internal class ImService : Service() {
 
         // 客户端版本
         const val CLIENT_VERSION = 200
-
-        // token在sp中的key
-        const val SP_KEY_TOKEN = "token"
-
-        // 最后一次登录的用户信息Key
-        const val SP_KEY_LAST_LOGIN_USER = "lastLoginUser"
     }
 
     // 推荐连接的服务器信息
@@ -153,8 +147,8 @@ internal class ImService : Service() {
      * 移除token
      */
     fun clearToken() {
-        dbDao.deleteConfig(SP_KEY_TOKEN)
-        dbDao.deleteConfig(SP_KEY_LAST_LOGIN_USER)
+        dbDao.deleteConfig(Constant.Key.TOKEN)
+        dbDao.deleteConfig(Constant.Key.LAST_LOGIN_USER)
     }
 
     /**
@@ -162,7 +156,7 @@ internal class ImService : Service() {
      */
     fun saveLastLoginUser() {
         userInfo?.let {
-            dbDao.putConfigValue(SP_KEY_LAST_LOGIN_USER, mGson.toJson(it))
+            dbDao.putConfigValue(Constant.Key.LAST_LOGIN_USER, mGson.toJson(it))
         }
     }
 

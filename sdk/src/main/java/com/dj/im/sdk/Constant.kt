@@ -91,6 +91,21 @@ internal object Constant {
     }
 
     /**
+     * 保存在数据库中的配置数据key
+     */
+    object Key {
+        /**
+         * 登录token
+         */
+        const val TOKEN = "token"
+
+        /**
+         * 最后一次登录的用户信息
+         */
+        const val LAST_LOGIN_USER = "lastLoginUser"
+    }
+
+    /**
      * 消息内容（data）的最大长度
      */
     const val MESSAGE_DATA_MAX_LENGTH = 15000
