@@ -56,4 +56,9 @@ open class ImListener {
      * 连接发生变化
      */
     open fun onConnect(isConnect: Boolean) {}
+
+    /**
+     * 消息撤回
+     */
+    open fun onRevokeMessage(conversationKey: String, messageId: Long) {}
 }

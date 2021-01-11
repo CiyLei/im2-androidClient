@@ -30,7 +30,8 @@ object MessageConvertUtil {
             prMessage.data,
             prMessage.summary,
             prMessage.createTime,
-            ImMessage.State.SUCCESS
+            ImMessage.State.SUCCESS,
+            prMessage.revoke
         )
     }
 

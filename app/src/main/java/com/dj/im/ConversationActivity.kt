@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
@@ -55,6 +56,7 @@ class ConversationActivity : BaseActivity() {
     private val mAdapter = object :
         BaseQuickAdapter<Conversation, BaseViewHolder>(R.layout.item_conversation, mConversations) {
         override fun convert(helper: BaseViewHolder, item: Conversation?) {
+            val lastMessage = item?.lastMessage()
             if (item is SingleConversation) {
                 if (item.getOtherSideUserInfo()?.getAvatarHttpUrl()?.isNotEmpty() == true) {
                     Glide.with(this@ConversationActivity)
@@ -73,7 +75,6 @@ class ConversationActivity : BaseActivity() {
                     )
                 }
                 helper.setText(R.id.tvUnreadCount, item.unReadCount.toString())
-                val lastMessage = item.lastMessage()
                 if (lastMessage?.getUnReadUserIdList()?.size == 0 || lastMessage?.imMessage?.fromUserName != DJIM.getUserInfo()?.userName) {
                     helper.setText(
                         R.id.tvMessage,
@@ -96,7 +97,6 @@ class ConversationActivity : BaseActivity() {
                     )
                 }
                 helper.setText(R.id.tvUnreadCount, item.unReadCount.toString())
-                val lastMessage = item.lastMessage()
                 if (lastMessage?.getUnReadUserIdList()?.size == 0 || lastMessage?.imMessage?.fromUserName != DJIM.getUserInfo()?.userName) {
                     helper.setText(
                         R.id.tvMessage,
@@ -112,6 +112,11 @@ class ConversationActivity : BaseActivity() {
                     )
                 }
             }
+            val summary = helper.getView<TextView>(R.id.tvMessage).text.toString()
+            helper.setText(
+                R.id.tvMessage,
+                if (lastMessage?.imMessage?.revoke == true) "消息被撤销" else summary
+            )
         }
 
     }
@@ -135,7 +140,8 @@ class ConversationActivity : BaseActivity() {
 
         override fun onLogin(code: Int, message: String) {
             if (code == ResultEnum.Success.code) {
-                getSharedPreferences("djim", Activity.MODE_PRIVATE).edit().putString("token", mToken).apply()
+                getSharedPreferences("djim", Activity.MODE_PRIVATE).edit()
+                    .putString("token", mToken).apply()
             } else {
                 startActivity(Intent(this@ConversationActivity, MainActivity::class.java))
                 finish()

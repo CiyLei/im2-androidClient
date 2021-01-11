@@ -3,8 +3,10 @@ package com.dj.im
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.view.View
 import cn.jiguang.imui.chatinput.listener.OnMenuClickListener
 import cn.jiguang.imui.chatinput.listener.RecordVoiceListener
 import cn.jiguang.imui.chatinput.model.FileItem
@@ -37,7 +39,23 @@ class ChatActivity : BaseActivity() {
 
     // 消息列表
     private val mMessageList = ArrayList<Message>()
-    private val mAdapter by lazy { ChatAdapter(this, mMessageList, rvMessageList) }
+    private val mAdapter by lazy {
+        ChatAdapter(this, mMessageList, rvMessageList).apply {
+            onItemLongClickListener = object : ChatAdapter.OnItemLongClickListener {
+                // 长按
+                override fun onItemLongClick(view: View) {
+                    val position = rvMessageList.getChildAdapterPosition(view)
+                    val message = mMessageList[position]
+                    if (message.isSelfSend() && !message.imMessage.revoke) {
+                        AlertDialog.Builder(this@ChatActivity).setTitle("撤回消息")
+                            .setPositiveButton("确认") { _, _ ->
+                                mConversation.revokeMessage(message.imMessage.id)
+                            }.setNegativeButton("取消") { _, _ -> }.show()
+                    }
+                }
+            }
+        }
+    }
 
     // 监听会话的消息
     private val mConversationListener = object : Conversation.ConversationListener {
@@ -59,6 +77,13 @@ class ChatActivity : BaseActivity() {
 
         override fun onUserInfoChange(userId: Long) {
             mAdapter.notifyDataSetChanged()
+        }
+
+        override fun onRevokeMessage(messageId: Long) {
+            mMessageList.indexOfFirst { it.imMessage.id == messageId }.let {
+                mMessageList[it].imMessage.revoke = true
+                mAdapter.notifyItemChanged(it)
+            }
         }
 
     }
@@ -142,7 +167,10 @@ class ChatActivity : BaseActivity() {
                 if (input?.isNotBlank() == true) {
                     // 发送消息
                     mConversation.sendMessage(TextMessage(input.toString()))
-                    (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
+                    (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
+                        0,
+                        0
+                    )
                 }
                 return true
             }
@@ -151,7 +179,10 @@ class ChatActivity : BaseActivity() {
                 list?.filter { it.type == FileItem.Type.Image }?.forEach {
                     // 发送图片消息
                     mConversation.sendMessage(ImageMessage(File(it.filePath)))
-                    (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
+                    (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
+                        0,
+                        0
+                    )
                 }
             }
         })
@@ -161,7 +192,10 @@ class ChatActivity : BaseActivity() {
                 if (voiceFile != null) {
                     // 发送语音消息
                     mConversation.sendMessage(VoiceMessage(voiceFile, duration.toFloat()))
-                    (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
+                    (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
+                        0,
+                        0
+                    )
                 }
             }
 
@@ -206,7 +240,10 @@ class ChatActivity : BaseActivity() {
             FileUtils.getPath(this, data.data)?.let {
                 // 发送文件消息
                 mConversation.sendMessage(FileMessage(File(it)))
-                (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
+                (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
+                    0,
+                    0
+                )
             }
         }
     }

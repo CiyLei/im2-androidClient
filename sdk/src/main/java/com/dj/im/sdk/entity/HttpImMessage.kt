@@ -16,6 +16,7 @@ internal data class HttpImMessage(
     val data: String,
     val summary: String,
     val createTime: Long,
+    val revoke: Boolean,
     val unReadUserName: List<String>
 ) : Serializable {
 
@@ -35,7 +36,8 @@ internal data class HttpImMessage(
             data,
             summary,
             createTime = createTime,
-            unReadUserName = ArrayList(unReadUserName)
+            unReadUserName = ArrayList(unReadUserName),
+            revoke = revoke
         )
     }
 }

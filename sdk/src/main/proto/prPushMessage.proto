@@ -23,4 +23,6 @@ message PushMessageResponse {
     int64 createTime = 9;
     // 未读用户id列表
     repeated string unReadUserNameList = 10;
+    // 撤销状态
+    bool revoke = 11;
 }

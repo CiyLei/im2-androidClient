@@ -14,6 +14,7 @@ import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.task.HttpGetHistoryMessageListTask
 import com.dj.im.sdk.task.ReadConversationTask
+import com.dj.im.sdk.task.RevokeMessageTask
 import io.reactivex.disposables.CompositeDisposable
 import kotlin.random.Random
 
@@ -36,6 +37,7 @@ abstract class Conversation {
         fun onChaneMessageState(messageId: Long, state: Int)
         fun onConversationRead()
         fun onUserInfoChange(userId: Long)
+        fun onRevokeMessage(messageId: Long)
     }
 
     /**
@@ -94,6 +96,13 @@ abstract class Conversation {
 
         override fun onUserInfoChange(userId: Long) {
             conversationListener?.onUserInfoChange(userId)
+        }
+
+        override fun onRevokeMessage(conversationKey: String, messageId: Long) {
+            if (conversationKey == getConversationKey()) {
+                // 如果是自己会话中的消息被撤回，更新回调
+                conversationListener?.onRevokeMessage(messageId)
+            }
         }
     }
 
@@ -292,5 +301,13 @@ abstract class Conversation {
         mHandler.post {
             event.invoke(netSuccess, messageList)
         }
+    }
+
+    /**
+     * 撤回消息
+     * @param messageId 消息id
+     */
+    fun revokeMessage(messageId: Long) {
+        ServiceManager.instance.sendTask(RevokeMessageTask(messageId))
     }
 }

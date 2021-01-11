@@ -95,6 +95,12 @@ data class ImMessage(
     var state: Int = State.SUCCESS,
 
     /**
+     * 撤回状态
+     */
+    @ColumnInfo(name = "revoke")
+    var revoke: Boolean = false,
+
+    /**
      * 临时的未读消息列表
      */
     @Ignore
@@ -173,6 +179,7 @@ data class ImMessage(
         source.readString(),
         source.readLong(),
         source.readInt(),
+        source.readByte() != 0.toByte(),
         ArrayList<String>().apply { source.readList(this, String::class.java.classLoader) }
     )
 
@@ -191,6 +198,7 @@ data class ImMessage(
         writeString(summary)
         writeLong(createTime)
         writeInt(state)
+        writeByte(if (revoke) 1.toByte() else 0.toByte())
         writeList(unReadUserName)
     }
 
@@ -226,6 +234,7 @@ data class ImMessage(
         summary,
         createTime,
         state,
+        revoke,
         unReadUserName
     )
 }

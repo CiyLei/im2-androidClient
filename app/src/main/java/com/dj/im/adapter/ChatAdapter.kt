@@ -2,6 +2,7 @@ package com.dj.im.adapter
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
+import android.view.View
 import android.view.ViewGroup
 import com.dj.im.sdk.convert.message.Message
 import com.dj.im.sdk.entity.*
@@ -17,6 +18,8 @@ class ChatAdapter(
         var touched = false
     }
 
+    var onItemLongClickListener: OnItemLongClickListener? = null
+
     init {
         // 初始化
         touched = false
@@ -30,6 +33,11 @@ class ChatAdapter(
             ImMessage.Type.BIG_TEXT -> BigTextViewHolder(mContext, p0).apply { init() }
             ImMessage.Type.FILE -> FileViewHolder(mContext, p0).apply { init() }
             else -> TextViewHolder(mContext, p0).apply { init() }
+        }.apply {
+            itemView.setOnLongClickListener {
+                onItemLongClickListener?.onItemLongClick(it)
+                false
+            }
         }
     }
 
@@ -60,4 +68,7 @@ class ChatAdapter(
 
     override fun getItemCount(): Int = mData.size
 
+    interface OnItemLongClickListener {
+        fun onItemLongClick(view: View)
+    }
 }

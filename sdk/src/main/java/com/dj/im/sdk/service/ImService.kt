@@ -85,6 +85,7 @@ internal class ImService : Service() {
         pushHandler[Constant.CMD.PUSH_CONVERSATION] = PushConversationHandler(this)
         pushHandler[Constant.CMD.PUSH_READ_CONVERSATION] = PushReadConversationHandler(this)
         pushHandler[Constant.CMD.OFFLINE] = OfflineHandler(this)
+        pushHandler[Constant.CMD.PUSH_REVOKE_MESSAGE] = RevokeMessageHandler(this)
         Mars.loadDefaultMarsLibrary()
         dbDao = ImDbDao(this)
         ServiceManager.instance.dbDao = dbDao

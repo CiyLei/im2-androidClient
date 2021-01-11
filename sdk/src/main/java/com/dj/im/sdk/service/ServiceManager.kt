@@ -87,6 +87,15 @@ internal class ServiceManager private constructor() : ServiceConnection {
         }
 
         /**
+         * 消息撤回
+         */
+        override fun onRevokeMessage(conversationKey: String, messageId: Long) {
+            mHandler.post {
+                imListeners.forEach { it.onRevokeMessage(conversationKey, messageId) }
+            }
+        }
+
+        /**
          * 服务连接监听
          */
         override fun onLogin(code: Int, message: String) {

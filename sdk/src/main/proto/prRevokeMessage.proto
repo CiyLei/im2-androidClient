@@ -1,0 +1,15 @@
+syntax = "proto3";
+option java_package = "com.dj.im.sdk.proto";
+option java_outer_classname = "PrRevokeMessage";
+
+message RevokeMessageRequest {
+    // 需要撤回的消息id
+    int64 messageId = 1;
+}
+
+message RevokeMessageResponse {
+    // 撤回的消息id
+    int64 messageId = 1;
+    // 撤回消息的会话key
+    string conversationKey = 2;
+}

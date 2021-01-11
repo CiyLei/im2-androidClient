@@ -34,6 +34,7 @@ abstract class ImMessageViewHolder<V : View, M : Message>(
     val ivAvatar = itemView.findViewById<ImageView>(R.id.ivAvatar)
     val tvIsRead = itemView.findViewById<TextView>(R.id.tvIsRead)
     val tvState = itemView.findViewById<TextView>(R.id.tvState)
+    val tvRevoke = itemView.findViewById<TextView>(R.id.tvRevoke)
     val llMessage = itemView.findViewById<LinearLayout>(R.id.llMessage)
     val flMessage = itemView.findViewById<FrameLayout>(R.id.flMessage)
     lateinit var messageView: V
@@ -54,7 +55,10 @@ abstract class ImMessageViewHolder<V : View, M : Message>(
         tvUserName.text =
             message.getFromUser()?.alias ?: message.imMessage.fromUserName
         tvIsRead.visibility =
-            if (self && message.imMessage.state == ImMessage.State.SUCCESS) View.VISIBLE else View.INVISIBLE
+            if (self && message.imMessage.state == ImMessage.State.SUCCESS && !message.imMessage.revoke)
+                View.VISIBLE
+            else
+                View.INVISIBLE
         tvIsRead.text = if (message.getUnReadUserIdList().isEmpty()) "已读" else "未读"
         tvIsRead.setTextColor(
             if (message.getUnReadUserIdList().isEmpty()) Color.GRAY else Color.BLUE
@@ -62,7 +66,14 @@ abstract class ImMessageViewHolder<V : View, M : Message>(
         tvState.text = arrayOf("发送成功", "发送中", "发送失败")[message.imMessage.state]
         flMessage.setBackgroundResource(if (self) R.drawable.bg_chat_self else R.drawable.bg_chat_other)
         loadAvatar(message.getFromUser()?.getAvatarHttpUrl(), ivAvatar)
-        onMessage(self, messageView, message)
+        tvRevoke.visibility = if (message.imMessage.revoke) View.VISIBLE else View.GONE
+        flMessage.visibility = if (message.imMessage.revoke) View.GONE else View.VISIBLE
+        if (message.imMessage.revoke) {
+            // 消息已撤回
+            tvRevoke.gravity = if (self) Gravity.END else Gravity.START
+        } else {
+            onMessage(self, messageView, message)
+        }
     }
 
     private fun isSelf(message: M): Boolean =

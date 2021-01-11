@@ -56,6 +56,16 @@ internal object Constant {
          * 获取群信息
          */
         var GET_GROUP_INFO = 1011
+
+        /**
+         * 请求撤回消息
+         */
+        var REVOKE_MESSAGE = 1012
+
+        /**
+         * 推送撤回消息
+         */
+        var PUSH_REVOKE_MESSAGE = 1013
     }
 
     object URL {

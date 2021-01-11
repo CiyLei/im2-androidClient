@@ -12,4 +12,5 @@ interface IMarsListener {
     void onChangeConversationRead(String conversationKey);
     void onOffline(int code, String message);
     void onConnect(boolean isConnect);
+    void onRevokeMessage(String conversationKey, long messageId);
 }
