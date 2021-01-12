@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.view.View
+import cn.jiguang.imui.chatinput.emoji.EmoticonsKeyboardUtils
+import cn.jiguang.imui.chatinput.listener.OnCameraCallbackListener
 import cn.jiguang.imui.chatinput.listener.OnMenuClickListener
 import cn.jiguang.imui.chatinput.listener.RecordVoiceListener
 import cn.jiguang.imui.chatinput.model.FileItem
@@ -127,6 +129,11 @@ class ChatActivity : BaseActivity() {
         // 已读消息
         mConversation.read()
 
+        rvMessageList.onDownSlideListener = object : ImRecyclerView.OnDownSlideListener {
+            override fun onDownSlide() {
+                EmoticonsKeyboardUtils.closeSoftKeyboard(this@ChatActivity)
+            }
+        }
         rvMessageList.adapter = mAdapter
         srl.setOnRefreshListener {
             // 刷新获取历史消息
@@ -168,6 +175,30 @@ class ChatActivity : BaseActivity() {
                     )
                 }
             }
+        })
+        chat_input.setOnCameraCallbackListener(object : OnCameraCallbackListener {
+            override fun onTakePictureCompleted(photoPath: String?) {
+                runOnUiThread {
+                    mConversation.sendMessage(ImageMessage(File(photoPath)))
+                    rvMessageList.getImLayoutManager().scrollToPositionWithOffset(0, 0)
+                }
+            }
+
+            override fun onStartVideoRecord() {
+
+            }
+
+            override fun onFinishVideoRecord(videoPath: String?) {
+                runOnUiThread {
+                    mConversation.sendMessage(FileMessage(File(videoPath)))
+                    rvMessageList.getImLayoutManager().scrollToPositionWithOffset(0, 0)
+                }
+            }
+
+            override fun onCancelVideoRecord() {
+
+            }
+
         })
         chat_input.setRecordVoiceListener(object : RecordVoiceListener {
 

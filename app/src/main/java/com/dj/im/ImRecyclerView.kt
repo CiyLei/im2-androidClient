@@ -5,6 +5,7 @@ import android.graphics.Rect
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
+import android.view.MotionEvent
 import cn.jiguang.imui.chatinput.emoji.EmoticonsKeyboardUtils.dip2px
 
 /**
@@ -16,6 +17,11 @@ class ImRecyclerView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyle: Int = 0
 ) : RecyclerView(context, attrs, defStyle) {
+
+    var onDownSlideListener: OnDownSlideListener? = null
+
+    var mDownY = 0f
+    private var mOnDownSlideFlag = false
 
     private var mImLayoutManager: LinearLayoutManager = object : LinearLayoutManager(context) {
         /**
@@ -55,4 +61,31 @@ class ImRecyclerView @JvmOverloads constructor(
     }
 
     fun getImLayoutManager(): LinearLayoutManager = mImLayoutManager
+
+    override fun onInterceptTouchEvent(e: MotionEvent?): Boolean {
+        when (e?.action) {
+            MotionEvent.ACTION_DOWN -> {
+                mDownY = e.y
+                mOnDownSlideFlag = false
+            }
+        }
+        return super.onInterceptTouchEvent(e)
+    }
+
+    override fun onTouchEvent(e: MotionEvent?): Boolean {
+        when (e?.action) {
+            MotionEvent.ACTION_MOVE -> {
+                println(e.y - mDownY)
+                if (e.y - mDownY > 100 && !mOnDownSlideFlag) {
+                    mOnDownSlideFlag = true
+                    onDownSlideListener?.onDownSlide()
+                }
+            }
+        }
+        return super.onTouchEvent(e)
+    }
+
+    interface OnDownSlideListener {
+        fun onDownSlide()
+    }
 }
