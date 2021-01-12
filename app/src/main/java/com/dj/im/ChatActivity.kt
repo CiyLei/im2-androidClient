@@ -2,6 +2,7 @@ package com.dj.im
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
@@ -36,6 +37,11 @@ class ChatActivity : BaseActivity() {
     }
 
     private lateinit var mConversation: Conversation
+
+    // 消息列表上次的大小，监听键盘，保持底部不变
+    private var mPreHeight = 0
+
+    private lateinit var mLinearLayoutManager: LinearLayoutManager
 
     // 消息列表
     private val mMessageList = ArrayList<Message>()
@@ -129,7 +135,7 @@ class ChatActivity : BaseActivity() {
         // 已读消息
         mConversation.read()
 
-        rvMessageList.layoutManager = object : LinearLayoutManager(this) {
+        mLinearLayoutManager = object : LinearLayoutManager(this) {
             /**
              * 设置预留空间比图片消息的最大高再高一点
              * 这样加载图片的时候就一定会提前加载加载，不会突兀，增加用户体验
@@ -144,6 +150,7 @@ class ChatActivity : BaseActivity() {
             // 滚到底部
             scrollToPositionWithOffset(0, 0)
         }
+        rvMessageList.layoutManager = mLinearLayoutManager
         rvMessageList.adapter = mAdapter
         srl.setOnRefreshListener {
             // 刷新获取历史消息
@@ -167,7 +174,7 @@ class ChatActivity : BaseActivity() {
                 if (input?.isNotBlank() == true) {
                     // 发送消息
                     mConversation.sendMessage(TextMessage(input.toString()))
-                    (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
+                    mLinearLayoutManager.scrollToPositionWithOffset(
                         0,
                         0
                     )
@@ -179,7 +186,7 @@ class ChatActivity : BaseActivity() {
                 list?.filter { it.type == FileItem.Type.Image }?.forEach {
                     // 发送图片消息
                     mConversation.sendMessage(ImageMessage(File(it.filePath)))
-                    (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
+                    mLinearLayoutManager.scrollToPositionWithOffset(
                         0,
                         0
                     )
@@ -192,7 +199,7 @@ class ChatActivity : BaseActivity() {
                 if (voiceFile != null) {
                     // 发送语音消息
                     mConversation.sendMessage(VoiceMessage(voiceFile, duration.toFloat()))
-                    (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
+                    mLinearLayoutManager.scrollToPositionWithOffset(
                         0,
                         0
                     )
@@ -226,6 +233,21 @@ class ChatActivity : BaseActivity() {
             intent.setType("*/*")
             this.startActivityForResult(intent, 12345)
         }
+
+        // 监听键盘出现，保存消息列表在底部
+        rvMessageList.viewTreeObserver.addOnGlobalLayoutListener {
+            val rect = Rect()
+            rvMessageList.getWindowVisibleDisplayFrame(rect)
+            if (mPreHeight == 0) {
+                mPreHeight = rect.height()
+            } else {
+                val diff = rect.height() - mPreHeight
+                if (diff < 0) {
+                    rvMessageList.scrollBy(0, -diff)
+                }
+                mPreHeight = rect.height()
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -240,7 +262,7 @@ class ChatActivity : BaseActivity() {
             FileUtils.getPath(this, data.data)?.let {
                 // 发送文件消息
                 mConversation.sendMessage(FileMessage(File(it)))
-                (rvMessageList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
+                mLinearLayoutManager.scrollToPositionWithOffset(
                     0,
                     0
                 )
