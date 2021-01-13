@@ -94,7 +94,7 @@ internal class MarsCallBack(private val mService: ImService, private val mToken:
      * @param longlinkstatus    仅长连的状态
      */
     override fun reportConnectInfo(status: Int, longlinkstatus: Int) {
-        mService.isConnected = longlinkstatus == StnLogic.CONNECTED
+        mService.isConnected = longlinkstatus == 3
         mService.marsListener?.onConnect(mService.isConnected)
     }
 
