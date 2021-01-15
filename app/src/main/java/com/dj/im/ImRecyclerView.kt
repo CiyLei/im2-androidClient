@@ -20,9 +20,6 @@ class ImRecyclerView @JvmOverloads constructor(
 
     var onDownSlideListener: OnDownSlideListener? = null
 
-    var mDownY = 0f
-    private var mOnDownSlideFlag = false
-
     private var mImLayoutManager: LinearLayoutManager = object : LinearLayoutManager(context) {
         /**
          * 设置预留空间比图片消息的最大高再高一点
@@ -65,24 +62,10 @@ class ImRecyclerView @JvmOverloads constructor(
     override fun onInterceptTouchEvent(e: MotionEvent?): Boolean {
         when (e?.action) {
             MotionEvent.ACTION_DOWN -> {
-                mDownY = e.y
-                mOnDownSlideFlag = false
+                onDownSlideListener?.onDownSlide()
             }
         }
         return super.onInterceptTouchEvent(e)
-    }
-
-    override fun onTouchEvent(e: MotionEvent?): Boolean {
-        when (e?.action) {
-            MotionEvent.ACTION_MOVE -> {
-                println(e.y - mDownY)
-                if (e.y - mDownY > 100 && !mOnDownSlideFlag) {
-                    mOnDownSlideFlag = true
-                    onDownSlideListener?.onDownSlide()
-                }
-            }
-        }
-        return super.onTouchEvent(e)
     }
 
     interface OnDownSlideListener {
