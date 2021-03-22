@@ -9,10 +9,10 @@ uploadArchives {
     //仓库基于maven
     repositories.mavenDeployer {
         //配置上传的url
-        repository(url: "http://172.17.0.75:8081/repository/maven-releases/") {
+        repository(url: "http://192.168.0.236:8081/repository/maven-releases/") {
         }
 
-        snapshotRepository(url: "http://172.17.0.75:8081/repository/maven-snapshots/") {
+        snapshotRepository(url: "http://192.168.0.236:8081/repository/maven-snapshots/") {
         }
         pom.project {
             version "0.0.4-SNAPSHOT"

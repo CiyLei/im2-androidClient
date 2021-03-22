@@ -6,6 +6,7 @@ import com.dj.im.sdk.convert.send.AbsSendMessageTask
 import com.dj.im.sdk.entity.ImMessage
 import com.dj.im.sdk.proto.PrResponseMessage
 import com.dj.im.sdk.proto.PrSendMessage
+import com.dj.im.sdk.service.ServiceManager
 
 /**
  * Create by ChenLei on 2020/4/20
@@ -38,6 +39,7 @@ open class SendTextMessageTask : AbsSendMessageTask() {
         val response = PrResponseMessage.Response.parseFrom(buf)
         if (response.success) {
             val result = PrSendMessage.SendMessageResponse.parseFrom(response.data)
+            notifyChangeMessageId(getMessage().imMessage.id, result.id)
             getMessage().imMessage.id = result.id
             getMessage().imMessage.createTime = result.createTime
             // 还是发送中的状态，等kafka的回调
@@ -47,6 +49,17 @@ open class SendTextMessageTask : AbsSendMessageTask() {
         } else {
             // 发送失败
             getMessage().imMessage.state = ImMessage.State.FAIL
+        }
+    }
+
+    /**
+     * 通知更新消息id更换
+     */
+    private fun notifyChangeMessageId(oldMessageId: Long, newMessageId: Long) {
+        mainHandler.post {
+            ServiceManager.instance.imListeners.forEach {
+                it.onChangeMessageId(oldMessageId, newMessageId)
+            }
         }
     }
 

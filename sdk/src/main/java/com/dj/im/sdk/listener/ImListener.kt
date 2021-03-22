@@ -28,6 +28,12 @@ open class ImListener {
     open fun onChangeMessageSendState(conversationKey: String, messageId: Long, state: Int) {}
 
     /**
+     * 消息本地id转为服务器id的回调
+     * 发送消息时，消息的id是本地随机生成的，发送成功后会由服务器指定，这是会回调
+     */
+    open fun onChangeMessageId(oldMessageId: Long, newMessageId: Long) {}
+
+    /**
      * 会话发生了变化
      */
     open fun onChangeConversions() {}

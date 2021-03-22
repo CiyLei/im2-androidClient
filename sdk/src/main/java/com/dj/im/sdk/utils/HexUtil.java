@@ -12,7 +12,7 @@ public class HexUtil {
     // 十六进制转字符串的对照表
     private static final char[] KEY_CHARS = new char[]{'东', '经', '为', '价', '值', '而', '奋', '斗', '用', '户', '至', '上', '积', '极', '主', '动'};
     // KEY_CHARS的对照表
-    private static Map<Character, Integer> KEY_CHARS_MAP = new HashMap<>();
+    private static final Map<Character, Integer> KEY_CHARS_MAP = new HashMap<>();
 
     static {
         for (int i = 0; i < KEY_CHARS.length; i++) {
