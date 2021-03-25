@@ -126,8 +126,8 @@ abstract class Conversation {
             // 虽然这时候id是随机虚假的，这个未读的列表关联的是假的id，但是这条消息并不会保存
             // 之后发生成功了，才会保存消息，那时会在保存一次未读列表，那时会正确的关联
             addUnReadUser(sendMessageTask.getMessage())
-            // 只保存到内存中
-            addMessage(sendMessageTask.getMessage())
+            // 触发全局的回调
+            DJIM.getImListeners().forEach { it.onPushMessage(sendMessageTask.getMessage()) }
             return true
         }
         return false

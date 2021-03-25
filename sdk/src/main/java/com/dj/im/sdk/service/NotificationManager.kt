@@ -18,7 +18,10 @@ internal class NotificationManager(val mContext: Context) {
         // 监听消息推送
         ServiceManager.instance.imListeners.add(object : ImListener() {
             override fun onPushMessage(message: Message) {
-                pushMessage(message)
+                // 不是自己发送的消息推送过来，才通知
+                if (!message.isSelfSend()) {
+                    pushMessage(message)
+                }
             }
         })
     }

@@ -15,7 +15,7 @@ open class ImListener {
     open fun onLogin(code: Int, message: String) {}
 
     /**
-     * 有消息推送的回调
+     * 有消息推送的回调（自己发送消息也会回调）
      */
     open fun onPushMessage(message: Message) {}
 
