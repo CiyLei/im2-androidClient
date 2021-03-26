@@ -14,7 +14,6 @@ import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.task.HttpGetHistoryMessageListTask
 import com.dj.im.sdk.task.ReadConversationTask
-import com.dj.im.sdk.task.RevokeMessageTask
 import io.reactivex.disposables.CompositeDisposable
 import kotlin.random.Random
 
@@ -308,6 +307,6 @@ abstract class Conversation {
      * @param messageId 消息id
      */
     fun revokeMessage(messageId: Long) {
-        ServiceManager.instance.sendTask(RevokeMessageTask(messageId))
+        DJIM.revokeMessage(messageId)
     }
 }

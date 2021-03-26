@@ -14,6 +14,7 @@ import com.dj.im.sdk.listener.ImListener
 import com.dj.im.sdk.service.ServiceManager
 import com.dj.im.sdk.task.HttpGetGroupInfoTask
 import com.dj.im.sdk.task.HttpGetUserInfoByNames
+import com.dj.im.sdk.task.RevokeMessageTask
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -138,6 +139,13 @@ object DJIM {
             return groupInfo
         }
         return null
+    }
+
+    /**
+     * 撤回消息
+     */
+    fun revokeMessage(messageId: Long) {
+        ServiceManager.instance.sendTask(RevokeMessageTask(messageId))
     }
 
     /**
