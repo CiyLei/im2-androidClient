@@ -121,9 +121,9 @@ internal class ServiceManager private constructor() : ServiceConnection {
         /**
          * 会话已读监听
          */
-        override fun onChangeConversationRead(conversationKey: String) {
+        override fun onChangeConversationRead(conversationKey: String, readUserName: String) {
             mHandler.post {
-                imListeners.forEach { it.onChangeConversationRead(conversationKey) }
+                imListeners.forEach { it.onChangeConversationRead(conversationKey, readUserName) }
             }
         }
 

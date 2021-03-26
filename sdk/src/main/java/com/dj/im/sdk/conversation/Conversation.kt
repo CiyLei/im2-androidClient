@@ -87,7 +87,7 @@ abstract class Conversation {
             }
         }
 
-        override fun onChangeConversationRead(conversationKey: String) {
+        override fun onChangeConversationRead(conversationKey: String, readUserName: String) {
             if (conversationKey == getConversationKey()) {
                 // 如果是自己的会话被对方已读，更新回调
                 conversationListener?.onConversationRead()

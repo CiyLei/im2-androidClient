@@ -36,7 +36,7 @@ internal class PushReadConversationHandler(private val mService: ImService) : IP
                 readResponse.conversationKey,
                 readResponse.readUserName
             )
-            mService.marsListener?.onChangeConversationRead(readResponse.conversationKey)
+            mService.marsListener?.onChangeConversationRead(readResponse.conversationKey, readResponse.readUserName)
             mService.marsListener?.onChangeConversions()
         }
     }

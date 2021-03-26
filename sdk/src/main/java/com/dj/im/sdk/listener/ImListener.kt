@@ -41,7 +41,7 @@ open class ImListener {
     /**
      * 会话已读监听
      */
-    open fun onChangeConversationRead(conversationKey: String) {}
+    open fun onChangeConversationRead(conversationKey: String, readUserName: String) {}
 
     /**
      * 离线监听
